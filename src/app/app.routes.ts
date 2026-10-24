@@ -1,6 +1,11 @@
 
 import { Routes } from '@angular/router';
+import { AdminLayout } from './layouts/admin-layout/admin-layout';
 
+export const routes: Routes = [
+  {
+    path: '',
+    component: AdminLayout
 import { Login } from './features/auth/login/login';
 import { Register } from './features/auth/register/register';
 import { TwoFactor } from './features/auth/two-factor/two-factor';

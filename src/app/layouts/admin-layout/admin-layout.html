@@ -1,1 +1,29 @@
-<p>admin-layout works!</p>
+
+<div class="admin-dashboard">
+  <h2>Admin Dashboard</h2>
+  <p class="subtitle">Insurance Management System</p>
+
+  <div class="dashboard-cards">
+
+    <div class="dashboard-card total-users">
+      <h3>Total Users</h3>
+      <p>{{ metrics.totalUsers }}</p>
+    </div>
+
+    <div class="dashboard-card active-users">
+      <h3>Active Users</h3>
+      <p>{{ metrics.activeUsers }}</p>
+    </div>
+
+    <div class="dashboard-card locked-users">
+      <h3>Locked Users</h3>
+      <p>{{ metrics.lockedUsers }}</p>
+    </div>
+
+    <div class="dashboard-card total-roles">
+      <h3>Total Roles</h3>
+      <p>{{ metrics.totalRoles }}</p>
+    </div>
+
+  </div>
+</div>
