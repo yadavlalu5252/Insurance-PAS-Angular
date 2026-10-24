@@ -1,6 +1,5 @@
-
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { Injectable } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
 
 interface LoginRequest {
@@ -11,78 +10,53 @@ interface LoginRequest {
 interface LoginResponse {
   accessToken: string;
 }
-import { Injectable } from '@angular/core';
-import { HttpClient,HttpHeaders } from '@angular/common/http';
-import { Observable } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Auth {
-
-  private http = inject(HttpClient);
-
-  private apiUrl = 'https://localhost:7122/api/v1/auth/login';
-
-  login(username: string, password: string): Observable<LoginResponse> {
-    const request: LoginRequest = {
-      username: username,
-      password: password
-    };
-
-    return this.http.post<LoginResponse>(this.apiUrl, request).pipe(
-      tap(response => {
-        localStorage.setItem('accessToken', response.accessToken);
-      })
-    );
   private readonly baseUrl = 'https://localhost:7122/api/v1/auth';
 
   constructor(private http: HttpClient) {}
 
-  login(credentials: { username: string; password: string }): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/login`, credentials);
+  login(username: string, password: string): Observable<LoginResponse> {
+    const request: LoginRequest = { username, password };
+
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, request).pipe(
+      tap(response => {
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('access_token', response.accessToken); // Set both variants to support your 2FA methods
+      })
+    );
   }
 
-verifyTwoFactorLogin(data: {
-  challenge_token: string;
-  code: string;
-}) {
-  return this.http.post(
-    `${this.baseUrl}/2fa/verify-login`,
-    data
-  );
-}
+  verifyTwoFactorLogin(data: { challenge_token: string; code: string }) {
+    return this.http.post(`${this.baseUrl}/2fa/verify-login`, data);
+  }
 
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('access_token') || '';
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
 
+  setupTwoFactor() {
+    return this.http.post(
+      `${this.baseUrl}/2fa/setup`,
+      {},
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
-private getAuthHeaders(): HttpHeaders {
-  const token = localStorage.getItem('access_token') || '';
+  enableTwoFactor(code: string) {
+    return this.http.post(
+      `${this.baseUrl}/2fa/enable`,
+      { code },
+      { headers: this.getAuthHeaders() }
+    );
+  }
 
-  return new HttpHeaders({
-    Authorization: `Bearer ${token}`
-  });
-}
-
-setupTwoFactor() {
-  return this.http.post(
-    `${this.baseUrl}/2fa/setup`,
-    {},
-    { headers: this.getAuthHeaders() }
-  );
-}
-
-enableTwoFactor(code: string) {
-  return this.http.post(
-    `${this.baseUrl}/2fa/enable`,
-    { code },
-    { headers: this.getAuthHeaders() }
-  );
-}
-
-
-
-
-  
   register(data: {
     employee_id: number;
     username: string;

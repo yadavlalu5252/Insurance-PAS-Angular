@@ -1,30 +1,24 @@
-
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import {FormControl,FormGroup,ReactiveFormsModule} from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../product-service';
 
 @Component({
   selector: 'app-product-form',
+  standalone: true,
   imports: [CommonModule, ReactiveFormsModule],
   templateUrl: './product-form.html',
   styleUrl: './product-form.scss'
 })
-export class ProductForm {
+export class ProductForm implements OnInit {
 
   productId: number | null = null;
   isEdit = false;
   errorMessage = '';
-
-  constructor(private ps: ProductService, private route: ActivatedRoute,private router: Router) {
-    this.productId = Number(this.route.snapshot.paramMap.get('id'));
-
-    if (this.productId && !isNaN(this.productId)) {
-      this.isEdit = true;
-      this.GetProduct(this.productId);
-    }
-  }
+  
+  // Declaring the missing array property to fix the HTML compile error
+  categories: any[] = [];
 
   productForm = new FormGroup({
     product_code: new FormControl(''),
@@ -38,6 +32,31 @@ export class ProductForm {
     maximum_sum_insured: new FormControl(''),
     status: new FormControl('Active')
   });
+
+  constructor(private ps: ProductService, private route: ActivatedRoute, private router: Router) {
+    this.productId = Number(this.route.snapshot.paramMap.get('id'));
+
+    if (this.productId && !isNaN(this.productId)) {
+      this.isEdit = true;
+      this.GetProduct(this.productId);
+    }
+  }
+
+  ngOnInit(): void {
+    this.LoadCategories();
+  }
+
+  LoadCategories() {
+    // Fetches categories from service to fill the dropdown menu options
+    this.ps.getCategories?.().subscribe({
+      next: (res: any) => {
+        this.categories = res.data ?? res;
+      },
+      error: (err: any) => {
+        console.error('Failed to load categories', err);
+      }
+    });
+  }
 
   GetProduct(id: number) {
     this.ps.getProductById(id).subscribe({
