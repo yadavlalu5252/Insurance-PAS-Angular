@@ -1,0 +1,18 @@
+<p>service-rider works!</p>
+
+<p>Rider Modification Form works!</p>
+
+<form [formGroup]="riderForm">
+  {{ riderForm.value | json }} <br /> <br />
+
+  Rider ID
+  <input type="number" class="form-control" formControlName="rider_id"> <br /><br />
+
+  Action
+  <select class="form-control" formControlName="action">
+    <option value="Add">Add Rider</option>
+    <option value="Remove">Remove Rider</option>
+  </select> <br /><br />
+
+  <input type="submit" class="btn btn-primary" value="Submit">
+</form>

@@ -1,0 +1,13 @@
+<p>Coverage Update Form works!</p>
+
+<form [formGroup]="coverageForm">
+  {{ coverageForm.value | json }} <br /> <br />
+
+  Coverage ID
+  <input type="number" class="form-control" formControlName="coverage_id"> <br /><br />
+
+  New Sum Insured
+  <input type="number" class="form-control" formControlName="sum_insured"> <br /><br />
+
+  <input type="submit" class="btn btn-primary" value="Submit">
+</form>
