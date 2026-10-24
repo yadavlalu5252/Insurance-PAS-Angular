@@ -1,0 +1,269 @@
+
+<div class="reports-page">
+
+  <nav class="top-nav">
+    <button
+      type="button"
+      class="nav-btn"
+      [class.active]="activeTab === 'reports'"
+      (click)="activeTab = 'reports'">
+      ▦ Reports
+    </button>
+
+    <button
+      type="button"
+      class="nav-btn"
+      [class.active]="activeTab === 'scheduled'"
+      (click)="activeTab = 'scheduled'">
+      ◷ Scheduled Reports
+    </button>
+  </nav>
+
+  <main class="page-content">
+
+    <section class="hero">
+      <span class="eyebrow">REPORTING CENTER</span>
+      <h1>Reports &amp; Analytics</h1>
+      <p>Access insurance data and export reports for your records.</p>
+    </section>
+
+    <ng-container *ngIf="activeTab === 'reports'">
+      <section class="available-section">
+        <div class="section-heading">
+          <h2>Available Reports</h2>
+          <p>Select a report to view its records.</p>
+        </div>
+
+        <div class="report-grid">
+          <button
+            type="button"
+            class="report-card"
+            *ngFor="let report of reports"
+            [class.selected]="selectedReport.report_id === report.report_id"
+            (click)="selectReport(report)">
+
+            <span class="report-icon" [ngSwitch]="report.icon">
+              <span *ngSwitchCase="'users'">♙</span>
+              <span *ngSwitchCase="'shield'">▣</span>
+              <span *ngSwitchCase="'rupee'">₹</span>
+              <span *ngSwitchCase="'file'">▤</span>
+              <span *ngSwitchCase="'check'">◇</span>
+              <span *ngSwitchCase="'user'">♧</span>
+              <span *ngSwitchCase="'chart'">↗</span>
+            </span>
+
+            <span class="report-name">{{ report.name }}</span>
+            <span class="view-link">View report <span aria-hidden="true">→</span></span>
+          </button>
+        </div>
+      </section>
+
+      <section class="viewer-section">
+        <div class="viewer-heading">
+          <div>
+            <span class="eyebrow">REPORT VIEWER</span>
+            <h2>{{ selectedReport.name }}</h2>
+            <p>Select a report to view its latest data.</p>
+          </div>
+
+          <button type="button" class="secondary-btn" (click)="refreshReport()">
+            ↻ Refresh
+          </button>
+        </div>
+
+        <div class="viewer-toolbar">
+          <div class="record-count">
+            <strong>{{ rows.length }}</strong>
+            <span>{{ rows.length === 1 ? 'record' : 'records' }}</span>
+          </div>
+
+          <div class="export-actions">
+            <button type="button" class="export-btn" (click)="exportReport('csv')">
+              CSV
+            </button>
+            <button type="button" class="export-btn" (click)="exportReport('excel')">
+              Excel
+            </button>
+            <button type="button" class="export-btn" (click)="exportReport('pdf')">
+              PDF
+            </button>
+          </div>
+        </div>
+
+        <p class="info-message" *ngIf="selectedReport.name !== 'Financial'">
+          Export is currently available only for the Financial report.
+        </p>
+
+        <div class="loading-state" *ngIf="loading">
+          <span class="loader"></span>
+          <p>Loading {{ selectedReport.name }} report...</p>
+        </div>
+
+        <div class="error-message" *ngIf="errorMessage">
+          {{ errorMessage }}
+        </div>
+
+        <div class="empty-state" *ngIf="!loading && !errorMessage && rows.length === 0">
+          <span class="empty-icon">▤</span>
+          <h3>No records found</h3>
+          <p>There is no data to display for this report.</p>
+        </div>
+
+        <div class="table-wrapper" *ngIf="!loading && rows.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th *ngFor="let column of columns; trackBy: trackByColumn">
+                  {{ formatColumn(column) }}
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr *ngFor="let row of rows; trackBy: trackByRow">
+                <td *ngFor="let column of columns; trackBy: trackByColumn">
+                  {{ getCellValue(row, column) }}
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </ng-container>
+
+    <ng-container *ngIf="activeTab === 'scheduled'">
+      <section class="schedule-section">
+        <div class="section-heading">
+          <span class="eyebrow">AUTOMATION</span>
+          <h2>Scheduled Reports</h2>
+          <p>Choose a report and configure its schedule.</p>
+        </div>
+
+        <form class="schedule-form" (ngSubmit)="saveSchedule()">
+          <div class="form-grid">
+
+            <div class="form-field">
+              <label for="reportType">Report Type</label>
+              <select
+                id="reportType"
+                name="report_id"
+                [(ngModel)]="scheduleForm.report_id"
+                required>
+                <option *ngFor="let report of reports" [ngValue]="report.report_id">
+                  {{ report.name }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="scheduleType">Schedule Type</label>
+              <select
+                id="scheduleType"
+                name="schedule_type"
+                [(ngModel)]="scheduleForm.schedule_type"
+                required>
+                <option *ngFor="let type of scheduleTypes" [value]="type">
+                  {{ type }}
+                </option>
+              </select>
+            </div>
+
+            <div class="form-field">
+              <label for="nextRunDate">Next Run Date</label>
+              <input
+                id="nextRunDate"
+                type="date"
+                name="next_run_date"
+                [(ngModel)]="scheduleForm.next_run_date"
+                required />
+            </div>
+
+            <div class="form-field">
+              <label for="emailTo">Email To</label>
+              <input
+                id="emailTo"
+                type="email"
+                name="email_to"
+                [(ngModel)]="scheduleForm.email_to"
+                placeholder="name@example.com"
+                required />
+            </div>
+          </div>
+
+          <div class="form-footer">
+            <p class="schedule-message" *ngIf="scheduleMessage">
+              {{ scheduleMessage }}
+            </p>
+
+            <button class="primary-btn" type="submit" [disabled]="saving">
+              {{ saving ? 'Saving...' : '+ Add Schedule' }}
+            </button>
+          </div>
+        </form>
+      </section>
+
+      <section class="existing-section">
+        <div class="existing-heading">
+          <div>
+            <h2>Existing Schedules</h2>
+            <p>Manage your scheduled reports.</p>
+          </div>
+
+          <button
+            type="button"
+            class="secondary-btn"
+            (click)="loadSchedules()"
+            [disabled]="scheduleLoading">
+            ↻ Refresh
+          </button>
+        </div>
+
+        <div class="loading-state" *ngIf="scheduleLoading">
+          <span class="loader"></span>
+          <p>Loading schedules...</p>
+        </div>
+
+        <div class="empty-state" *ngIf="!scheduleLoading && schedules.length === 0">
+          <span class="empty-icon">◷</span>
+          <h3>No scheduled reports yet</h3>
+          <p>Your saved schedules will appear here.</p>
+        </div>
+
+        <div class="table-wrapper" *ngIf="!scheduleLoading && schedules.length > 0">
+          <table class="data-table">
+            <thead>
+              <tr>
+                <th>Report</th>
+                <th>Frequency</th>
+                <th>Next Run</th>
+                <th>Email To</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+
+            <tbody>
+              <tr *ngFor="let schedule of schedules; trackBy: trackBySchedule">
+                <td>{{ getReportName(schedule.report_id) }}</td>
+                <td>{{ schedule.schedule_type }}</td>
+                <td>{{ schedule.next_run_date | date:'mediumDate' }}</td>
+                <td>{{ schedule.email_to }}</td>
+                <td>
+                  <span class="status-pill">{{ schedule.status }}</span>
+                </td>
+                <td>
+                  <button
+                    type="button"
+                    class="delete-btn"
+                    (click)="deleteSchedule(schedule)">
+                    Delete
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+    </ng-container>
+
+  </main>
+</div>
