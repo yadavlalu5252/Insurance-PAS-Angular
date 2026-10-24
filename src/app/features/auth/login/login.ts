@@ -25,7 +25,7 @@ export class Login {
     private router: Router
   ) {
     this.loginForm = this.fb.nonNullable.group({
-      username: ['', [Validators.required]],
+      username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
@@ -49,14 +49,15 @@ export class Login {
 
     this.loading = true;
 
-    
-    const credentials = this.loginForm.getRawValue();
-    
-    this.authService.login(credentials.username, credentials.password).subscribe({
+    const { username, password } = this.loginForm.getRawValue();
+
+    this.authService.login(username, password).subscribe({
       next: (response: any) => {
-        this.loading = false;
+        console.log('Login response:', response);
 
         if (response.requires_two_factor && response.challenge_token) {
+          this.loading = false;
+
           this.router.navigate(['/two-factor'], {
             state: {
               challengeToken: response.challenge_token
@@ -65,15 +66,32 @@ export class Login {
           return;
         }
 
-        if (!response.requires_two_factor && response.login?.access_token) {
-          localStorage.setItem('access_token', response.login.access_token);
-          localStorage.setItem('refresh_token', response.login.refresh_token);
+        const loginData = response.login ?? response;
 
-          this.router.navigate(['/two-factor-setup']);
+        if (loginData.access_token || loginData.accessToken) {
+          const accessToken = loginData.access_token ?? loginData.accessToken;
+          const refreshToken = loginData.refresh_token ?? loginData.refreshToken;
+
+          localStorage.setItem('access_token', accessToken);
+
+          if (refreshToken) {
+            localStorage.setItem('refresh_token', refreshToken);
+          }
+
+          this.loading = false;
+
+          // Navigate to the next required page.
+          if (response.requires_two_factor_setup === true || response.requires_two_factor_setup === undefined) {
+            this.router.navigate(['/two-factor-setup']);
+          } else {
+            this.router.navigate(['/reports']);
+          }
+
           return;
         }
 
-        this.errorMessage = 'Unexpected login response. Please try again.';
+        this.loading = false;
+        this.errorMessage = 'Unexpected login response. Check the browser console.';
       },
       error: (error) => {
         console.error('Login failed:', error);
@@ -81,7 +99,7 @@ export class Login {
         this.errorMessage =
           typeof error.error === 'string'
             ? error.error
-            : 'Login failed. Please check your credentials and try again.';
+            : error.error?.message || 'Login failed. Please check your credentials and try again.';
 
         this.loading = false;
       }
