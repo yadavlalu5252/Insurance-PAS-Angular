@@ -46,10 +46,20 @@
           </div>
 
           <div class="col-md-6">
-            <label class="form-label">Category ID *</label>
-            <input type="number" class="form-control"
-                   formControlName="category_id"
-                   placeholder="Enter category ID" required>
+            <label class="form-label">Category *</label>
+            <select class="form-select" formControlName="category_id">
+              <option [ngValue]="null" disabled>Select a category</option>
+              <option *ngFor="let category of categories"
+                      [ngValue]="category.category_id">
+                {{ category.category_name }}
+              </option>
+            </select>
+
+            <div class="text-danger small mt-1"
+                 *ngIf="productForm.get('category_id')?.invalid &&
+                        productForm.get('category_id')?.touched">
+              Please select a category.
+            </div>
           </div>
 
           <div class="col-md-6">
