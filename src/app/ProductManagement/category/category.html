@@ -1,0 +1,99 @@
+
+<div class="container-fluid py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Product Categories</h2>
+      <p class="text-muted mb-0">
+        Create and manage insurance product categories
+      </p>
+    </div>
+
+    <button type="button" class="btn btn-primary"
+            (click)="AddCategory()">
+      + Add Category
+    </button>
+  </div>
+
+  <div class="alert alert-success alert-dismissible"
+       *ngIf="successMessage">
+    {{ successMessage }}
+    <button type="button" class="btn-close"
+            (click)="successMessage = ''"></button>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2">Loading categories...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table table-hover align-middle mb-0">
+
+          <thead class="table-light">
+            <tr>
+              <th>Category ID</th>
+              <th>Category Name</th>
+              <th>Description</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let category of categories">
+              <td>{{ category.category_id }}</td>
+              <td class="fw-semibold">
+                {{ category.category_name }}
+              </td>
+              <td>{{ category.description || '-' }}</td>
+
+              <td>
+                <span class="badge"
+                      [ngClass]="category.status === 'Active'
+                        ? 'text-bg-success'
+                        : 'text-bg-secondary'">
+                  {{ category.status }}
+                </span>
+              </td>
+
+              <td>
+                <div class="d-flex gap-2">
+                  <button type="button"
+                          class="btn btn-sm btn-outline-primary"
+                          (click)="EditCategory(category.category_id)">
+                    Edit
+                  </button>
+
+                  <button type="button"
+                          class="btn btn-sm btn-outline-danger"
+                          *ngIf="category.status === 'Active'"
+                          (click)="DeleteCategory(category.category_id)">
+                    Deactivate
+                  </button>
+                </div>
+              </td>
+            </tr>
+
+            <tr *ngIf="categories.length === 0">
+              <td colspan="5" class="text-center text-muted py-5">
+                No categories found.
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+  </div>
+</div>
