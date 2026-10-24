@@ -1,5 +1,10 @@
 
 import { Routes } from '@angular/router';
+import { Reports } from './reports/reports';
+
+export const routes: Routes = [
+  { path: '', component: Reports },
+  { path: '**', redirectTo: '' }
 import { AdminLayout } from './layouts/admin-layout/admin-layout';
 
 import { Product } from './ProductManagement/product/product';
