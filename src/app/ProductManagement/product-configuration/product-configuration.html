@@ -1,0 +1,853 @@
+
+<div class="container-fluid py-4">
+
+  <!-- PAGE HEADER -->
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Product Configuration</h2>
+      <p class="text-muted mb-0">Configuring Product ID: {{ productId }}</p>
+    </div>
+
+    <button type="button" class="btn btn-outline-secondary"
+            (click)="goToProducts()">
+      Back to Products
+    </button>
+  </div>
+
+  <!-- MESSAGES -->
+  <div class="alert alert-success alert-dismissible"
+       *ngIf="successMessage">
+    {{ successMessage }}
+    <button type="button" class="btn-close"
+            (click)="successMessage = ''"></button>
+  </div>
+
+  <div class="alert alert-danger"
+       *ngIf="errorMessage && !showCoverageModal && !showBenefitModal &&
+       !showRiderModal && !showFrequencyModal && !showCommissionModal &&
+       !showSumInsuredModal && !showActivationModal">
+    {{ errorMessage }}
+  </div>
+
+  <!-- CONFIGURATION CARDS -->
+  <div class="row g-4 mb-4">
+
+    <!-- COVERAGE -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Coverage Management</h5>
+          <p class="text-muted">Configure coverage for this product.</p>
+          <button type="button" class="btn btn-outline-primary w-100"
+                  (click)="openAddCoverage()">
+            Manage Coverage
+          </button>
+          <p class="small text-muted mt-2 mb-0">
+            {{ coverages.length }} coverage record(s)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- BENEFITS -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Benefit Management</h5>
+          <p class="text-muted">Manage benefits for this product.</p>
+          <button type="button" class="btn btn-outline-success w-100"
+                  (click)="openAddBenefit()">
+            Manage Benefits
+          </button>
+          <p class="small text-muted mt-2 mb-0">
+            {{ benefits.length }} benefit record(s)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIDERS -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Rider Management</h5>
+          <p class="text-muted">Manage optional insurance riders.</p>
+          <button type="button" class="btn btn-outline-primary w-100"
+                  (click)="openAddRider()">
+            Manage Riders
+          </button>
+          <p class="small text-muted mt-2 mb-0">
+            {{ riders.length }} rider record(s)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- SUM INSURED -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Sum Insured</h5>
+          <p class="text-muted">Set the coverage amount range.</p>
+          <p class="small mb-2">
+            Minimum: {{ product?.minimum_sum_insured ?? '-' }}
+            <br>
+            Maximum: {{ product?.maximum_sum_insured ?? '-' }}
+          </p>
+          <button type="button" class="btn btn-outline-primary w-100"
+                  (click)="showSumInsuredModal = true">
+            Configure Sum Insured
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ELIGIBILITY -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Eligibility Rules</h5>
+          <p class="text-muted">Define who can apply for this product.</p>
+          <button type="button" class="btn btn-outline-secondary w-100"
+                  disabled>
+            Configure
+          </button>
+          <p class="small text-muted mt-2 mb-0">
+            Backend not implemented
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PREMIUM FREQUENCY -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Premium Frequency</h5>
+          <p class="text-muted">Manage available payment frequencies.</p>
+          <button type="button" class="btn btn-outline-primary w-100"
+                  (click)="openAddFrequency()">
+            Manage Frequencies
+          </button>
+          <p class="small text-muted mt-2 mb-0">
+            {{ premiumFrequencies.length }} frequency record(s)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- COMMISSION -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Commission Configuration</h5>
+          <p class="text-muted">Configure product commission rates.</p>
+          <button type="button" class="btn btn-outline-primary w-100"
+                  (click)="openAddCommission()">
+            Manage Commission
+          </button>
+          <p class="small text-muted mt-2 mb-0">
+            {{ commissions.length }} commission record(s)
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRODUCT ACTIVATION -->
+    <div class="col-md-6 col-xl-3">
+      <div class="card h-100 shadow-sm border-0">
+        <div class="card-body p-4">
+          <h5 class="fw-bold">Product Activation</h5>
+          <p class="text-muted">
+            Current status: {{ product?.status ?? 'Loading...' }}
+          </p>
+          <button type="button" class="btn btn-outline-primary w-100"
+                  (click)="showActivationModal = true">
+            Change Status
+          </button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- ============================================== -->
+  <!-- EXISTING COVERAGE TABLE                        -->
+  <!-- ============================================== -->
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Existing Coverage</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoading" class="text-center py-3">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span class="ms-2">Loading coverage...</span>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Coverage Name</th>
+              <th>Minimum</th>
+              <th>Maximum</th>
+              <th>Waiting Days</th>
+              <th>Deductible</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of coverages">
+              <td>{{ c.coverage_name }}</td>
+              <td>{{ c.minimum_coverage ?? '-' }}</td>
+              <td>{{ c.maximum_coverage ?? '-' }}</td>
+              <td>{{ c.waiting_period_days ?? '-' }}</td>
+              <td>{{ c.deductible_amount ?? '-' }}</td>
+              <td>
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary me-2"
+                        (click)="openEditCoverage(c)">Edit</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteCoverage(c.coverage_id)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="coverages.length === 0">
+              <td colspan="6" class="text-center text-muted py-4">
+                No coverage found for this product.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- EXISTING BENEFITS TABLE                        -->
+  <!-- ============================================== -->
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Existing Benefits</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoadingBenefits" class="text-center py-3">
+        <div class="spinner-border spinner-border-sm text-success"></div>
+        <span class="ms-2">Loading benefits...</span>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoadingBenefits">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Benefit Name</th>
+              <th>Description</th>
+              <th>Benefit Limit</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let b of benefits">
+              <td>{{ b.benefit_name }}</td>
+              <td>{{ b.benefit_description || '-' }}</td>
+              <td>{{ b.benefit_limit ?? '-' }}</td>
+              <td>
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary me-2"
+                        (click)="openEditBenefit(b)">Edit</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteBenefit(b.benefit_id)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="benefits.length === 0">
+              <td colspan="4" class="text-center text-muted py-4">
+                No benefits found for this product.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- EXISTING RIDERS TABLE                          -->
+  <!-- ============================================== -->
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Existing Riders</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoadingRiders" class="text-center py-3">
+        Loading riders...
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoadingRiders">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Rider Name</th>
+              <th>Description</th>
+              <th>Premium</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let r of riders">
+              <td>{{ r.rider_name }}</td>
+              <td>{{ r.rider_description || '-' }}</td>
+              <td>{{ r.rider_premium ?? '-' }}</td>
+              <td>{{ r.status || '-' }}</td>
+              <td>
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary me-2"
+                        (click)="openEditRider(r)">Edit</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteRider(r.rider_id)">Deactivate</button>
+              </td>
+            </tr>
+            <tr *ngIf="riders.length === 0">
+              <td colspan="5" class="text-center text-muted py-4">
+                No riders found for this product.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- PREMIUM FREQUENCY TABLE                        -->
+  <!-- ============================================== -->
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Premium Frequencies</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoadingFrequencies" class="text-center py-3">
+        Loading premium frequencies...
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoadingFrequencies">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Frequency</th>
+              <th>Installment Count</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let f of premiumFrequencies">
+              <td>{{ f.frequency_name }}</td>
+              <td>{{ f.installment_count ?? '-' }}</td>
+              <td>{{ f.status || '-' }}</td>
+              <td>
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary me-2"
+                        (click)="openEditFrequency(f)">Edit</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteFrequency(f.frequency_id)">Deactivate</button>
+              </td>
+            </tr>
+            <tr *ngIf="premiumFrequencies.length === 0">
+              <td colspan="4" class="text-center text-muted py-4">
+                No premium frequencies found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ============================================== -->
+  <!-- COMMISSION TABLE                               -->
+  <!-- ============================================== -->
+
+  <div class="card shadow-sm border-0 mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Product Commissions</h5>
+    </div>
+    <div class="card-body">
+      <div *ngIf="isLoadingCommissions" class="text-center py-3">
+        Loading commissions...
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoadingCommissions">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>First-Year Commission</th>
+              <th>Renewal Commission</th>
+              <th>Branch Commission</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let c of commissions">
+              <td>{{ c.first_year_commission }}</td>
+              <td>{{ c.renewal_commission }}</td>
+              <td>{{ c.branch_commission }}</td>
+              <td>
+                <button type="button"
+                        class="btn btn-sm btn-outline-primary me-2"
+                        (click)="openEditCommission(c)">Edit</button>
+                <button type="button"
+                        class="btn btn-sm btn-outline-danger"
+                        (click)="deleteCommission(c.commission_id)">Delete</button>
+              </td>
+            </tr>
+            <tr *ngIf="commissions.length === 0">
+              <td colspan="4" class="text-center text-muted py-4">
+                No commission records found for this product.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+
+<!-- ============================================== -->
+<!-- COVERAGE MODAL                                 -->
+<!-- ============================================== -->
+
+<div *ngIf="showCoverageModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title fw-bold">
+            {{ isEditingCoverage ? 'Edit Coverage' : 'Add Coverage' }}
+          </h5>
+          <small class="text-muted">Product ID: {{ productId }}</small>
+        </div>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="closeCoverageModal()"></button>
+      </div>
+
+      <form #coverageNgForm="ngForm" (ngSubmit)="saveCoverage()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Coverage Name *</label>
+            <input class="form-control" name="coverage_name"
+                   [(ngModel)]="coverageForm.coverage_name"
+                   required maxlength="150">
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Minimum Coverage</label>
+              <input type="number" min="0" class="form-control"
+                     name="minimum_coverage"
+                     [(ngModel)]="coverageForm.minimum_coverage">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Maximum Coverage</label>
+              <input type="number" min="0" class="form-control"
+                     name="maximum_coverage"
+                     [(ngModel)]="coverageForm.maximum_coverage">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Waiting Period (days)</label>
+              <input type="number" min="0" step="1" class="form-control"
+                     name="waiting_period_days"
+                     [(ngModel)]="coverageForm.waiting_period_days">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Deductible Amount</label>
+              <input type="number" min="0" class="form-control"
+                     name="deductible_amount"
+                     [(ngModel)]="coverageForm.deductible_amount">
+            </div>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="closeCoverageModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="isSaving || coverageNgForm.invalid">
+            {{ isSaving ? 'Saving...' :
+               (isEditingCoverage ? 'Update Coverage' : 'Save Coverage') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- BENEFIT MODAL                                  -->
+<!-- ============================================== -->
+
+<div *ngIf="showBenefitModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <div>
+          <h5 class="modal-title fw-bold">
+            {{ isEditingBenefit ? 'Edit Benefit' : 'Add Benefit' }}
+          </h5>
+          <small class="text-muted">Product ID: {{ productId }}</small>
+        </div>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="closeBenefitModal()"></button>
+      </div>
+
+      <form #benefitNgForm="ngForm" (ngSubmit)="saveBenefit()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Benefit Name *</label>
+            <input class="form-control" name="benefit_name"
+                   [(ngModel)]="benefitForm.benefit_name"
+                   required maxlength="150">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="benefit_description"
+                      [(ngModel)]="benefitForm.benefit_description"
+                      rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Benefit Limit</label>
+            <input type="number" min="0" class="form-control"
+                   name="benefit_limit"
+                   [(ngModel)]="benefitForm.benefit_limit">
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="closeBenefitModal()">Cancel</button>
+          <button type="submit" class="btn btn-success"
+                  [disabled]="isSaving || benefitNgForm.invalid">
+            {{ isSaving ? 'Saving...' :
+               (isEditingBenefit ? 'Update Benefit' : 'Save Benefit') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- RIDER MODAL                                   -->
+<!-- ============================================== -->
+
+<div *ngIf="showRiderModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ isEditingRider ? 'Edit Rider' : 'Add Rider' }}
+        </h5>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="closeRiderModal()"></button>
+      </div>
+
+      <form #riderNgForm="ngForm" (ngSubmit)="saveRider()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Rider Name *</label>
+            <input class="form-control" name="rider_name"
+                   [(ngModel)]="riderForm.rider_name"
+                   required maxlength="150">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="rider_description"
+                      [(ngModel)]="riderForm.rider_description"
+                      rows="3"></textarea>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Rider Premium</label>
+            <input type="number" min="0" class="form-control"
+                   name="rider_premium"
+                   [(ngModel)]="riderForm.rider_premium">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status"
+                    [(ngModel)]="riderForm.status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="closeRiderModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="isSaving || riderNgForm.invalid">
+            {{ isSaving ? 'Saving...' :
+               (isEditingRider ? 'Update Rider' : 'Save Rider') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- PREMIUM FREQUENCY MODAL                        -->
+<!-- ============================================== -->
+
+<div *ngIf="showFrequencyModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ isEditingFrequency ? 'Edit Frequency' : 'Add Frequency' }}
+        </h5>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="closeFrequencyModal()"></button>
+      </div>
+
+      <form #frequencyNgForm="ngForm" (ngSubmit)="saveFrequency()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Frequency Name *</label>
+            <input class="form-control" name="frequency_name"
+                   [(ngModel)]="frequencyForm.frequency_name" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Installment Count</label>
+            <input type="number" min="1" class="form-control"
+                   name="installment_count"
+                   [(ngModel)]="frequencyForm.installment_count">
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Status</label>
+            <select class="form-select" name="status"
+                    [(ngModel)]="frequencyForm.status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="closeFrequencyModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="isSaving || frequencyNgForm.invalid">
+            {{ isSaving ? 'Saving...' :
+               (isEditingFrequency ? 'Update Frequency' : 'Save Frequency') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- COMMISSION MODAL                               -->
+<!-- ============================================== -->
+
+<div *ngIf="showCommissionModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">
+          {{ isEditingCommission ? 'Edit Commission' : 'Add Commission' }}
+        </h5>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="closeCommissionModal()"></button>
+      </div>
+
+      <form #commissionNgForm="ngForm" (ngSubmit)="saveCommission()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">First-Year Commission</label>
+            <input type="number" min="0" class="form-control"
+                   name="first_year_commission"
+                   [(ngModel)]="commissionForm.first_year_commission"
+                   required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Renewal Commission</label>
+            <input type="number" min="0" class="form-control"
+                   name="renewal_commission"
+                   [(ngModel)]="commissionForm.renewal_commission"
+                   required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Branch Commission</label>
+            <input type="number" min="0" class="form-control"
+                   name="branch_commission"
+                   [(ngModel)]="commissionForm.branch_commission"
+                   required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="closeCommissionModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="isSaving || commissionNgForm.invalid">
+            {{ isSaving ? 'Saving...' :
+               (isEditingCommission ? 'Update Commission' : 'Save Commission') }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- SUM INSURED MODAL                              -->
+<!-- ============================================== -->
+
+<div *ngIf="showSumInsuredModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Configure Sum Insured</h5>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="showSumInsuredModal = false"></button>
+      </div>
+
+      <form #sumInsuredNgForm="ngForm" (ngSubmit)="saveSumInsured()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Minimum Sum Insured</label>
+            <input type="number" min="0" class="form-control"
+                   name="minimum_sum_insured"
+                   [(ngModel)]="sumInsuredForm.minimum_sum_insured"
+                   required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Maximum Sum Insured</label>
+            <input type="number" min="0" class="form-control"
+                   name="maximum_sum_insured"
+                   [(ngModel)]="sumInsuredForm.maximum_sum_insured"
+                   required>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="showSumInsuredModal = false">Cancel</button>
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="isSaving || sumInsuredNgForm.invalid">
+            {{ isSaving ? 'Saving...' : 'Save Amounts' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+
+<!-- ============================================== -->
+<!-- PRODUCT ACTIVATION MODAL                       -->
+<!-- ============================================== -->
+
+<div *ngIf="showActivationModal" class="modal d-block"
+     tabindex="-1" role="dialog" aria-modal="true"
+     style="background-color: rgba(0,0,0,0.5);">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Product Activation</h5>
+        <button type="button" class="btn-close"
+                [disabled]="isSaving"
+                (click)="showActivationModal = false"></button>
+      </div>
+
+      <form #activationNgForm="ngForm" (ngSubmit)="saveActivation()">
+        <div class="modal-body">
+          <div class="alert alert-danger" *ngIf="errorMessage">
+            {{ errorMessage }}
+          </div>
+
+          <label class="form-label">Product Status</label>
+          <select class="form-select" name="activationStatus"
+                  [(ngModel)]="activationStatus" required>
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary"
+                  [disabled]="isSaving"
+                  (click)="showActivationModal = false">Cancel</button>
+          <button type="submit" class="btn btn-primary"
+                  [disabled]="isSaving || activationNgForm.invalid">
+            {{ isSaving ? 'Saving...' : 'Update Status' }}
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
