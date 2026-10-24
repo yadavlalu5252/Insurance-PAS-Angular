@@ -2,16 +2,28 @@
 
 <p>Rider Modification Form works!</p>
 
-<form [formGroup]="riderForm">
-  {{ riderForm.value | json }} <br /> <br />
+<form [formGroup]="riderForm" (ngSubmit)="SaveRiders(riderForm.value)">
+
+  <select class="form-control" formControlName="policyId" (change)="getpolicyRiders()">
+    <option value="">-- Select a policy --</option>
+    <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+      {{ p.policy_number }} (Status : {{p.policy_status}})
+    </option>
+  </select>
 
   Rider ID
-  <input type="number" class="form-control" formControlName="rider_id"> <br /><br />
+  <select class="form-control" formControlName="rider_id">
+    <option value="">-- Select a rider --</option>
+    <option *ngFor="let r of riders" [value]="r.rider_id">
+      {{ r.rider_name }}
+    </option>
+  </select>
+  <br /><br />
 
   Action
   <select class="form-control" formControlName="action">
-    <option value="Add">Add Rider</option>
-    <option value="Remove">Remove Rider</option>
+    <option value="Rider Addition">Add Rider</option>
+    <option value="Rider Removal">Remove Rider</option>
   </select> <br /><br />
 
   <input type="submit" class="btn btn-primary" value="Submit">
