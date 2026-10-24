@@ -1,0 +1,130 @@
+
+<div class="container-fluid py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">
+        {{ isEdit ? 'Edit Product' : 'Add Product' }}
+      </h2>
+      <p class="text-muted mb-0">
+        Manage insurance product details
+      </p>
+    </div>
+
+    <button type="button" class="btn btn-outline-secondary"
+            (click)="Cancel()">
+      Back
+    </button>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card shadow-sm">
+    <div class="card-header bg-white py-3">
+      <h5 class="mb-0">Product Information</h5>
+    </div>
+
+    <div class="card-body">
+      <form [formGroup]="productForm" (ngSubmit)="SaveProduct()">
+
+        <div class="row g-3">
+
+          <div class="col-md-6">
+            <label class="form-label">Product Code *</label>
+            <input type="text" class="form-control"
+                   formControlName="product_code"
+                   placeholder="Enter product code" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Product Name *</label>
+            <input type="text" class="form-control"
+                   formControlName="product_name"
+                   placeholder="Enter product name" required>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Category *</label>
+            <select class="form-select" formControlName="category_id">
+              <option [ngValue]="null" disabled>Select a category</option>
+              <option *ngFor="let category of categories"
+                      [ngValue]="category.category_id">
+                {{ category.category_name }}
+              </option>
+            </select>
+
+            <div class="text-danger small mt-1"
+                 *ngIf="productForm.get('category_id')?.invalid &&
+                        productForm.get('category_id')?.touched">
+              Please select a category.
+            </div>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Product Type *</label>
+            <input type="text" class="form-control"
+                   formControlName="product_type"
+                   placeholder="Health, Life, Motor..." required>
+          </div>
+
+          <div class="col-12">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" rows="3"
+                      formControlName="description"
+                      placeholder="Enter product description"></textarea>
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Minimum Age</label>
+            <input type="number" class="form-control"
+                   formControlName="minimum_age" min="0">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Maximum Age</label>
+            <input type="number" class="form-control"
+                   formControlName="maximum_age" min="0">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Minimum Sum Insured</label>
+            <input type="number" class="form-control"
+                   formControlName="minimum_sum_insured" min="0">
+          </div>
+
+          <div class="col-md-6">
+            <label class="form-label">Maximum Sum Insured</label>
+            <input type="number" class="form-control"
+                   formControlName="maximum_sum_insured" min="0">
+          </div>
+
+          <div class="col-md-6" *ngIf="isEdit">
+            <label class="form-label">Status</label>
+            <select class="form-select" formControlName="status">
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+          </div>
+
+        </div>
+
+        <hr class="my-4">
+
+        <div class="d-flex justify-content-end gap-2">
+          <button type="button" class="btn btn-outline-secondary"
+                  (click)="Cancel()">
+            Cancel
+          </button>
+
+          <button type="submit" class="btn btn-primary">
+            {{ isEdit ? 'Update Product' : 'Save Product' }}
+          </button>
+        </div>
+
+      </form>
+    </div>
+  </div>
+
+</div>

@@ -1,78 +1,42 @@
-import { Routes } from '@angular/router';
 
-import { Login } from './features/auth/login/login';
-import { Register } from './features/auth/register/register';
-import { TwoFactor } from './features/auth/two-factor/two-factor';
-import { Dashboard } from './features/dashboard/dashboard/dashboard';
-import { TwoFactorSetup } from './features/auth/two-factor-setup/two-factor-setup';
-import { AdminLayout } from './layouts/admin-layout/admin-layout';
-import { authGuard } from './core/guards/auth-guard';
+import { Routes } from '@angular/router';
+import { Reports } from './reports/reports';
 
 export const routes: Routes = [
-  {
-    path: '',
-    redirectTo: 'login',
-    pathMatch: 'full'
-  },
-  {
-    path: 'login',
-    component: Login
-  },
-  {
-    path: 'register',
-    component: Register
-  },
-  {
-    path: 'two-factor',
-    component: TwoFactor
-  },
-  {
-    path: 'two-factor-setup',
-    component: TwoFactorSetup,
-    canActivate: [authGuard]
-  },
-  {
-    path: 'admin',
-    component: AdminLayout,
-    canActivate: [authGuard],
-    children: [
-      {
-        path: '',
-        redirectTo: 'dashboard',
-        pathMatch: 'full'
-      },
-      {
-        path: 'dashboard',
-        component: Dashboard
-      },
-      // {
-      //   path: 'users',
-      //   loadComponent: () => import('./layouts/admin-layout/admin-users/admin-users').then(m => m.AdminUsers)
-      // },
-      // {
-      //   path: 'roles',
-      //   loadComponent: () => import('./layouts/admin-layout/admin-roles/admin-roles').then(m => m.AdminRoles)
-      // },
-      // {
-      //   path: 'masters',
-      //   loadComponent: () => import('./layouts/admin-layout/admin-masters/admin-masters').then(m => m.AdminMasters)
-      // },
-      // {
-      //   path: 'policies',
-      //   loadComponent: () => import('./layouts/admin-layout/admin-policies/admin-policies').then(m => m.AdminPolicies)
-      // },
-      // {
-      //   path: 'claims',
-      //   loadComponent: () => import('./layouts/admin-layout/admin-claims/admin-claims').then(m => m.AdminClaims)
-      // },
-      // {
-      //   path: 'reports',
-      //   loadComponent: () => import('./layouts/admin-layout/admin-reports/admin-reports').then(m => m.AdminReports)
-      // }
-    ]
-  },
-  {
-    path: '**',
-    redirectTo: 'login'
-  }
+  { path: '', component: Reports },
+  { path: '**', redirectTo: '' }
+import { AdminLayout } from './layouts/admin-layout/admin-layout';
+
+import { Product } from './ProductManagement/product/product';
+import { ProductForm } from './ProductManagement/product-form/product-form';
+
+import { Category } from './ProductManagement/category/category';
+import { CategoryForm } from './ProductManagement/category-form/category-form';
+import { ProductManagement } from './ProductManagement/product-management/product-management';
+import { ProductConfiguration } from './ProductManagement/product-configuration/product-configuration';
+
+import { Quote } from './QuoteGeneration/quote/quote';
+import { QuoteForm } from './QuoteGeneration/quote-form/quote-form';
+
+export const routes: Routes = [
+  // Product routes
+  { path: 'products', component: Product },
+  { path: 'products/add', component: ProductForm },
+  { path: 'products/edit/:id', component: ProductForm },
+
+  // Category routes
+  { path: 'categories', component: Category },
+  { path: 'categories/add', component: CategoryForm },
+  { path: 'categories/edit/:id', component: CategoryForm },
+
+  // Product Management routes
+  { path: 'product-management', component: ProductManagement },
+  { path: 'product-configuration/:id', component: ProductConfiguration },
+
+  // Quote routes
+  { path: 'quotes', component: Quote },
+  { path: 'quotes/new', component: QuoteForm },
+
+  // Default route
+  { path: '', redirectTo: 'products', pathMatch: 'full' }
 ];
