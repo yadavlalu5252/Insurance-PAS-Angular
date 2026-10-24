@@ -39,40 +39,53 @@ export class Login {
     this.showPassword = !this.showPassword;
   }
 
-  onSubmit(): void {
-    this.submitted = true;
-    this.errorMessage = '';
-    this.loginForm.markAllAsTouched();
 
-    if (this.loginForm.invalid) {
-      return;
-    }
+onSubmit(): void {
+  this.submitted = true;
+  this.errorMessage = '';
+  this.loginForm.markAllAsTouched();
 
-    this.loading = true;
-
-    this.authService.login(this.loginForm.getRawValue()).subscribe({
-      next: (response: any) => {
-        this.loading = false;
-
-        if (response.requires_two_factor && response.challenge_token) {
-          this.router.navigate(['/two-factor'], {
-            state: {
-              challengeToken: response.challenge_token
-            }
-          });
-          return;
-        }
-
-        console.log('Login successful:', response);
-      },
-      error: (error) => {
-        console.error('Login failed:', error);
-        this.errorMessage =
-          typeof error.error === 'string'
-            ? error.error
-            : 'Login failed. Please check your credentials and try again.';
-        this.loading = false;
-      }
-    });
+  if (this.loginForm.invalid) {
+    return;
   }
+
+  this.loading = true;
+
+  this.authService.login(this.loginForm.getRawValue()).subscribe({
+    next: (response: any) => {
+      this.loading = false;
+
+      if (response.requires_two_factor && response.challenge_token) {
+        this.router.navigate(['/two-factor'], {
+          state: {
+            challengeToken: response.challenge_token
+          }
+        });
+
+        return;
+      }
+
+      if (!response.requires_two_factor && response.login?.access_token) {
+        localStorage.setItem('access_token', response.login.access_token);
+        localStorage.setItem('refresh_token', response.login.refresh_token);
+
+        this.router.navigate(['/two-factor-setup']);
+        return;
+      }
+
+      this.errorMessage = 'Unexpected login response. Please try again.';
+    },
+    error: (error) => {
+      console.error('Login failed:', error);
+
+      this.errorMessage =
+        typeof error.error === 'string'
+          ? error.error
+          : 'Login failed. Please check your credentials and try again.';
+
+      this.loading = false;
+    }
+  });
+}
+
 }

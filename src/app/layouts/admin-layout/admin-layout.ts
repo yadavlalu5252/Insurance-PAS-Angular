@@ -1,9 +1,18 @@
 import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [],
   selector: 'app-admin-layout',
-  styleUrl: './admin-layout.scss',
+  standalone: true,
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin-layout.html',
+  styleUrl: './admin-layout.scss'
 })
-export class AdminLayout {}
+export class AdminLayout {
+  sidebarOpen = true;
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
+}

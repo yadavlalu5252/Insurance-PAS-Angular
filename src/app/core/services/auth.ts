@@ -1,6 +1,6 @@
 
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient,HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 @Injectable({
@@ -24,6 +24,36 @@ verifyTwoFactorLogin(data: {
     data
   );
 }
+
+
+
+private getAuthHeaders(): HttpHeaders {
+  const token = localStorage.getItem('access_token') || '';
+
+  return new HttpHeaders({
+    Authorization: `Bearer ${token}`
+  });
+}
+
+setupTwoFactor() {
+  return this.http.post(
+    `${this.baseUrl}/2fa/setup`,
+    {},
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+enableTwoFactor(code: string) {
+  return this.http.post(
+    `${this.baseUrl}/2fa/enable`,
+    { code },
+    { headers: this.getAuthHeaders() }
+  );
+}
+
+
+
+
   
   register(data: {
     employee_id: number;
