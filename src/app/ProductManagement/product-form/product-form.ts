@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule } from '@angular/forms';
+import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../product-service';
 
@@ -12,19 +12,22 @@ import { ProductService } from '../../product-service';
   styleUrl: './product-form.scss'
 })
 export class ProductForm implements OnInit {
-
   productId: number | null = null;
   isEdit = false;
   errorMessage = '';
-  
-  // Declaring the missing array property to fix the HTML compile error
   categories: any[] = [];
 
+  constructor(
+    private ps: ProductService,
+    private route: ActivatedRoute,
+    private router: Router
+  ) {}
+
   productForm = new FormGroup({
-    product_code: new FormControl(''),
-    product_name: new FormControl(''),
-    category_id: new FormControl(''),
-    product_type: new FormControl(''),
+    product_code: new FormControl('', Validators.required),
+    product_name: new FormControl('', Validators.required),
+    category_id: new FormControl('', Validators.required),
+    product_type: new FormControl('', Validators.required),
     description: new FormControl(''),
     minimum_age: new FormControl(''),
     maximum_age: new FormControl(''),
@@ -33,36 +36,34 @@ export class ProductForm implements OnInit {
     status: new FormControl('Active')
   });
 
-  constructor(private ps: ProductService, private route: ActivatedRoute, private router: Router) {
-    this.productId = Number(this.route.snapshot.paramMap.get('id'));
+  ngOnInit(): void {
+    this.LoadCategories();
 
-    if (this.productId && !isNaN(this.productId)) {
+    const id = Number(this.route.snapshot.paramMap.get('id'));
+
+    if (id && !isNaN(id)) {
+      this.productId = id;
       this.isEdit = true;
-      this.GetProduct(this.productId);
+      this.GetProduct(id);
     }
   }
 
-  ngOnInit(): void {
-    this.LoadCategories();
-  }
-
-  LoadCategories() {
-    // Fetches categories from service to fill the dropdown menu options
-    this.ps.getCategories?.().subscribe({
+  LoadCategories(): void {
+    this.ps.getCategories().subscribe({
       next: (res: any) => {
         this.categories = res.data ?? res;
       },
       error: (err: any) => {
-        console.error('Failed to load categories', err);
+        console.error('Unable to load categories:', err);
+        this.errorMessage = 'Unable to load categories.';
       }
     });
   }
 
-  GetProduct(id: number) {
+    GetProduct(id: number): void {
     this.ps.getProductById(id).subscribe({
       next: (res: any) => {
         const product = res.data ?? res;
-
         this.productForm.patchValue({
           product_code: product.product_code,
           product_name: product.product_name,
@@ -73,19 +74,23 @@ export class ProductForm implements OnInit {
           maximum_age: String(product.maximum_age ?? ''),
           minimum_sum_insured: String(product.minimum_sum_insured ?? ''),
           maximum_sum_insured: String(product.maximum_sum_insured ?? ''),
-          status: product.status
+          status: product.status ?? 'Active'
         });
       },
       error: (err: any) => {
-        console.log(err);
+        console.error('Unable to load product:', err);
         this.errorMessage = 'Unable to load product details.';
       }
     });
   }
 
-  SaveProduct() {
+
+  SaveProduct(): void {
+    this.errorMessage = '';
+
     if (this.productForm.invalid) {
-      this.errorMessage = 'Please fill in the product details.';
+      this.productForm.markAllAsTouched();
+      this.errorMessage = 'Please fill in all required product details.';
       return;
     }
 
@@ -94,12 +99,14 @@ export class ProductForm implements OnInit {
     const data = {
       ...formData,
       category_id: Number(formData.category_id),
-      minimum_age: formData.minimum_age ? Number(formData.minimum_age) : null,
-      maximum_age: formData.maximum_age ? Number(formData.maximum_age) : null,
-      minimum_sum_insured: formData.minimum_sum_insured
-        ? Number(formData.minimum_sum_insured) : null,
-      maximum_sum_insured: formData.maximum_sum_insured
-        ? Number(formData.maximum_sum_insured) : null
+      minimum_age: formData.minimum_age !== '' ? Number(formData.minimum_age) : null,
+      maximum_age: formData.maximum_age !== '' ? Number(formData.maximum_age) : null,
+      minimum_sum_insured: formData.minimum_sum_insured !== ''
+        ? Number(formData.minimum_sum_insured)
+        : null,
+      maximum_sum_insured: formData.maximum_sum_insured !== ''
+        ? Number(formData.maximum_sum_insured)
+        : null
     };
 
     if (this.isEdit && this.productId) {
@@ -109,7 +116,7 @@ export class ProductForm implements OnInit {
           this.router.navigate(['/products']);
         },
         error: (err: any) => {
-          console.log(err);
+          console.error('Unable to update product:', err);
           this.errorMessage = 'Unable to update product.';
         }
       });
@@ -120,14 +127,14 @@ export class ProductForm implements OnInit {
           this.router.navigate(['/products']);
         },
         error: (err: any) => {
-          console.log(err);
+          console.error('Unable to add product:', err);
           this.errorMessage = 'Unable to add product.';
         }
       });
     }
   }
 
-  Cancel() {
+  Cancel(): void {
     this.router.navigate(['/products']);
   }
 }
