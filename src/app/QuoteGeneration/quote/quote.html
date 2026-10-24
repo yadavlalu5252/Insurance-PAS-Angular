@@ -1,0 +1,96 @@
+
+<div class="quote-page">
+  <div class="page-header">
+    <div>
+      <h1>Quote Management</h1>
+      <p>Manage insurance quotations and premium details.</p>
+    </div>
+
+    <button class="primary-btn" (click)="createQuote()">
+      + Generate Quote
+    </button>
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <span>Total Quotes</span>
+      <h2>{{ quotes.length }}</h2>
+    </div>
+
+    <div class="summary-card">
+      <span>Pending</span>
+      <h2>{{ pendingCount }}</h2>
+    </div>
+
+    <div class="summary-card">
+      <span>Approved</span>
+      <h2>{{ approvedCount }}</h2>
+    </div>
+
+    <div class="summary-card">
+      <span>Rejected</span>
+      <h2>{{ rejectedCount }}</h2>
+    </div>
+  </div>
+
+  <div class="table-card">
+    <div class="toolbar">
+      <input
+        type="text"
+        placeholder="Search quote number or customer ID..."
+        [(ngModel)]="searchText"
+      />
+
+      <select [(ngModel)]="selectedStatus">
+        <option value="All">All Statuses</option>
+        <option value="Pending">Pending</option>
+        <option value="Approved">Approved</option>
+        <option value="Rejected">Rejected</option>
+      </select>
+
+      <button class="refresh-btn" (click)="getQuotes()">Refresh</button>
+    </div>
+
+    <p *ngIf="loading">Loading quotes...</p>
+    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+
+    <div class="table-wrapper" *ngIf="!loading && !errorMessage">
+      <table>
+        <thead>
+          <tr>
+            <th>Quote Number</th>
+            <th>Customer ID</th>
+            <th>Product ID</th>
+            <th>Policy Term</th>
+            <th>Sum Insured</th>
+            <th>Quote Date</th>
+            <th>Expiry Date</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let q of filteredQuotes">
+            <td>{{ q.quote_number ?? q.quoteNumber ?? q.quote_id ?? q.quoteId }}</td>
+            <td>{{ q.customer_id ?? q.customerId }}</td>
+            <td>{{ q.product_id ?? q.productId }}</td>
+            <td>{{ q.policy_term ?? q.policyTerm }} years</td>
+            <td>{{ (q.sum_insured ?? q.sumInsured) | currency:'INR':'symbol':'1.0-2' }}</td>
+            <td>{{ (q.quote_date ?? q.quoteDate) | date:'dd MMM yyyy' }}</td>
+            <td>{{ (q.expiry_date ?? q.expiryDate) | date:'dd MMM yyyy' }}</td>
+            <td>
+              <span class="status"
+                [ngClass]="(q.quote_status ?? q.quoteStatus ?? 'Pending').toLowerCase()">
+                {{ q.quote_status ?? q.quoteStatus ?? 'Pending' }}
+              </span>
+            </td>
+          </tr>
+
+          <tr *ngIf="filteredQuotes.length === 0">
+            <td colspan="8" class="empty-state">No quotes found.</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
