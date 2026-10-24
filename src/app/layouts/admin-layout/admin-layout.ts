@@ -1,38 +1,18 @@
-
-import { Component, OnInit, inject } from '@angular/core';
-import {
-  DashboardMetrics,
-  DashboardMetricsService
-} from '../../core/services/dashboard-metrics.service';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin-layout.html',
-  styleUrl: './admin-layout.scss',
+  styleUrl: './admin-layout.scss'
 })
-export class AdminLayout implements OnInit {
+export class AdminLayout {
+  sidebarOpen = true;
 
-  private dashboardService = inject(DashboardMetricsService);
-
-  metrics: DashboardMetrics = {
-    totalUsers: 0,
-    activeUsers: 0,
-    lockedUsers: 0,
-    totalRoles: 0
-  };
-
-  ngOnInit(): void {
-    this.dashboardService.getDashboardMetrics().subscribe({
-      next: (response) => {
-        if (response.success) {
-          this.metrics = response.data;
-        }
-      },
-      error: (error) => {
-        console.error('Error loading dashboard metrics', error);
-      }
-    });
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 }

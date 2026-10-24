@@ -1,67 +1,106 @@
-
-.admin-dashboard {
-  padding: 25px;
-  background-color: #f5f7fb;
+:host {
+  display: block;
   min-height: 100vh;
 }
 
-h2 {
-  margin-bottom: 5px;
-  color: #263238;
+.admin-wrapper {
+  background-color: #f5f7fb;
 }
 
-.subtitle {
-  color: #757575;
-  margin-bottom: 25px;
+.admin-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  overflow: hidden;
 }
 
-.dashboard-cards {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
+.sidebar-brand {
+  height: 72px;
+  white-space: nowrap;
 }
 
-.dashboard-card {
-  background-color: white;
-  padding: 25px;
-  border-radius: 10px;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-  border-left: 5px solid #1976d2;
+.sidebar-brand h4 {
+  color: #1d4ed8;
 }
 
-.dashboard-card h3 {
-  font-size: 16px;
-  color: #616161;
-  margin-bottom: 15px;
+.sidebar-heading {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
 }
 
-.dashboard-card p {
-  font-size: 32px;
-  font-weight: bold;
-  margin: 0;
-  color: #263238;
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #475569;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
 }
 
-.active-users {
-  border-left-color: #2e7d32;
+.sidebar-link:hover {
+  background-color: #eff6ff;
+  color: #1d4ed8;
 }
 
-.locked-users {
-  border-left-color: #d32f2f;
+.sidebar-link.active {
+  background-color: #1d4ed8;
+  color: #ffffff;
 }
 
-.total-roles {
-  border-left-color: #7b1fa2;
+.menu-icon {
+  width: 22px;
+  min-width: 22px;
+  text-align: center;
+  font-size: 18px;
 }
 
-@media (max-width: 900px) {
-  .dashboard-cards {
-    grid-template-columns: repeat(2, 1fr);
+.sidebar-footer {
+  white-space: nowrap;
+}
+
+.admin-main {
+  min-width: 0;
+}
+
+.admin-navbar {
+  height: 72px;
+}
+
+.navbar-title {
+  color: #1e293b;
+}
+
+.admin-content {
+  min-height: calc(100vh - 72px);
+}
+
+.sidebar-collapsed {
+  width: 0;
+  min-width: 0;
+  border-right: 0;
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 220px;
+    min-width: 220px;
   }
-}
 
-@media (max-width: 550px) {
-  .dashboard-cards {
-    grid-template-columns: 1fr;
+  .admin-sidebar.sidebar-collapsed {
+    width: 0;
+    min-width: 0;
+  }
+
+  .admin-content {
+    padding: 1rem !important;
   }
 }

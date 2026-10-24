@@ -1,0 +1,39 @@
+<div class="container min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card border-0 shadow-lg rounded-4 w-100" style="max-width: 480px;">
+    <div class="card-body p-4 p-md-5">
+      <h2 class="text-center fw-bold mb-2">Set Up Two-Factor Authentication</h2>
+      <p class="text-center text-secondary mb-4">Scan the QR code using Google Authenticator or another compatible authenticator app.</p>
+
+     <div *ngIf="setupLoading" class="text-center my-4">
+  <div class="spinner-border text-primary" role="status"></div>
+  <p class="mt-2">Generating QR code...</p>
+</div>
+
+<div *ngIf="qrCodeImage" class="text-center mb-4">
+  <img [src]="qrCodeImage" alt="Authenticator QR Code" width="220" height="220" class="img-fluid border rounded p-2">
+</div>
+
+      <div *ngIf="sharedKey" class="mb-4">
+        <label class="form-label fw-semibold">Manual Setup Key</label>
+        <div class="alert alert-secondary text-break mb-0">{{ sharedKey }}</div>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+      <form [formGroup]="twoFactorForm" (ngSubmit)="enableTwoFactor()">
+        <div class="mb-4">
+          <label for="code" class="form-label fw-semibold">6-Digit Verification Code</label>
+          <input id="code" type="text" inputmode="numeric" maxlength="6" class="form-control form-control-lg" formControlName="code" placeholder="Enter authenticator code" autocomplete="one-time-code">
+
+          <div class="text-danger small mt-1" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.hasError('required')">Verification code is required.</div>
+
+          <div class="text-danger small mt-1" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.hasError('pattern')">Enter exactly 6 digits.</div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="loading || setupLoading || !qrCodeImage">
+          {{ loading ? 'Verifying...' : 'Verify and Enable 2FA' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

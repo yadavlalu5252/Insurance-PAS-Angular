@@ -1,29 +1,87 @@
+<div class="admin-wrapper d-flex min-vh-100">
 
-<div class="admin-dashboard">
-  <h2>Admin Dashboard</h2>
-  <p class="subtitle">Insurance Management System</p>
+  <aside class="admin-sidebar d-flex flex-column" [class.sidebar-collapsed]="!sidebarOpen">
 
-  <div class="dashboard-cards">
-
-    <div class="dashboard-card total-users">
-      <h3>Total Users</h3>
-      <p>{{ metrics.totalUsers }}</p>
+    <div class="sidebar-brand d-flex align-items-center justify-content-center border-bottom">
+      <h4 class="fw-bold mb-0">Insurance PAS</h4>
     </div>
 
-    <div class="dashboard-card active-users">
-      <h3>Active Users</h3>
-      <p>{{ metrics.activeUsers }}</p>
+    <div class="sidebar-menu flex-grow-1 py-3">
+
+      <div class="sidebar-heading px-3 mb-2">MAIN MENU</div>
+
+      <a routerLink="/admin/dashboard" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">⌂</span>
+        <span class="menu-text">Dashboard</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">MANAGEMENT</div>
+
+      <a routerLink="/admin/users" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">♙</span>
+        <span class="menu-text">User Management</span>
+      </a>
+
+      <a routerLink="/admin/roles" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">♧</span>
+        <span class="menu-text">Role Management</span>
+      </a>
+
+      <a routerLink="/admin/masters" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">⚙</span>
+        <span class="menu-text">Master Data</span>
+      </a>
+
+      <a routerLink="/admin/policies" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">▤</span>
+        <span class="menu-text">Policy Management</span>
+      </a>
+
+      <a routerLink="/admin/claims" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">▣</span>
+        <span class="menu-text">Claims Management</span>
+      </a>
+
+      <a routerLink="/admin/reports" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-icon">▥</span>
+        <span class="menu-text">Reports</span>
+      </a>
+
     </div>
 
-    <div class="dashboard-card locked-users">
-      <h3>Locked Users</h3>
-      <p>{{ metrics.lockedUsers }}</p>
+    <div class="sidebar-footer border-top p-3">
+      <span class="text-secondary small">Insurance PAS v1.0</span>
     </div>
 
-    <div class="dashboard-card total-roles">
-      <h3>Total Roles</h3>
-      <p>{{ metrics.totalRoles }}</p>
-    </div>
+  </aside>
+
+  <div class="admin-main flex-grow-1">
+
+    <nav class="admin-navbar navbar bg-white border-bottom px-4">
+
+      <button type="button" class="btn btn-light me-3" (click)="toggleSidebar()" aria-label="Toggle sidebar">☰</button>
+
+      <span class="navbar-title fw-semibold">Admin Portal</span>
+
+      <div class="ms-auto d-flex align-items-center gap-3">
+        <button type="button" class="btn btn-light" aria-label="Notifications">♧</button>
+
+        <div class="dropdown">
+          <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown">Admin</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/admin/profile">My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button type="button" class="dropdown-item text-danger">Logout</button></li>
+          </ul>
+        </div>
+      </div>
+
+    </nav>
+
+    <main class="admin-content p-4">
+      <router-outlet></router-outlet>
+    </main>
 
   </div>
+
 </div>

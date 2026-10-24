@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
 import { CommonModule } from '@angular/common';
@@ -54,6 +53,7 @@ export class TwoFactor {
 
         if (!res.access_token || !res.refresh_token) {
           this.errorMessage = 'Authentication tokens were not received.';
+          console.error('Unexpected authentication response:', res);
           return;
         }
 
@@ -61,8 +61,9 @@ export class TwoFactor {
         localStorage.setItem('refresh_token', res.refresh_token);
 
         console.log('Two-factor verification successful.');
+        console.log('Access token saved:', !!localStorage.getItem('access_token'));
 
-        this.router.navigate(['/dashboard']);
+        this.router.navigate(['/admin/dashboard']);
       },
       error: (err) => {
         console.error('Two-factor verification failed:', err);
@@ -70,7 +71,7 @@ export class TwoFactor {
         this.errorMessage =
           typeof err.error === 'string'
             ? err.error
-            : 'Invalid verification code. Please try again.';
+            : err.error?.message || 'Invalid verification code. Please try again.';
 
         this.loading = false;
       }
