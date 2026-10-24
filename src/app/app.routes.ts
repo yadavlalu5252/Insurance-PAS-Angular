@@ -1,5 +1,6 @@
 
 import { Routes } from '@angular/router';
+import { AdminLayout } from './layouts/admin-layout/admin-layout';
 
 import { Product } from './ProductManagement/product/product';
 import { ProductForm } from './ProductManagement/product-form/product-form';

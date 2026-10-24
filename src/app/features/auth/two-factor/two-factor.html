@@ -1,0 +1,32 @@
+
+<div class="container min-vh-100 d-flex align-items-center justify-content-center bg-light">
+  <div class="card border-0 shadow-lg rounded-4 w-100" style="max-width: 440px;">
+    <div class="card-body p-4 p-md-5">
+      <h2 class="text-center fw-bold mb-2">Two-Factor Verification</h2>
+      <p class="text-center text-secondary mb-4">Enter your 6-digit authenticator code.</p>
+
+      <div class="alert alert-danger" *ngIf="errorMessage">
+        {{ errorMessage }}
+      </div>
+
+      <form [formGroup]="twoFactorForm" (ngSubmit)="VerifyTwoFactor(twoFactorForm.getRawValue())">
+        <div class="mb-4">
+          <label for="code" class="form-label fw-semibold">Verification Code</label>
+          <input id="code" type="text" inputmode="numeric" maxlength="6" class="form-control form-control-lg" formControlName="code" placeholder="Enter 6-digit code" autocomplete="one-time-code">
+
+          <div class="text-danger small mt-1" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.hasError('required')">
+            Verification code is required.
+          </div>
+
+          <div class="text-danger small mt-1" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.hasError('pattern')">
+            Enter exactly 6 digits.
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="loading">
+          {{ loading ? 'Verifying...' : 'Verify Code' }}
+        </button>
+      </form>
+    </div>
+  </div>
+</div>

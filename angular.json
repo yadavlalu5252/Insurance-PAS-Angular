@@ -5,6 +5,7 @@
     "packageManager": "npm",
     "analytics": "d700dc20-4caa-4eb7-afb8-d788426add0b"
   },
+  
   "newProjectRoot": "projects",
   "projects": {
     "Insurance-PAS-Angular": {
