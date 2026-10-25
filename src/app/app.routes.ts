@@ -1,9 +1,4 @@
 import { Routes } from '@angular/router';
-<<<<<<< HEAD
-import { Reports } from './reports/reports';
-import { AdminLayout } from './layouts/admin-layout/admin-layout';
-=======
-
 import { AdminLayout } from './layouts/admin-layout/admin-layout';
 
 // Authentication
@@ -16,55 +11,18 @@ import { TwoFactorSetup } from './features/auth/two-factor-setup/two-factor-setu
 import { Reports } from './reports/reports';
 
 // Product Management
->>>>>>> dd48efa5869929210a5405e40e1cc6bff53a6c5b
 import { Product } from './ProductManagement/product/product';
 import { ProductForm } from './ProductManagement/product-form/product-form';
 import { Category } from './ProductManagement/category/category';
 import { CategoryForm } from './ProductManagement/category-form/category-form';
 import { ProductManagement } from './ProductManagement/product-management/product-management';
 import { ProductConfiguration } from './ProductManagement/product-configuration/product-configuration';
-<<<<<<< HEAD
-=======
 
 // Quote Generation
->>>>>>> dd48efa5869929210a5405e40e1cc6bff53a6c5b
 import { Quote } from './QuoteGeneration/quote/quote';
 import { QuoteForm } from './QuoteGeneration/quote-form/quote-form';
 
 export const routes: Routes = [
-<<<<<<< HEAD
-  {
-    path: '',
-    component: AdminLayout,
-    children: [
-      // Default dashboard route
-      { path: '', component: Reports },
-
-      // Product routes
-      { path: 'products', component: Product },
-      { path: 'products/add', component: ProductForm },
-      { path: 'products/edit/:id', component: ProductForm },
-
-      // Category routes
-      { path: 'categories', component: Category },
-      { path: 'categories/add', component: CategoryForm },
-      { path: 'categories/edit/:id', component: CategoryForm },
-
-      // Product Management routes
-      { path: 'product-management', component: ProductManagement },
-      { path: 'product-configuration/:id', component: ProductConfiguration },
-
-      // Quote routes
-      { path: 'quotes', component: Quote },
-      { path: 'quotes/new', component: QuoteForm },
-
-      { path: 'claims', loadChildren: () => import('./ClaimManagement/claim.routes').then((m) => m.CLAIM_ROUTES) }
-    ]
-  },
-  // Fallback wild card redirection
-  { path: '**', redirectTo: '' }
-];
-=======
   // Default route - Login
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 
@@ -98,11 +56,13 @@ export const routes: Routes = [
 
       // Quote routes
       { path: 'quotes', component: Quote },
-      { path: 'quotes/new', component: QuoteForm }
+      { path: 'quotes/new', component: QuoteForm },
+
+      // Claim Management (customer, admin and agent screens)
+      { path: 'claims', loadChildren: () => import('./ClaimManagement/claim.routes').then((m) => m.CLAIM_ROUTES) }
     ]
   },
 
   // Redirect unknown routes
   { path: '**', redirectTo: 'login' }
 ];
->>>>>>> dd48efa5869929210a5405e40e1cc6bff53a6c5b

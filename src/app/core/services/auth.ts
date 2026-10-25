@@ -28,6 +28,7 @@ export class Auth {
     return this.http.post<LoginResponse>(`${this.baseUrl}/login`, request).pipe(
       tap(response => {
         localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('access_token', response.accessToken); // Set both variants to support your 2FA methods
       })
     );
   }

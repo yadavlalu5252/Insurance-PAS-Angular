@@ -60,7 +60,7 @@ export class ProductForm implements OnInit {
     });
   }
 
-    GetProduct(id: number): void {
+  GetProduct(id: number): void {
     this.ps.getProductById(id).subscribe({
       next: (res: any) => {
         const product = res.data ?? res;
