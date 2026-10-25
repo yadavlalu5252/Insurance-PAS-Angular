@@ -1,43 +1,81 @@
-<p>service-nominee works!</p>
+<!-- 🚨 Added 250px left margin for the sidebar and right padding -->
+<div class="container-fluid mt-4" style="margin-left: 250px; padding-right: 20px;">
 
+  <h3 class="mb-4">Nominee Update</h3>
 
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
 
-<p>Nominee Form works!</p>
+      <form [formGroup]="nomineeForm" (ngSubmit)="SaveNominee(nomineeForm.value)">
 
-<form [formGroup]="nomineeForm" (ngSubmit)="SaveNominee(nomineeForm.value)">
-  {{ nomineeForm.value | json }} <br /> <br />
+        <!-- Hidden fields -->
+        <input type="hidden" formControlName="nominee_id">
+        <input type="hidden" formControlName="customer_id">
 
-  <input type="hidden" formControlName="nominee_id">
-  <input type="hidden" formControlName="customer_id">
+        <!-- Policy Dropdown -->
+        <div class="mb-4">
+          <label class="form-label fw-bold">Select Policy</label>
+          <select class="form-select" formControlName="policyId">
+            <option value="">-- Select a policy --</option>
+            <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+              {{ p.policy_number }} (Status : {{p.policy_status}})
+            </option>
+          </select>
+        </div>
 
+        <!-- Grid for Nominee Fields -->
+        <div class="row">
+          <!-- Nominee Name -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Nominee Name</label>
+            <input type="text" class="form-control" formControlName="nominee_name">
+          </div>
 
-  <label><strong>Select Policy</strong></label>
+          <!-- Relationship -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Relationship</label>
+            <input type="text" class="form-control" formControlName="relationship">
+          </div>
 
-  <select class="form-control" formControlName="policyId">
-    <option value="">-- Select a policy --</option>
-    <option *ngFor="let p of allpolicies" [value]="p.policy_id">
-      {{ p.policy_number }} (Status : {{p.policy_status}})
-    </option>
-  </select>
+          <!-- Date of Birth -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Date of Birth</label>
+            <input type="date" class="form-control" formControlName="date_of_birth">
+          </div>
 
-  Nominee Name
-  <input type="text" class="form-control" formControlName="nominee_name"> <br /><br />
+          <!-- Mobile Number -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Mobile Number</label>
+            <input type="text" class="form-control" formControlName="mobile_number">
+          </div>
 
-  Relationship
-  <input type="text" class="form-control" formControlName="relationship"> <br /><br />
+          <!-- Share Percentage -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Share Percentage</label>
+            <input type="number" class="form-control" formControlName="share_percentage">
+          </div>
 
-  Date of Birth
-  <input type="date" class="form-control" formControlName="date_of_birth"> <br /><br />
+          <!-- Guardian Name -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Guardian Name (If Minor)</label>
+            <input type="text" class="form-control" formControlName="guardian_name">
+          </div>
+        </div>
 
-  Mobile Number
-  <input type="text" class="form-control" formControlName="mobile_number"> <br /><br />
+        <!-- Submit Button -->
+        <div class="d-grid gap-2 mt-4">
+          <input type="submit" class="btn btn-primary" value="Submit Nominee Change">
+        </div>
 
-  Share Percentage
-  <input type="number" class="form-control" formControlName="share_percentage"> <br /><br />
+      </form>
 
-  Guardian Name (If Minor)
-  <input type="text" class="form-control" formControlName="guardian_name"> <br /><br />
+    </div>
+  </div>
 
-  <input type="submit" class="btn btn-primary" value="Submit">
+  <!-- Debug JSON View -->
+  <div class="mt-4">
+    <strong>Form Data Preview:</strong>
+    <pre class="bg-light p-3 border rounded mt-2">{{ nomineeForm.value | json }}</pre>
+  </div>
 
-</form>
+</div>
