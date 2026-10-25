@@ -1,0 +1,85 @@
+<!-- 🚨 Added 250px left margin for the sidebar and right padding -->
+<div class="container-fluid mt-4" style="margin-left: 250px; padding-right: 20px;">
+
+  <h3 class="mb-4">Address Change Form</h3>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+
+      <form [formGroup]="addressForm" (ngSubmit)="SaveAddress(addressForm.value)">
+
+        <!-- Hidden fields -->
+        <input type="hidden" formControlName="address_id">
+        <input type="hidden" formControlName="customer_id">
+
+        <!-- Policy Dropdown -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Select Policy</label>
+          <select class="form-select" formControlName="policyId">
+            <option value="">-- Select a policy --</option>
+            <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+              {{ p.policy_number }} (Status : {{p.policy_status}})
+            </option>
+          </select>
+        </div>
+
+        <!-- Grid for Address Fields -->
+        <div class="row">
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Address Type</label>
+            <input type="text" class="form-control" formControlName="address_type">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Pincode</label>
+            <input type="text" class="form-control" formControlName="pincode">
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Address Line 1</label>
+            <input type="text" class="form-control" formControlName="address_line1">
+          </div>
+
+          <div class="col-md-12 mb-3">
+            <label class="form-label fw-bold">Address Line 2</label>
+            <input type="text" class="form-control" formControlName="address_line2">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">City</label>
+            <input type="text" class="form-control" formControlName="city">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">District</label>
+            <input type="text" class="form-control" formControlName="district">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">State</label>
+            <input type="text" class="form-control" formControlName="state">
+          </div>
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Country</label>
+            <input type="text" class="form-control" formControlName="country">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-grid gap-2 mt-4">
+          <input type="submit" class="btn btn-primary" value="Submit Address Change">
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Debug JSON View (Optional - keeping it at the bottom so it doesn't ruin the UI) -->
+  <div class="mt-4">
+    <strong>Form Data Preview:</strong>
+    <pre class="bg-light p-3 border rounded mt-2">{{ addressForm.value | json }}</pre>
+  </div>
+
+</div>

@@ -20,6 +20,7 @@ export class Auth {
   private readonly http = inject(HttpClient);
   private readonly baseUrl = 'https://localhost:7122/api/v1/auth';
 
+  // Login
   login(credentials: LoginRequest): Observable<LoginResponse> {
     return this.http
       .post<LoginResponse>(`${this.baseUrl}/login`, credentials)
@@ -27,21 +28,30 @@ export class Auth {
         tap(response => {
           if (response.accessToken) {
             localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('access_token', response.accessToken);
           }
         })
       );
   }
 
+  // Verify two-factor login
   verifyTwoFactorLogin(data: {
     challenge_token: string;
     code: string;
   }): Observable<unknown> {
-    return this.http.post(
-      `${this.baseUrl}/2fa/verify-login`,
-      data
-    );
+    return this.http
+      .post<LoginResponse>(`${this.baseUrl}/2fa/verify-login`, data)
+      .pipe(
+        tap(response => {
+          if (response.accessToken) {
+            localStorage.setItem('accessToken', response.accessToken);
+            localStorage.setItem('access_token', response.accessToken);
+          }
+        })
+      );
   }
 
+  // Authorization headers for authenticated requests
   private getAuthHeaders(): HttpHeaders {
     const token =
       localStorage.getItem('accessToken') ||
@@ -53,6 +63,7 @@ export class Auth {
     });
   }
 
+  // Set up two-factor authentication
   setupTwoFactor(): Observable<unknown> {
     return this.http.post(
       `${this.baseUrl}/2fa/setup`,
@@ -61,6 +72,7 @@ export class Auth {
     );
   }
 
+  // Enable two-factor authentication
   enableTwoFactor(code: string): Observable<unknown> {
     return this.http.post(
       `${this.baseUrl}/2fa/enable`,
@@ -69,6 +81,7 @@ export class Auth {
     );
   }
 
+  // Register user
   register(data: {
     employee_id: number;
     username: string;
@@ -78,9 +91,13 @@ export class Auth {
     role_id: number;
     branch_id: number;
   }): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/register`, data);
+    return this.http.post(
+      `${this.baseUrl}/register`,
+      data
+    );
   }
 
+  // Forgot password
   forgotPassword(username: string): Observable<unknown> {
     return this.http.post(
       `${this.baseUrl}/forgot-password`,
@@ -88,6 +105,7 @@ export class Auth {
     );
   }
 
+  // Refresh token
   refreshToken(refreshToken: string): Observable<unknown> {
     return this.http.post(
       `${this.baseUrl}/refresh-token`,
@@ -95,7 +113,17 @@ export class Auth {
     );
   }
 
+  // Logout
   logout(): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/logout`, {});
+    return this.http.post(
+      `${this.baseUrl}/logout`,
+      {},
+      { headers: this.getAuthHeaders() }
+    ).pipe(
+      tap(() => {
+        localStorage.removeItem('accessToken');
+        localStorage.removeItem('access_token');
+      })
+    );
   }
 }

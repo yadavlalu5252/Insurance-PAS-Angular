@@ -1,0 +1,79 @@
+<div class="container-xl py-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h2 class="mb-0">Register a claim for a customer</h2>
+    <a routerLink="/agent/claims" class="btn btn-outline-secondary">‹ Back</a>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-lg-8">
+      <form class="card shadow-sm border-0" [formGroup]="form" (ngSubmit)="Submit()" novalidate>
+        <div class="card-body">
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label">Customer id</label>
+              <input type="number" class="form-control" formControlName="customer_id" [class.is-invalid]="Invalid('customer_id')" />
+              <div class="invalid-feedback">Enter the customer's id.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Policy id</label>
+              <input type="number" class="form-control" formControlName="policy_id" [class.is-invalid]="Invalid('policy_id')" />
+              <div class="invalid-feedback">Enter a valid policy id.</div>
+            </div>
+
+            <div class="col-md-6">
+              <label class="form-label">Claim type</label>
+              <select class="form-select" formControlName="claim_type" [class.is-invalid]="Invalid('claim_type')">
+                <option value="">Select claim type</option>
+                @for (t of types; track t) { <option [value]="t">{{ t }}</option> }
+              </select>
+              <div class="invalid-feedback">Select a claim type.</div>
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Incident date</label>
+              <input type="date" class="form-control" [max]="today" formControlName="incident_date" [class.is-invalid]="Invalid('incident_date')" />
+              <div class="invalid-feedback">
+                @if (form.get('incident_date')?.errors?.['future']) { The incident date cannot be in the future. }
+                @else { Incident date is required. }
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Estimated loss</label>
+              <div class="input-group">
+                <span class="input-group-text">₹</span>
+                <input type="number" class="form-control" formControlName="estimated_loss" [class.is-invalid]="Invalid('estimated_loss')" />
+                <div class="invalid-feedback">Estimated loss must be greater than 0.</div>
+              </div>
+            </div>
+
+            <div class="col-12">
+              <label class="form-label">Description</label>
+              <textarea rows="4" class="form-control" formControlName="description" [class.is-invalid]="Invalid('description')"></textarea>
+              <div class="invalid-feedback">Description is required (maximum 1000 characters).</div>
+            </div>
+          </div>
+
+          @if (error()) { <div class="alert alert-danger mt-3 mb-0">{{ error() }}</div> }
+        </div>
+
+        <div class="card-footer bg-white d-flex gap-2">
+          <button type="submit" class="btn btn-primary" [disabled]="saving()">
+            @if (saving()) { <span class="spinner-border spinner-border-sm me-2"></span>Saving... }
+            @else { Register claim }
+          </button>
+          <a routerLink="/agent/claims" class="btn btn-outline-secondary">Cancel</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card shadow-sm border-0">
+        <div class="card-body">
+          <h6>Before you submit</h6>
+          <p class="small text-muted mb-2">The policy is checked with the Policy and Premium services. A claim is rejected if the policy is not active, has expired, belongs to another customer, or has unpaid premium.</p>
+          <p class="small text-muted mb-0">Registration can fail with a "service not available" message when one of those services is down. Try again later.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
