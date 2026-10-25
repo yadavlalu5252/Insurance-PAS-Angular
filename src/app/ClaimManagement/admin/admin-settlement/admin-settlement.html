@@ -1,0 +1,113 @@
+<div *ngIf="loading" class="text-center py-4">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span class="ms-2">Loading settlement...</span>
+</div>
+
+<ng-container *ngIf="!loading">
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <!-- a recorded settlement -->
+  <div *ngIf="settlement" class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-cash-coin text-primary me-1"></i> Settlement</h5>
+        <span class="badge bg-success">{{ settlement.settlement_status }}</span>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-sm-4"><div class="small text-muted">Amount paid</div><b>{{ settlement.approved_amount | currency:'INR':'symbol':'1.0-2' }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Payment mode</div><b>{{ settlement.payment_mode }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Settlement date</div><b>{{ settlement.settlement_date | date:'dd/MM/yyyy HH:mm' }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Transaction reference</div><b>{{ settlement.transaction_reference }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Account holder</div><b>{{ settlement.account_holder_name }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Account number</div><b>{{ settlement.account_number }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">IFSC</div><b>{{ settlement.ifsc_code }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Bank verified</div><b>{{ settlement.bank_verified ? 'Yes' : 'No' }}</b></div>
+      </div>
+
+      <button class="btn btn-outline-primary mt-3" (click)="showAdvice()">
+        <i class="bi bi-file-earmark-text me-1"></i> View settlement advice
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="advice" class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between">
+        <h5>Settlement advice {{ advice.advice_number }}</h5>
+        <small class="text-muted">Generated {{ advice.generated_on | date:'dd/MM/yyyy HH:mm' }}</small>
+      </div>
+      <table class="table table-sm mb-0">
+        <tbody>
+          <tr><td>Claim number</td><td class="text-end">{{ advice.claim_number }}</td></tr>
+          <tr><td>Assessed amount</td><td class="text-end">{{ advice.assessed_amount | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+          <tr><td>− Deductible</td><td class="text-end">{{ advice.deductible | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+          <tr><td>− Depreciation</td><td class="text-end">{{ advice.depreciation | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+          <tr><td>− Non-payable</td><td class="text-end">{{ advice.non_payable | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+          <tr class="fw-bold"><td>Net payable</td><td class="text-end">{{ advice.net_payable | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+          <tr><td>Paid by</td><td class="text-end">{{ advice.payment_mode }}, ref {{ advice.transaction_reference }}</td></tr>
+          <tr><td>Account</td><td class="text-end">{{ advice.account_holder_name }}, {{ advice.account_number }}</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- record a settlement -->
+  <div *ngIf="canProcess" class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Record the settlement</h5>
+
+      <div class="alert alert-info">
+        <i class="bi bi-info-circle"></i>
+        This <b>records</b> a payment made outside this system. No money is moved from here.
+        <span *ngIf="assessment">
+          Amount to be recorded: <b>{{ assessment.net_payable | currency:'INR':'symbol':'1.0-2' }}</b> (the assessed net payable).
+        </span>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label">Payment mode</label>
+          <select class="form-select" [(ngModel)]="paymentMode">
+            <option value="">Select</option>
+            <option *ngFor="let m of paymentModes" [value]="m">{{ m }}</option>
+          </select>
+        </div>
+        <div class="col-md-8">
+          <label class="form-label">Transaction reference (UTR, UPI ref or cheque number)</label>
+          <input class="form-control" [(ngModel)]="reference" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Account holder name</label>
+          <input class="form-control" [(ngModel)]="holder" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">Account number (9 to 18 digits)</label>
+          <input class="form-control" [(ngModel)]="accountNumber" autocomplete="off" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-label">IFSC code</label>
+          <input class="form-control" [(ngModel)]="ifsc" placeholder="HDFC0001234" />
+        </div>
+        <div class="col-12">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="bankVerified" [(ngModel)]="bankVerified" />
+            <label class="form-check-label" for="bankVerified">
+              I confirm the bank account was verified. This is a manual confirmation, the system does not verify it automatically.
+            </label>
+          </div>
+        </div>
+      </div>
+
+      <button class="btn btn-primary mt-3" (click)="process()" [disabled]="busy">
+        <span *ngIf="busy" class="spinner-border spinner-border-sm me-2"></span>
+        <i *ngIf="!busy" class="bi bi-check2-circle me-1"></i> Record settlement
+      </button>
+    </div>
+  </div>
+
+  <div *ngIf="!settlement && !canProcess" class="alert alert-secondary">
+    <i class="bi bi-info-circle"></i> Settlement is possible only after a claim is approved.
+  </div>
+</ng-container>

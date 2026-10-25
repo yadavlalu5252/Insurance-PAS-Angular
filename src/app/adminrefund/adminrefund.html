@@ -1,0 +1,108 @@
+<div class="admin-page">
+
+  <h1>Admin Refund Management</h1>
+  <p class="subtitle">
+    Review refund requests and approve eligible refunds.
+  </p>
+
+  <div *ngIf="successMessage" class="message success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="message error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Search refund -->
+  <section class="card">
+
+    <h2>Find Refund</h2>
+
+    <div class="search-row">
+      <div class="form-group">
+        <label for="refundId">Refund ID</label>
+        <input
+          id="refundId"
+          type="number"
+          min="1"
+          [(ngModel)]="refundId"
+          placeholder="Enter Refund ID">
+      </div>
+
+      <button
+        type="button"
+        class="primary-btn"
+        (click)="getRefund()"
+        [disabled]="loading">
+        {{ loading ? 'Loading...' : 'View Refund' }}
+      </button>
+    </div>
+  </section>
+
+  <!-- Refund details and approval -->
+  <section class="card" *ngIf="refundDetails">
+
+    <h2>Refund Details</h2>
+
+    <div class="details">
+      <p>
+        <strong>Refund ID:</strong>
+        {{ refundDetails.refund_id }}
+      </p>
+
+      <p>
+        <strong>Payment ID:</strong>
+        {{ refundDetails.payment_id }}
+      </p>
+
+      <p>
+        <strong>Refund Amount:</strong>
+        ₹{{ refundDetails.refund_amount | number:'1.2-2' }}
+      </p>
+
+      <p>
+        <strong>Status:</strong>
+        {{ refundDetails.refund_status || refundDetails.status || 'Not provided by API' }}
+      </p>
+
+      <p *ngIf="refundDetails.approved_by">
+        <strong>Approved By:</strong>
+        {{ refundDetails.approved_by }}
+      </p>
+    </div>
+
+    <hr>
+
+    <h3>Approve Refund</h3>
+
+    <div class="form-group">
+      <label for="approvedBy">Admin User ID (approved_by)</label>
+      <input
+        id="approvedBy"
+        type="number"
+        min="1"
+        [(ngModel)]="approvedBy"
+        placeholder="Enter your Admin User ID">
+    </div>
+
+    <div class="button-row">
+      <button
+        type="button"
+        class="approve-btn"
+        (click)="approveRefund()"
+        [disabled]="loading">
+        {{ loading ? 'Approving...' : 'Approve Refund' }}
+      </button>
+
+      <button
+        type="button"
+        class="secondary-btn"
+        (click)="clear()"
+        [disabled]="loading">
+        Clear
+      </button>
+    </div>
+
+  </section>
+
+</div>

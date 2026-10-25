@@ -1,0 +1,80 @@
+<div class="refund-page">
+
+  <h1>Refund Management</h1>
+
+  <p class="subtitle">
+    Request a refund for your premium payment and check its status.
+  </p>
+
+  <div *ngIf="successMessage" class="message success">
+    {{ successMessage }}
+  </div>
+
+  <div *ngIf="errorMessage" class="message error">
+    {{ errorMessage }}
+  </div>
+
+  <!-- Customer requests a refund -->
+  <section class="card">
+    <h2>Request a Refund</h2>
+
+    <p>
+      Enter the amount you would like to request as a refund.
+    </p>
+
+    <div class="form-group">
+      <label for="refundAmount">Refund Amount (₹)</label>
+
+      <input
+        id="refundAmount"
+        type="number"
+        min="0.01"
+        step="0.01"
+        [(ngModel)]="refundAmount"
+        placeholder="Enter refund amount">
+    </div>
+
+    <button
+      type="button"
+      class="primary-btn"
+      (click)="requestRefund()"
+      [disabled]="loading">
+      {{ loading ? 'Submitting...' : 'Request Refund' }}
+    </button>
+  </section>
+
+  <!-- Customer checks status only when requested -->
+  <section class="card">
+    <h2>Check Refund Status</h2>
+
+    <p>
+      Click View Status to see the latest refund request result.
+    </p>
+
+    <button
+      type="button"
+      class="primary-btn"
+      (click)="viewStatus()"
+      [disabled]="loading">
+      {{ loading ? 'Loading...' : 'View Status' }}
+    </button>
+
+    <div *ngIf="showRefundStatus && refundDetails" class="status-result">
+      <h3>Your Refund Status</h3>
+
+      <p class="status-value">
+        {{
+          getStatusLabel(
+            refundDetails.refund_status ?? refundDetails.status
+          )
+        }}
+      </p>
+
+      <p *ngIf="refundDetails.refund_amount != null">
+        Refund Amount:
+        ₹{{ refundDetails.refund_amount | number:'1.2-2' }}
+      </p>
+    </div>
+  </section>
+
+</div>

@@ -1,4 +1,3 @@
-
 import { Component } from '@angular/core';
 import { Auth } from '../../../core/services/auth';
 import { CommonModule } from '@angular/common';
@@ -18,6 +17,10 @@ import { Router } from '@angular/router';
   styleUrl: './two-factor.scss'
 })
 export class TwoFactor {
+
+  challengeToken = '';
+  loading = false;
+  errorMessage = '';
   challengeToken: string = '';
   loading: boolean = false;
   errorMessage: string = '';
@@ -35,6 +38,13 @@ export class TwoFactor {
       Validators.pattern(/^\d{6}$/)
     ])
   });
+
+  constructor(
+    private service: Auth,
+    private router: Router
+  ) {
+    this.challengeToken = history.state?.challengeToken || '';
+  }
 
   VerifyTwoFactor(data: any): void {
     this.errorMessage = '';
@@ -60,6 +70,38 @@ export class TwoFactor {
       next: (res: any) => {
         this.loading = false;
 
+        // Support both token naming formats.
+        const accessToken = res.access_token || res.accessToken;
+        const refreshToken = res.refresh_token || res.refreshToken;
+        const role = res.role_name || res.roleName;
+
+        if (!accessToken || !role) {
+          this.errorMessage = 'Access token or role was not received.';
+          return;
+        }
+
+        // Save authentication details.
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('role_name', role);
+
+        if (refreshToken) {
+          localStorage.setItem('refresh_token', refreshToken);
+        }
+
+        // Navigate according to the user's role.
+        if (role === 'Admin') {
+          this.router.navigate(['/dashboard']);
+        } else if (role === 'Customer') {
+          this.router.navigate(['/customer-dashboard']);
+        } else if (role === 'Agent') {
+          this.router.navigate(['/agent-dashboard']);
+        } else {
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('role_name');
+
+          this.errorMessage = 'User role not recognized.';
+        }
         console.log('Two-factor verification response:', res);
 
         const loginData = res.login ?? res;
