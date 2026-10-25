@@ -2,6 +2,18 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
+import { Injectable, inject } from '@angular/core';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
+import { Observable, tap } from 'rxjs';
+
+interface LoginRequest {
+  username: string;
+  password: string;
+}
+
+interface LoginResponse {
+  accessToken: string;
+}
 
 @Injectable({
   providedIn: 'root'
@@ -41,6 +53,52 @@ export class Auth {
           localStorage.setItem('accessToken', response.accessToken);
         }
       })
+  private http = inject(HttpClient);
+
+  private readonly baseUrl = 'https://localhost:7122/api/v1/auth';
+
+  login(username: string, password: string): Observable<LoginResponse> {
+    const request: LoginRequest = {
+      username,
+      password
+    };
+
+    return this.http.post<LoginResponse>(`${this.baseUrl}/login`, request).pipe(
+      tap(response => {
+        localStorage.setItem('accessToken', response.accessToken);
+        localStorage.setItem('access_token', response.accessToken); // Set both variants to support your 2FA methods
+      })
+    );
+  }
+
+  verifyTwoFactorLogin(data: {
+    challenge_token: string;
+    code: string;
+  }): Observable<unknown> {
+    return this.http.post(`${this.baseUrl}/2fa/verify-login`, data);
+  }
+
+  private getAuthHeaders(): HttpHeaders {
+    const token = localStorage.getItem('accessToken') || '';
+
+    return new HttpHeaders({
+      Authorization: `Bearer ${token}`
+    });
+  }
+
+  setupTwoFactor(): Observable<unknown> {
+    return this.http.post(
+      `${this.baseUrl}/2fa/setup`,
+      {},
+      { headers: this.getAuthHeaders() }
+    );
+  }
+
+  enableTwoFactor(code: string): Observable<unknown> {
+    return this.http.post(
+      `${this.baseUrl}/2fa/enable`,
+      { code },
+      { headers: this.getAuthHeaders() }
     );
   }
 

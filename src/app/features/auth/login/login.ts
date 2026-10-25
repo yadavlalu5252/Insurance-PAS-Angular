@@ -26,7 +26,7 @@ export class Login {
     private router: Router
   ) {
     this.loginForm = this.fb.nonNullable.group({
-      username: ['', [Validators.required]],
+      username: ['', Validators.required],
       password: ['', [Validators.required, Validators.minLength(8)]]
     });
   }
@@ -51,12 +51,16 @@ export class Login {
 
     this.loading = true;
 
-    this.authService.login(this.loginForm.getRawValue()).subscribe({
+    const { username, password } = this.loginForm.getRawValue();
+
+    this.authService.login(username, password).subscribe({
       next: (response: any) => {
-        this.loading = false;
+        console.log('Login response:', response);
 
         // Check whether two-factor verification is required.
         if (response.requires_two_factor && response.challenge_token) {
+          this.loading = false;
+
           this.router.navigate(['/two-factor'], {
             state: {
               challengeToken: response.challenge_token
@@ -111,6 +115,32 @@ export class Login {
         } else {
           this.errorMessage = 'User role not recognized.';
         }
+        const loginData = response.login ?? response;
+
+        if (loginData.access_token || loginData.accessToken) {
+          const accessToken = loginData.access_token ?? loginData.accessToken;
+          const refreshToken = loginData.refresh_token ?? loginData.refreshToken;
+
+          localStorage.setItem('access_token', accessToken);
+
+          if (refreshToken) {
+            localStorage.setItem('refresh_token', refreshToken);
+          }
+
+          this.loading = false;
+
+          // Navigate to the next required page.
+          if (response.requires_two_factor_setup === true || response.requires_two_factor_setup === undefined) {
+            this.router.navigate(['/two-factor-setup']);
+          } else {
+            this.router.navigate(['/reports']);
+          }
+
+          return;
+        }
+
+        this.loading = false;
+        this.errorMessage = 'Unexpected login response. Check the browser console.';
       },
 
       error: (error) => {
@@ -120,6 +150,7 @@ export class Login {
           typeof error.error === 'string'
             ? error.error
             : 'Login failed. Please check your credentials and try again.';
+            : error.error?.message || 'Login failed. Please check your credentials and try again.';
 
         this.loading = false;
       }

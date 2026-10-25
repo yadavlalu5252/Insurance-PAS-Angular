@@ -21,6 +21,16 @@ export class TwoFactor {
   challengeToken = '';
   loading = false;
   errorMessage = '';
+  challengeToken: string = '';
+  loading: boolean = false;
+  errorMessage: string = '';
+
+  constructor(
+    private service: Auth,
+    private router: Router
+  ) {
+    this.challengeToken = history.state?.challengeToken || '';
+  }
 
   twoFactorForm = new FormGroup({
     code: new FormControl('', [
@@ -92,6 +102,34 @@ export class TwoFactor {
 
           this.errorMessage = 'User role not recognized.';
         }
+        console.log('Two-factor verification response:', res);
+
+        const loginData = res.login ?? res;
+
+        const accessToken =
+          loginData.access_token ?? loginData.accessToken;
+
+        const refreshToken =
+          loginData.refresh_token ?? loginData.refreshToken;
+
+        if (!accessToken || !refreshToken) {
+          this.errorMessage = 'Authentication tokens were not received.';
+          console.error('Unexpected authentication response:', res);
+          return;
+        }
+
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('refresh_token', refreshToken);
+
+        console.log('Two-factor verification successful.');
+        console.log(
+          'Access token saved:',
+          !!localStorage.getItem('access_token')
+        );
+
+        this.router.navigate(['/reports'], {
+          replaceUrl: true
+        });
       },
 
       error: (err) => {
@@ -100,7 +138,8 @@ export class TwoFactor {
         this.errorMessage =
           typeof err.error === 'string'
             ? err.error
-            : 'Invalid verification code. Please try again.';
+            : err.error?.message ||
+              'Invalid verification code. Please try again.';
 
         this.loading = false;
       }

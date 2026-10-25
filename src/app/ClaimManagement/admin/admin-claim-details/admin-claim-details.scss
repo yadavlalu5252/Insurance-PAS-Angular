@@ -1,0 +1,8 @@
+.alerts { position: sticky; top: 8px; z-index: 1030; }
+
+.cm-timeline { list-style: none; margin: 0; padding: 0 0 0 18px; border-left: 3px solid #dee2e6; }
+.cm-timeline li { position: relative; padding: 0 0 18px 18px; }
+.cm-timeline li::before {
+  content: ''; position: absolute; left: -27px; top: 4px; width: 14px; height: 14px;
+  border-radius: 50%; background: #0d6efd; border: 3px solid #fff; box-shadow: 0 0 0 2px #b6d4fe;
+}

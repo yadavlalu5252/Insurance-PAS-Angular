@@ -1,12 +1,15 @@
 import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
 import { DashboardMetrics, DashboardMetricsService } from '../../core/services/dashboard-metrics.service';
+import { Component } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
 @Component({
   selector: 'app-admin-layout',
   standalone: true,
-  imports: [],
+  imports: [CommonModule, RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './admin-layout.html',
-  styleUrl: './admin-layout.scss',
+  styleUrl: './admin-layout.scss'
 })
 export class AdminLayout implements OnInit {
 
@@ -32,5 +35,10 @@ export class AdminLayout implements OnInit {
         console.error('Dashboard API error:', error);
       }
     });
+export class AdminLayout {
+  sidebarOpen = true;
+
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 }

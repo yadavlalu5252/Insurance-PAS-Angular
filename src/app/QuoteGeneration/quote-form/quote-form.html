@@ -1,0 +1,88 @@
+
+<div class="quote-form-page">
+  <div class="page-header">
+    <div>
+      <h1>Generate Quote</h1>
+      <p>Create a new insurance quotation.</p>
+    </div>
+    <button type="button" class="secondary-btn" (click)="cancel()">
+      Back to Quotes
+    </button>
+  </div>
+
+  <form class="form-card" (ngSubmit)="submitQuote()">
+    <h2>Quote Details</h2>
+
+    <div class="form-grid">
+      <div class="form-group">
+        <label for="customer">Customer ID</label>
+        <input
+          id="customer"
+          type="number"
+          name="customer_id"
+          [(ngModel)]="form.customer_id"
+          placeholder="Customer selection requires Customer API"
+          min="1"
+          required
+        />
+        <small>We can replace this with a customer-name dropdown when the API is available.</small>
+      </div>
+
+      <div class="form-group">
+        <label for="product">Insurance Product</label>
+        <select
+          id="product"
+          name="product_id"
+          [(ngModel)]="form.product_id"
+          required
+        >
+          <option [ngValue]="null">Select an insurance product</option>
+          <option *ngFor="let p of products"
+                  [ngValue]="p.product_id ?? p.productId">
+            {{ p.product_name ?? p.productName ?? p.name }}
+          </option>
+        </select>
+        <small *ngIf="loadingProducts">Loading products...</small>
+      </div>
+
+      <div class="form-group">
+        <label for="term">Policy Term (Years)</label>
+        <input
+          id="term"
+          type="number"
+          name="policy_term"
+          [(ngModel)]="form.policy_term"
+          min="1"
+          max="100"
+          required
+        />
+      </div>
+
+      <div class="form-group">
+        <label for="sumInsured">Sum Insured (₹)</label>
+        <input
+          id="sumInsured"
+          type="number"
+          name="sum_insured"
+          [(ngModel)]="form.sum_insured"
+          min="1"
+          placeholder="Enter sum insured"
+          required
+        />
+      </div>
+    </div>
+
+    <p *ngIf="errorMessage" class="error-message">
+      {{ errorMessage }}
+    </p>
+
+    <div class="form-actions">
+      <button type="button" class="secondary-btn" (click)="cancel()">
+        Cancel
+      </button>
+      <button type="submit" class="primary-btn" [disabled]="saving || loadingProducts">
+        {{ saving ? 'Creating Quote...' : 'Generate Quote' }}
+      </button>
+    </div>
+  </form>
+</div>
