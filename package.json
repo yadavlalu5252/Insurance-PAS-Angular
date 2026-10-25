@@ -18,15 +18,8 @@
     "@angular/platform-browser": "^22.2.0",
     "@angular/router": "^22.2.0",
     "bootstrap": "^5.3.8",
-<<<<<<< HEAD
-<<<<<<< HEAD
     "bootstrap-icons": "^1.13.2",
-=======
     "qrcode": "^1.5.4",
->>>>>>> dd48efa5869929210a5405e40e1cc6bff53a6c5b
-=======
-    "qrcode": "^1.5.4",
->>>>>>> 79efef95699a8a70c8287d13ea538974bd289eed
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
