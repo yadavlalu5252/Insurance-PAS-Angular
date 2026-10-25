@@ -17,8 +17,9 @@ export interface LoginResponse {
   providedIn: 'root'
 })
 export class Auth {
-  private readonly http = inject(HttpClient);
-  private readonly baseUrl = 'https://localhost:7122/api/v1/auth';
+  private http = inject(HttpClient);
+
+  private readonly baseUrl = 'https://localhost:7201/api/v1/auth';
 
   // Login
   login(credentials: LoginRequest): Observable<LoginResponse> {
@@ -81,21 +82,9 @@ export class Auth {
     );
   }
 
-  // Register user
-  register(data: {
-    employee_id: number;
-    username: string;
-    password: string;
-    email?: string;
-    mobile?: string;
-    role_id: number;
-    branch_id: number;
-  }): Observable<unknown> {
-    return this.http.post(
-      `${this.baseUrl}/register`,
-      data
-    );
-  }
+register(data: { employee_id: number; username: string; password: string; email?: string; mobile?: string; role_id: number; branch_id: number }): Observable<string> {
+  return this.http.post(`${this.baseUrl}/register`, data, { responseType: 'text' });
+}
 
   // Forgot password
   forgotPassword(username: string): Observable<unknown> {
