@@ -1,4 +1,3 @@
-
 import { Routes } from '@angular/router';
 
 // Layouts
@@ -48,8 +47,6 @@ import { CustomerClaimDetails } from './ClaimManagement/customer/customer-claim-
 import { AdminClaims } from './ClaimManagement/admin/admin-claims/admin-claims';
 import { AdminClaimDetails } from './ClaimManagement/admin/admin-claim-details/admin-claim-details';
 import { AdminInvestigations } from './ClaimManagement/admin/admin-investigations/admin-investigations';
-
-// New Agent Claim Management Components
 import { AgentClaims } from './ClaimManagement/agent/agent-claims/agent-claims';
 import { AgentClaimNew } from './ClaimManagement/agent/agent-claim-new/agent-claim-new';
 import { AgentClaimDetails } from './ClaimManagement/agent/agent-claim-details/agent-claim-details';
@@ -59,17 +56,23 @@ import { Policies } from './features/policies/policies';
 import { Endorsements } from './features/endorsements/endorsements';
 import { PolicyClosureComponent } from './features/policy-closure/policy-closure';
 
-export const routes: Routes = [
-  // Default: always show login first
-  { path: '', redirectTo: 'login', pathMatch: 'full' },
+// Premium and Refund Management
+import { Customerpremiumschedule } from './customerpremiumschedule/customerpremiumschedule';
+import { Adminpremium } from './adminpremium/adminpremium';
+import { Customerrefund } from './customerrefund/customerrefund';
+import { Adminrefund } from './adminrefund/adminrefund';
+import { Paymenthistory } from './paymenthistory/paymenthistory';
+import { Paymentreceipt } from './paymentreceipt/paymentreceipt';
 
-  // Authentication routes must be public
+export const routes: Routes = [
+  // Authentication
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: Login },
   { path: 'register', component: Register },
   { path: 'two-factor', component: TwoFactor },
   { path: 'two-factor-setup', component: TwoFactorSetup },
 
-  // Admin application
+  // Admin
   {
     path: 'admin',
     component: AdminLayout,
@@ -83,11 +86,9 @@ export const routes: Routes = [
       { path: 'products', component: Product },
       { path: 'products/add', component: ProductForm },
       { path: 'products/edit/:id', component: ProductForm },
-
       { path: 'categories', component: Category },
       { path: 'categories/add', component: CategoryForm },
       { path: 'categories/edit/:id', component: CategoryForm },
-
       { path: 'product-management', component: ProductManagement },
       { path: 'product-configuration/:id', component: ProductConfiguration },
 
@@ -107,20 +108,27 @@ export const routes: Routes = [
       { path: 'policy-service/nominee', component: ServiceNominee },
       { path: 'policy-service/rider', component: ServiceRider },
 
+      { path: 'customer-premium-schedule', component: Customerpremiumschedule },
+      { path: 'admin-premium', component: Adminpremium },
+      { path: 'customer-refund', component: Customerrefund },
+      { path: 'admin-refund', component: Adminrefund },
+      { path: 'payment-history', component: Paymenthistory },
+      { path: 'payment-receipts', component: Paymentreceipt },
+
       {
         path: 'claims',
         canActivate: [claimRoleGuard],
         data: { role: 'admin' },
         children: [
           { path: '', component: AdminClaims },
-          { path: 'investigations', component: AdminInvestigations }, // must stay above ':id'
+          { path: 'investigations', component: AdminInvestigations },
           { path: ':id', component: AdminClaimDetails }
         ]
       }
     ]
   },
 
-  // Agent application
+  // Agent
   {
     path: 'agent',
     component: AgentLayout,
@@ -129,13 +137,18 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'policies', pathMatch: 'full' },
       { path: 'dashboard', component: Reports },
-
       { path: 'policies', component: Policies },
       { path: 'endorsements', component: Endorsements },
       { path: 'policy-closure', component: PolicyClosureComponent },
-
       { path: 'products', component: Product },
       { path: 'quotes', component: Quote },
+
+      { path: 'customer-premium-schedule', component: Customerpremiumschedule },
+      { path: 'admin-premium', component: Adminpremium },
+      { path: 'customer-refund', component: Customerrefund },
+      { path: 'admin-refund', component: Adminrefund },
+      { path: 'payment-history', component: Paymenthistory },
+      { path: 'payment-receipts', component: Paymentreceipt },
 
       {
         path: 'claims',
@@ -159,7 +172,7 @@ export const routes: Routes = [
     ]
   },
 
-  // Customer application
+  // Customer
   {
     path: 'customer',
     component: CustomerLayout,
@@ -167,10 +180,16 @@ export const routes: Routes = [
     data: { role: ['Customer', 'customer'] },
     children: [
       { path: '', redirectTo: 'policies', pathMatch: 'full' },
-
       { path: 'policies', component: Policies },
       { path: 'endorsements', component: Endorsements },
       { path: 'policy-closure', component: PolicyClosureComponent },
+
+      { path: 'customer-premium-schedule', component: Customerpremiumschedule },
+      { path: 'admin-premium', component: Adminpremium },
+      { path: 'customer-refund', component: Customerrefund },
+      { path: 'admin-refund', component: Adminrefund },
+      { path: 'payment-history', component: Paymenthistory },
+      { path: 'payment-receipts', component: Paymentreceipt },
 
       {
         path: 'claims',
@@ -194,7 +213,7 @@ export const routes: Routes = [
     ]
   },
 
-  // Legacy routes kept for existing claim links
+  // Legacy claim routes
   {
     path: 'claims/customer',
     canActivate: [authGuard, claimRoleGuard],
@@ -205,7 +224,6 @@ export const routes: Routes = [
       { path: ':id', component: CustomerClaimDetails }
     ]
   },
-
   {
     path: 'claims/agent',
     canActivate: [authGuard, claimRoleGuard],
@@ -216,7 +234,6 @@ export const routes: Routes = [
       { path: ':id', component: AgentClaimDetails }
     ]
   },
-
   {
     path: 'claims/admin',
     canActivate: [authGuard, claimRoleGuard],
@@ -227,6 +244,6 @@ export const routes: Routes = [
     ]
   },
 
-  // Unknown routes return to login
+  // Fallback
   { path: '**', redirectTo: 'login' }
 ];

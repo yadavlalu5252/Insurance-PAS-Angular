@@ -1,0 +1,162 @@
+<div class="history-page">
+
+  <div class="page-header">
+
+    <div>
+      <h1>Payment History</h1>
+      <p>View all payments recorded against your insurance policy.</p>
+    </div>
+
+    <button
+      type="button"
+      class="refresh-btn"
+      (click)="loadHistory()"
+      [disabled]="loading || !policyId">
+
+      {{ loading ? 'Loading...' : 'Refresh History' }}
+
+    </button>
+
+  </div>
+
+  <!-- Messages -->
+
+  <div *ngIf="errorMessage" class="message error">
+    {{ errorMessage }}
+  </div>
+
+  <div *ngIf="successMessage" class="message success">
+    {{ successMessage }}
+  </div>
+
+  <!-- Summary cards -->
+
+  <section class="summary-grid">
+
+    <div class="summary-card">
+      <span>Policy ID</span>
+      <strong>{{ policyId || 'Unavailable' }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Total Payment Records</span>
+      <strong>{{ payments.length }}</strong>
+    </div>
+
+    <div class="summary-card">
+      <span>Successful Payments</span>
+      <strong>
+        ₹{{ totalSuccessfulAmount | number:'1.2-2' }}
+      </strong>
+    </div>
+
+  </section>
+
+  <!-- Payment history table -->
+
+  <section class="history-card">
+
+    <h2>Your Payments</h2>
+
+    <div *ngIf="loading" class="loading">
+      Loading payment history...
+    </div>
+
+    <div
+      class="table-container"
+      *ngIf="!loading && payments.length > 0">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Payment ID</th>
+            <th>Schedule ID</th>
+            <th>Payment Date</th>
+            <th>Amount Paid</th>
+            <th>Payment Mode</th>
+            <th>Transaction Reference</th>
+            <th>Status</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let payment of payments">
+
+            <td>
+              {{ payment.payment_id ?? payment.paymentId }}
+            </td>
+
+            <td>
+              {{ payment.schedule_id ?? payment.scheduleId }}
+            </td>
+
+            <td>
+              {{
+                (payment.payment_date ?? payment.paymentDate)
+                  | date:'dd-MM-yyyy HH:mm'
+              }}
+            </td>
+
+            <td class="amount">
+              ₹{{
+                (payment.amount_paid ?? payment.amountPaid)
+                  | number:'1.2-2'
+              }}
+            </td>
+
+            <td>
+              {{
+                payment.payment_mode ??
+                payment.paymentMode ??
+                '-'
+              }}
+            </td>
+
+            <td>
+              {{
+                payment.transaction_reference ??
+                payment.transactionReference ??
+                '-'
+              }}
+            </td>
+
+            <td>
+              <span
+                class="status"
+                [ngClass]="getStatusClass(
+                  payment.payment_status ?? payment.paymentStatus
+                )">
+
+                {{
+                  getPaymentStatus(
+                    payment.payment_status ?? payment.paymentStatus
+                  )
+                }}
+
+              </span>
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+    <div
+      *ngIf="!loading && payments.length === 0 && !errorMessage"
+      class="empty-state">
+
+      <h3>No Payment History</h3>
+
+      <p>No payment records are available for this policy.</p>
+      
+
+    </div>
+
+  </section>
+
+</div>

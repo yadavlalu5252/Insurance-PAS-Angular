@@ -1,0 +1,303 @@
+<div class="customer-page">
+
+  <div class="page-header">
+    <h1>Premium Schedule</h1>
+    <p>View your premium installments and pay your premium.</p>
+
+  </div>
+
+  <!-- Messages -->
+
+  <div
+    *ngIf="successMessage"
+    class="alert success">
+    {{ successMessage }}
+
+
+  </div>
+
+  <div
+    *ngIf="errorMessage"
+    class="alert error">
+
+    {{ errorMessage }}
+  </div>
+
+
+  <!-- View Schedule -->
+
+  <section class="card">
+
+    <h2>View Premium Schedule</h2>
+
+    <div class="search-section">
+
+      <div class="form-group">
+        <label for="policyId">Policy ID</label>
+
+        <input
+          id="policyId"
+          type="number"
+          [ngModel]="policyId"
+          readonly
+          placeholder="Policy ID will be loaded from your login">
+      </div>
+
+      <div class="button-group">
+
+        <button
+          type="button"
+          class="btn primary"
+          (click)="getSchedule()"
+          [disabled]="loadingSchedule || !policyId">
+
+          {{ loadingSchedule ? 'Loading...' : 'View Schedule' }}
+
+        </button>
+
+        <button
+          type="button"
+          class="btn secondary"
+          (click)="clearSchedule()"
+          [disabled]="loadingSchedule">
+
+          Clear
+
+        </button>
+
+      </div>
+
+    </div>
+
+  </section>
+
+
+  <!-- Schedule Table -->
+
+  <section
+    class="card"
+    *ngIf="schedules.length > 0">
+
+    <h2>Your Premium Installments</h2>
+
+    <p>
+      Policy ID: <strong>{{ policyId }}</strong>
+    </p>
+
+    <div class="table-container">
+
+      <table>
+
+        <thead>
+          <tr>
+            <th>Installment</th>
+            <th>Due Date</th>
+            <th>Premium Amount</th>
+            <th>Late Fee</th>
+            <th>Total Payable</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+
+        <tbody>
+
+          <tr *ngFor="let schedule of schedules">
+
+            <td>{{ schedule.installment_no }}</td>
+
+            <td>
+              {{ schedule.due_date | date:'dd-MM-yyyy' }}
+            </td>
+
+            <td>
+              ₹{{ schedule.premium_amount | number:'1.2-2' }}
+            </td>
+
+            <td>
+              ₹{{ (schedule.late_fee || 0) | number:'1.2-2' }}
+            </td>
+
+            <td>
+              ₹{{
+                (+schedule.premium_amount + +(schedule.late_fee || 0))
+                  | number:'1.2-2'
+              }}
+            </td>
+
+            <td>
+              <span
+                class="status"
+                [ngClass]="getStatusClass(schedule.status)">
+                {{ schedule.status }}
+              </span>
+            </td>
+
+            <td>
+
+              <button
+                *ngIf="canPay(schedule)"
+                type="button"
+                class="btn pay-btn"
+                (click)="selectPaymentSchedule(schedule)">
+
+                Select & Pay
+
+              </button>
+
+              <span *ngIf="!canPay(schedule)">
+                {{ schedule.status }}
+              </span>
+
+            </td>
+
+          </tr>
+
+        </tbody>
+
+      </table>
+
+    </div>
+
+  </section>
+
+
+  <!-- No Schedule -->
+
+  <section
+    class="card empty-state"
+    *ngIf="!loadingSchedule &&
+           policyId &&
+           schedules.length === 0 &&
+           !errorMessage">
+
+    No premium installments found.
+
+  </section>
+
+
+  <!-- ==================================================
+       PAYMENT MODAL
+       ================================================== -->
+
+  <div
+    class="modal-backdrop"
+    *ngIf="selectedSchedule"
+    (click)="cancelPayment()">
+
+    <section
+      class="payment-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="paymentTitle"
+      (click)="$event.stopPropagation()">
+
+      <div class="modal-header">
+
+        <div>
+          <h2 id="paymentTitle">Pay Premium</h2>
+          <p>Review your installment before proceeding.</p>
+        </div>
+
+        <button
+          type="button"
+          class="close-btn"
+          aria-label="Close payment window"
+          (click)="cancelPayment()">
+
+          &times;
+
+        </button>
+
+      </div>
+
+
+      <div class="payment-details">
+
+        <div class="detail">
+          <span>Policy ID</span>
+          <strong>{{ selectedSchedule.policy_id }}</strong>
+        </div>
+
+        <div class="detail">
+          <span>Installment</span>
+          <strong>{{ selectedSchedule.installment_no }}</strong>
+        </div>
+
+        <div class="detail">
+          <span>Due Date</span>
+          <strong>
+            {{ selectedSchedule.due_date | date:'dd-MM-yyyy' }}
+          </strong>
+        </div>
+
+        <div class="detail">
+          <span>Premium Amount</span>
+          <strong>
+            ₹{{ selectedSchedule.premium_amount | number:'1.2-2' }}
+          </strong>
+        </div>
+
+        <div class="detail">
+          <span>Late Fee</span>
+          <strong>
+            ₹{{ (selectedSchedule.late_fee || 0) | number:'1.2-2' }}
+          </strong>
+        </div>
+
+      </div>
+
+
+      <div class="total-row">
+
+        <span>Total Payable</span>
+
+        <strong>
+          ₹{{ paymentAmount | number:'1.2-2' }}
+        </strong>
+
+      </div>
+
+
+      <div class="form-group">
+
+        <label for="paymentAmount">Pay Amount</label>
+
+        <input
+          id="paymentAmount"
+          type="number"
+          [ngModel]="paymentAmount"
+          readonly>
+
+      </div>
+
+
+      <div class="modal-actions">
+
+        <button
+          type="button"
+          class="btn pay-btn"
+          (click)="payPremium()"
+          [disabled]="processingPayment">
+
+          {{ processingPayment ? 'Processing...' : 'Pay Premium' }}
+
+        </button>
+
+        <button
+          type="button"
+          class="btn secondary"
+          (click)="cancelPayment()"
+          [disabled]="processingPayment">
+
+          Cancel
+
+        </button>
+
+      </div>
+
+    </section>
+
+  </div>
+
+</div>
