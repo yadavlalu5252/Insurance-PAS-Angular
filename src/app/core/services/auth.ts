@@ -17,7 +17,7 @@ interface LoginResponse {
 export class Auth {
   private http = inject(HttpClient);
 
-  private readonly baseUrl = 'https://localhost:7122/api/v1/auth';
+  private readonly baseUrl = 'https://localhost:7201/api/v1/auth';
 
   login(username: string, password: string): Observable<LoginResponse> {
     const request: LoginRequest = {
@@ -63,17 +63,9 @@ export class Auth {
     );
   }
 
-  register(data: {
-    employee_id: number;
-    username: string;
-    password: string;
-    email?: string;
-    mobile?: string;
-    role_id: number;
-    branch_id: number;
-  }): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/register`, data);
-  }
+register(data: { employee_id: number; username: string; password: string; email?: string; mobile?: string; role_id: number; branch_id: number }): Observable<string> {
+  return this.http.post(`${this.baseUrl}/register`, data, { responseType: 'text' });
+}
 
   forgotPassword(username: string): Observable<unknown> {
     return this.http.post(`${this.baseUrl}/forgot-password`, { username });
