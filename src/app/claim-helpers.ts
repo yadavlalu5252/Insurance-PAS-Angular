@@ -12,6 +12,9 @@ export const DOCUMENT_SUGGESTIONS: Record<string, string[]> = {
   Life: ['Death Certificate', 'Medical Certificate', 'Nominee ID Proof']
 };
 
+// payment modes from the BRD (FR-CLM-008)
+export const PAYMENT_MODES = ['NEFT', 'RTGS', 'IMPS', 'UPI', 'Cheque'];
+
 // Bootstrap badge class for a status
 export function getStatusBadge(status: string): string {
   switch (status) {
@@ -73,11 +76,86 @@ export function unwrapList(response: any): any[] {
   return Array.isArray(data?.items) ? data.items : [];
 }
 
-// TEMPORARY: there is no login yet, so the customer id is typed in and kept in the browser.
-// Replace these three with the id from the Authentication module when it is ready.
+// same file types the API accepts
+export function isAllowedFile(file: File): boolean {
+  const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
+  return ['pdf', 'jpg', 'jpeg', 'png'].includes(extension);
+}
+
+// ---------- token and roles ----------
+
+const ROLE_CLAIM = 'http://schemas.microsoft.com/ws/2008/06/identity/claims/role';
+
+// reads the payload of the token that the login saved
+export function getTokenPayload(): any | null {
+  const token = localStorage.getItem('access_token');
+
+  if (!token) {
+    return null;
+  }
+
+  try {
+    const part = token.split('.')[1].replace(/-/g, '+').replace(/_/g, '/');
+    return JSON.parse(atob(part));
+  } catch {
+    return null;
+  }
+}
+
+export function isTokenExpired(payload: any): boolean {
+  return !!payload?.exp && payload.exp * 1000 < Date.now();
+}
+
+export function getUserRoles(): string[] {
+  const payload = getTokenPayload();
+  const raw = payload?.['role'] ?? payload?.['roles'] ?? payload?.[ROLE_CLAIM];
+
+  if (!raw) {
+    return [];
+  }
+
+  return (Array.isArray(raw) ? raw : [raw]).map((role: any) => String(role).toLowerCase());
+}
+
+// the names the login may use for each of the three roles (compared in lower case)
+export const ROLE_ALIASES: Record<string, string[]> = {
+  admin: ['admin', 'administrator', 'super admin'],
+  agent: ['agent'],
+  customer: ['customer'],
+};
+
+export function hasRole(group: string): boolean {
+  const aliases = ROLE_ALIASES[group] ?? [];
+  return getUserRoles().some((role) => aliases.includes(role));
+}
+
+// the first page of the user's own role
+export function getHomeRoute(): string {
+  if (hasRole('admin')) return '/claims/admin';
+  if (hasRole('agent')) return '/claims/agent';
+  if (hasRole('customer')) return '/claims/customer';
+  return '/login';
+}
+
+// ---------- customer id ----------
+
+// TEMPORARY: used when the token has no customer id, so the id is typed in and kept in the browser.
 const CUSTOMER_KEY = 'cm_customer_id';
 
+export function getTokenCustomerId(): number | null {
+  const payload = getTokenPayload();
+  const value = payload?.['customer_id'] ?? payload?.['customerId'] ?? payload?.['CustomerId'];
+  return value ? Number(value) : null;
+}
+
+// the customer id comes from the token when it has one. Otherwise the typed-in id is used.
 export function getSavedCustomerId(): number | null {
+  const fromToken = getTokenCustomerId();
+
+  if (fromToken) {
+    return fromToken;
+  }
+
   const value = localStorage.getItem(CUSTOMER_KEY);
   return value ? Number(value) : null;
 }
@@ -88,13 +166,4 @@ export function saveCustomerId(id: number): void {
 
 export function clearCustomerId(): void {
   localStorage.removeItem(CUSTOMER_KEY);
-}
-
-// payment modes from the BRD (FR-CLM-008)
-export const PAYMENT_MODES = ['NEFT', 'RTGS', 'IMPS', 'UPI', 'Cheque'];
-
-// same file types the API accepts
-export function isAllowedFile(file: File): boolean {
-  const extension = file.name.split('.').pop()?.toLowerCase() ?? '';
-  return ['pdf', 'jpg', 'jpeg', 'png'].includes(extension);
 }
