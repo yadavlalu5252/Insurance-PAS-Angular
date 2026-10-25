@@ -1,9 +1,5 @@
-
-import { Component, OnInit, inject } from '@angular/core';
-import {
-  DashboardMetrics,
-  DashboardMetricsService
-} from '../../core/services/dashboard-metrics.service';
+import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { DashboardMetrics, DashboardMetricsService } from '../../core/services/dashboard-metrics.service';
 
 @Component({
   selector: 'app-admin-layout',
@@ -15,6 +11,7 @@ import {
 export class AdminLayout implements OnInit {
 
   private dashboardService = inject(DashboardMetricsService);
+  private cdr = inject(ChangeDetectorRef);
 
   metrics: DashboardMetrics = {
     totalUsers: 0,
@@ -26,12 +23,13 @@ export class AdminLayout implements OnInit {
   ngOnInit(): void {
     this.dashboardService.getDashboardMetrics().subscribe({
       next: (response) => {
-        if (response.success) {
-          this.metrics = response.data;
+        if (response.success && response.data) {
+          this.metrics = { ...response.data };
+          this.cdr.detectChanges();
         }
       },
       error: (error) => {
-        console.error('Error loading dashboard metrics', error);
+        console.error('Dashboard API error:', error);
       }
     });
   }

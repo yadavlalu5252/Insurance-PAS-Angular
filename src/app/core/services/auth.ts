@@ -1,58 +1,49 @@
 
-import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
-import { Observable, tap } from 'rxjs';
-
-interface LoginRequest {
-  username: string;
-  password: string;
-}
-
-interface LoginResponse {
-  accessToken: string;
-}
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
+import { Observable, tap } from 'rxjs';
 
 @Injectable({
   providedIn: 'root'
 })
 export class Auth {
 
-  private http = inject(HttpClient);
-
-  private apiUrl = 'https://localhost:7122/api/v1/auth/login';
-
-  login(username: string, password: string): Observable<LoginResponse> {
-    const request: LoginRequest = {
-      username: username,
-      password: password
-    };
-
-    return this.http.post<LoginResponse>(this.apiUrl, request).pipe(
-      tap(response => {
-        localStorage.setItem('accessToken', response.accessToken);
-      })
-    );
-  private readonly baseUrl = 'https://localhost:7122/api/v1/auth';
+  private readonly baseUrl = 'https://localhost:7201/api/v1/auth';
 
   constructor(private http: HttpClient) {}
 
-  login(credentials: { username: string; password: string }): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/login`, credentials);
+  login(credentials: {
+    username: string;
+    password: string;
+  }): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/login`,
+      credentials
+    ).pipe(
+      tap(response => {
+        if (response.accessToken) {
+          localStorage.setItem('accessToken', response.accessToken);
+        }
+      })
+    );
   }
 
-verifyTwoFactorLogin(data: {
-  challenge_token: string;
-  code: string;
-}) {
-  return this.http.post(
-    `${this.baseUrl}/2fa/verify-login`,
-    data
-  );
-}
-  
+  verifyTwoFactorLogin(data: {
+    challenge_token: string;
+    code: string;
+  }): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/2fa/verify-login`,
+      data
+    ).pipe(
+      tap(response => {
+        if (response.accessToken) {
+          localStorage.setItem('accessToken', response.accessToken);
+        }
+      })
+    );
+  }
+
   register(data: {
     employee_id: number;
     username: string;
@@ -61,21 +52,35 @@ verifyTwoFactorLogin(data: {
     mobile?: string;
     role_id: number;
     branch_id: number;
-  }): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/register`, data);
+  }): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/register`,
+      data
+    );
   }
 
-  forgotPassword(username: string): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/forgot-password`, { username });
+  forgotPassword(username: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/forgot-password`,
+      { username }
+    );
   }
 
-  refreshToken(refreshToken: string): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/refresh-token`, {
-      refresh_token: refreshToken
-    });
+  refreshToken(refreshToken: string): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/refresh-token`,
+      { refresh_token: refreshToken }
+    );
   }
 
-  logout(): Observable<unknown> {
-    return this.http.post(`${this.baseUrl}/logout`, {});
+  logout(): Observable<any> {
+    return this.http.post<any>(
+      `${this.baseUrl}/logout`,
+      {}
+    ).pipe(
+      tap(() => {
+        localStorage.removeItem('accessToken');
+      })
+    );
   }
 }

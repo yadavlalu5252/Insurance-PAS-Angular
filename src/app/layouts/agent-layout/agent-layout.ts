@@ -1,9 +1,11 @@
 import { Component } from '@angular/core';
+import { RouterLink, RouterOutlet } from '@angular/router';
 
 @Component({
-  imports: [],
   selector: 'app-agent-layout',
-  styleUrl: './agent-layout.scss',
+  standalone: true,
+  imports: [RouterOutlet],
   templateUrl: './agent-layout.html',
+  styleUrl: './agent-layout.scss'
 })
 export class AgentLayout {}
