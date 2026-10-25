@@ -1,0 +1,364 @@
+<div class="container-fluid py-4">
+  <a routerLink="/claims/admin" class="text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i>
+    Back to all claims
+  </a>
+
+  <!-- stays visible while scrolling, so the result of an action is never missed -->
+  <div class="alerts">
+    <div *ngIf="errorMessage" class="alert alert-danger shadow-sm mt-3 mb-0">{{ errorMessage }}</div>
+    <div *ngIf="successMessage" class="alert alert-success shadow-sm mt-3 mb-0">{{ successMessage }}</div>
+  </div>
+
+  <div *ngIf="loading && !claim" class="text-center py-5">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span class="ms-2">Loading claim...</span>
+  </div>
+
+  <ng-container *ngIf="claim">
+    <div class="d-flex justify-content-between align-items-center my-3">
+      <h3 class="fw-bold mb-0">
+        {{ claim.claim_number }}
+        <span class="badge ms-2" [ngClass]="getStatusBadge(claim.claim_status)">{{ claim.claim_status }}</span>
+      </h3>
+
+      <button *ngIf="canCancel()" class="btn btn-outline-danger" [disabled]="busy !== ''" (click)="cancelClaim()">
+        <i class="bi bi-slash-circle me-1"></i>
+        Cancel Claim
+      </button>
+    </div>
+
+    <div class="row g-3">
+      <div class="col-lg-8">
+
+        <!-- claim details -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Claim Details</h5></div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="text-muted small">Claim type</div>
+                <div class="fw-semibold">{{ claim.claim_type }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Policy id</div>
+                <div class="fw-semibold">{{ claim.policy_id }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Customer id</div>
+                <div class="fw-semibold">{{ claim.customer_id }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Incident date</div>
+                <div class="fw-semibold">{{ claim.incident_date | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Claim date</div>
+                <div class="fw-semibold">{{ claim.claim_date | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Estimated loss</div>
+                <div class="fw-semibold">{{ claim.estimated_loss | currency:'INR':'symbol':'1.0-0' }}</div>
+              </div>
+              <div class="col-12" *ngIf="claim.description">
+                <div class="text-muted small">Description</div>
+                <div>{{ claim.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- documents -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Documents</h5></div>
+          <div class="card-body">
+            <div *ngIf="documents.length === 0" class="text-muted">The customer has not uploaded any document yet.</div>
+
+            <div class="table-responsive" *ngIf="documents.length > 0">
+              <table class="table table-sm table-hover table-bordered align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Document</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let document of documents; trackBy: trackByDocumentId">
+                    <td>{{ document.document_name }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusBadge(document.verification_status)">
+                        {{ document.verification_status }}
+                      </span>
+                    </td>
+                    <td>{{ document.uploaded_date ? (document.uploaded_date | date:'dd/MM/yyyy') : '—' }}</td>
+                    <td>
+                      <div *ngIf="canVerifyDocuments() && document.verification_status === 'Pending'" class="btn-group btn-group-sm">
+                        <button class="btn btn-outline-success" [disabled]="busy !== ''"
+                          (click)="verifyDocument(document, 'Verified')">Verify</button>
+                        <button class="btn btn-outline-danger" [disabled]="busy !== ''"
+                          (click)="verifyDocument(document, 'Rejected')">Reject</button>
+                      </div>
+                      <span *ngIf="!(canVerifyDocuments() && document.verification_status === 'Pending')" class="text-muted">—</span>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- survey -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Survey</h5></div>
+          <div class="card-body">
+            <div *ngIf="survey; else noSurvey">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="text-muted small">Surveyor id</div>
+                  <div class="fw-semibold">{{ survey.surveyor_id }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-muted small">Status</div>
+                  <span class="badge" [ngClass]="getStatusBadge(survey.survey_status)">{{ survey.survey_status }}</span>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-muted small">Assigned on</div>
+                  <div class="fw-semibold">{{ survey.assigned_date | date:'dd/MM/yyyy' }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-muted small">Inspection date</div>
+                  <div class="fw-semibold">
+                    {{ survey.inspection_date ? (survey.inspection_date | date:'dd/MM/yyyy') : 'Not done yet' }}
+                  </div>
+                </div>
+              </div>
+
+              <div *ngIf="canSubmitSurveyReport()">
+                <hr />
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-4">
+                    <label class="form-label small text-muted mb-1">Inspection date</label>
+                    <input type="date" class="form-control" [max]="today" [(ngModel)]="inspectionDate" />
+                  </div>
+                  <div class="col-md-5">
+                    <label class="form-label small text-muted mb-1">Survey report (pdf, jpg, png)</label>
+                    <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" (change)="onSurveyFileSelected($event)" />
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-primary w-100" [disabled]="busy !== ''" (click)="submitSurveyReport()">
+                      <span *ngIf="busy === 'survey-report'" class="spinner-border spinner-border-sm"></span>
+                      <span *ngIf="busy !== 'survey-report'">Submit report</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noSurvey>
+              <p class="text-muted mb-2">No surveyor assigned.</p>
+
+              <div *ngIf="canAssignSurvey()" class="row g-2 align-items-end">
+                <div class="col-md-4">
+                  <label class="form-label small text-muted mb-1">Surveyor id</label>
+                  <input type="number" class="form-control" [(ngModel)]="surveyorId" />
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-primary w-100" [disabled]="busy !== ''" (click)="assignSurvey()">
+                    <span *ngIf="busy === 'survey'" class="spinner-border spinner-border-sm"></span>
+                    <span *ngIf="busy !== 'survey'">Assign surveyor</span>
+                  </button>
+                </div>
+              </div>
+
+              <small *ngIf="!canAssignSurvey()" class="text-muted">
+                A surveyor can be assigned once the claim is Pending Verification (after a document is uploaded).
+              </small>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- investigation -->
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Investigation</h5></div>
+          <div class="card-body">
+            <div *ngIf="investigation; else noInvestigation">
+              <div class="row g-3">
+                <div class="col-md-3">
+                  <div class="text-muted small">Investigator id</div>
+                  <div class="fw-semibold">{{ investigation.investigator_id }}</div>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-muted small">Status</div>
+                  <span class="badge" [ngClass]="getStatusBadge(investigation.investigation_status)">
+                    {{ investigation.investigation_status }}
+                  </span>
+                </div>
+                <div class="col-md-3">
+                  <div class="text-muted small">Report</div>
+                  <div class="fw-semibold">{{ investigation.report_uploaded ? 'Uploaded' : 'Not uploaded' }}</div>
+                </div>
+                <div class="col-12">
+                  <div class="text-muted small">Reason</div>
+                  <div>{{ investigation.investigation_reason }}</div>
+                </div>
+              </div>
+
+              <div *ngIf="canSubmitInvestigationReport()">
+                <hr />
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-9">
+                    <label class="form-label small text-muted mb-1">Investigation report (pdf, jpg, png)</label>
+                    <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" (change)="onInvestigationFileSelected($event)" />
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-primary w-100" [disabled]="busy !== ''" (click)="submitInvestigationReport()">
+                      <span *ngIf="busy === 'investigation-report'" class="spinner-border spinner-border-sm"></span>
+                      <span *ngIf="busy !== 'investigation-report'">Submit report</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <ng-template #noInvestigation>
+              <p class="text-muted mb-2">No investigation started.</p>
+
+              <div *ngIf="canAssignInvestigation()" class="row g-2 align-items-end">
+                <div class="col-md-3">
+                  <label class="form-label small text-muted mb-1">Investigator id</label>
+                  <input type="number" class="form-control" [(ngModel)]="investigatorId" />
+                </div>
+                <div class="col-md-6">
+                  <label class="form-label small text-muted mb-1">Reason</label>
+                  <input class="form-control" placeholder="e.g. Fake documents suspected" [(ngModel)]="investigationReason" />
+                </div>
+                <div class="col-md-3">
+                  <button class="btn btn-primary w-100" [disabled]="busy !== ''" (click)="assignInvestigation()">
+                    <span *ngIf="busy === 'investigation'" class="spinner-border spinner-border-sm"></span>
+                    <span *ngIf="busy !== 'investigation'">Start investigation</span>
+                  </button>
+                </div>
+              </div>
+
+              <small *ngIf="!canAssignInvestigation()" class="text-muted">
+                An investigation can start when the claim is Pending Verification, or after the survey report is submitted.
+              </small>
+            </ng-template>
+          </div>
+        </div>
+
+        <!-- decision -->
+        <div class="card border-0 shadow-sm mb-3" *ngIf="canDecide()">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Decision</h5></div>
+          <div class="card-body">
+            <div class="row g-4">
+              <div class="col-md-6">
+                <label class="form-label small text-muted mb-1">Approve (remarks are optional)</label>
+                <textarea rows="2" class="form-control mb-2" [(ngModel)]="approveRemarks"></textarea>
+                <button class="btn btn-success" [disabled]="busy !== ''" (click)="approveClaim()">
+                  <i class="bi bi-check-circle me-1"></i>
+                  Approve claim
+                </button>
+                <div class="small text-muted mt-2">
+                  Approval needs every document verified, and the survey report if a survey was assigned.
+                </div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label small text-muted mb-1">Reject (reason is required)</label>
+                <textarea rows="2" class="form-control mb-2" [(ngModel)]="rejectReason"></textarea>
+                <button class="btn btn-danger" [disabled]="busy !== ''" (click)="rejectClaim()">
+                  <i class="bi bi-x-circle me-1"></i>
+                  Reject claim
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- settlement -->
+        <div class="card border-0 shadow-sm" *ngIf="claim.claim_status === 'Approved' || claim.claim_status === 'Settled'">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Settlement</h5></div>
+          <div class="card-body">
+            <div *ngIf="settlement; else noSettlement" class="row g-3">
+              <div class="col-md-4">
+                <div class="text-muted small">Amount</div>
+                <div class="fw-semibold">{{ settlement.approved_amount | currency:'INR':'symbol':'1.0-0' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Payment mode</div>
+                <div class="fw-semibold">{{ settlement.payment_mode }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Status</div>
+                <span class="badge" [ngClass]="getStatusBadge(settlement.settlement_status)">{{ settlement.settlement_status }}</span>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Reference</div>
+                <div class="fw-semibold">{{ settlement.transaction_reference || '—' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Date</div>
+                <div class="fw-semibold">{{ settlement.settlement_date ? (settlement.settlement_date | date:'dd/MM/yyyy') : '—' }}</div>
+              </div>
+            </div>
+
+            <ng-template #noSettlement>
+              <div *ngIf="canSettle()">
+                <div class="row g-2 align-items-end">
+                  <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Amount (₹)</label>
+                    <input type="number" class="form-control" [(ngModel)]="settleAmount" />
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Payment mode</label>
+                    <select class="form-select" [(ngModel)]="settleMode">
+                      <option value="">Select mode</option>
+                      <option *ngFor="let mode of paymentModes" [value]="mode">{{ mode }}</option>
+                    </select>
+                  </div>
+                  <div class="col-md-3">
+                    <label class="form-label small text-muted mb-1">Transaction reference</label>
+                    <input class="form-control" [(ngModel)]="settleReference" />
+                  </div>
+                  <div class="col-md-3">
+                    <button class="btn btn-primary w-100" [disabled]="busy !== ''" (click)="processSettlement()">
+                      <span *ngIf="busy === 'settlement'" class="spinner-border spinner-border-sm"></span>
+                      <span *ngIf="busy !== 'settlement'">Record settlement</span>
+                    </button>
+                  </div>
+                </div>
+                <small class="text-muted d-block mt-2">
+                  This records the settlement (payment mode and reference). It does not move any money.
+                </small>
+              </div>
+            </ng-template>
+          </div>
+        </div>
+      </div>
+
+      <!-- tracking -->
+      <div class="col-lg-4">
+        <div class="card border-0 shadow-sm">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Claim Tracking</h5></div>
+          <div class="card-body">
+            <ul class="cm-timeline">
+              <li *ngFor="let item of history; trackBy: trackByHistoryId">
+                <div class="fw-semibold">
+                  <i class="bi text-primary me-1" [ngClass]="getIcon(item.action)"></i>
+                  {{ item.action }}
+                </div>
+                <div class="text-muted small">{{ item.action_date | date:'dd/MM/yyyy, HH:mm' }} · user #{{ item.performed_by }}</div>
+                <div class="small" *ngIf="item.remarks">{{ item.remarks }}</div>
+              </li>
+
+              <li *ngIf="history.length === 0" class="text-muted">No history yet</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>
