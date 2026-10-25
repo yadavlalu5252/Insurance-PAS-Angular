@@ -9,7 +9,7 @@ export class ProductService {
 
   http = inject(HttpClient);
 
-  private baseUrl = 'https://localhost:7074/api/v1';
+  private baseUrl = 'https://localhost:7129/api/v1';
 
   // Existing URLs
   url = `${this.baseUrl}/insurance-products`;

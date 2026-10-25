@@ -1,0 +1,37 @@
+<div class="card border-0 shadow-sm mb-3">
+  <div class="card-header bg-white fw-semibold"><i class="bi bi-cash-coin text-primary me-1"></i> Settlement</div>
+
+  <div class="card-body">
+    <div *ngIf="loading" class="text-muted"><span class="spinner-border spinner-border-sm me-2"></span>Loading...</div>
+    <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+
+    <ng-container *ngIf="!loading">
+      <div *ngIf="!settlement" class="text-muted">
+        This claim has not been settled yet. The settlement is recorded by the claims team after the claim is approved.
+      </div>
+
+      <ng-container *ngIf="settlement">
+        <div class="row g-3">
+          <div class="col-sm-4"><div class="small text-muted">Amount paid</div><b>{{ settlement.approved_amount | currency:'INR':'symbol':'1.0-2' }}</b></div>
+          <div class="col-sm-4"><div class="small text-muted">Payment mode</div><b>{{ settlement.payment_mode }}</b></div>
+          <div class="col-sm-4"><div class="small text-muted">Settlement date</div><b>{{ settlement.settlement_date | date:'dd/MM/yyyy' }}</b></div>
+          <div class="col-sm-4"><div class="small text-muted">Reference</div><b>{{ settlement.transaction_reference }}</b></div>
+          <div class="col-sm-4"><div class="small text-muted">Account holder</div><b>{{ settlement.account_holder_name }}</b></div>
+          <div class="col-sm-4"><div class="small text-muted">Account number</div><b>{{ settlement.account_number }}</b></div>
+        </div>
+
+        <button class="btn btn-outline-primary btn-sm mt-3" (click)="showAdvice()">View settlement advice</button>
+
+        <table *ngIf="advice" class="table table-sm mt-3 mb-0">
+          <tbody>
+            <tr><td>Assessed amount</td><td class="text-end">{{ advice.assessed_amount | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+            <tr><td>− Deductible</td><td class="text-end">{{ advice.deductible | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+            <tr><td>− Depreciation</td><td class="text-end">{{ advice.depreciation | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+            <tr><td>− Non-payable</td><td class="text-end">{{ advice.non_payable | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+            <tr class="fw-bold"><td>Net payable</td><td class="text-end">{{ advice.net_payable | currency:'INR':'symbol':'1.0-2' }}</td></tr>
+          </tbody>
+        </table>
+      </ng-container>
+    </ng-container>
+  </div>
+</div>

@@ -1,0 +1,265 @@
+
+<div class="container-fluid py-4">
+
+  <!-- Page Heading -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Underwriting Case Review</h2>
+      <p class="text-secondary mb-0">
+        Review customer information, assess risk and record the underwriting decision.
+      </p>
+    </div>
+
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      onclick="history.back()">
+      <i class="bi bi-arrow-left me-2"></i>
+      Back to Cases
+    </button>
+  </div>
+
+  <!-- Error Message -->
+  <div *ngIf="errorMessage" class="alert alert-danger" role="alert">
+    <i class="bi bi-exclamation-circle me-2"></i>
+    {{ errorMessage }}
+  </div>
+
+  <!-- Application Information -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-file-earmark-text text-primary me-2"></i>
+        Application Information
+      </h5>
+    </div>
+
+    <div class="card-body">
+      <div class="row g-4">
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <label class="form-label text-secondary small mb-1">
+            Underwriting Case ID
+          </label>
+          <p class="fw-semibold mb-0">
+            {{ underwritingCase?.underwritingId ?? underwritingCase?.id ?? 'Not loaded' }}
+          </p>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <label class="form-label text-secondary small mb-1">
+            Quote ID
+          </label>
+          <p class="fw-semibold mb-0">
+            {{ underwritingCase?.quoteId ?? underwritingCase?.quote_id ?? 'Not loaded' }}
+          </p>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <label class="form-label text-secondary small mb-1">
+            Customer ID
+          </label>
+          <p class="fw-semibold mb-0">
+            {{ underwritingCase?.customerId ?? underwritingCase?.customer_id ?? 'Not loaded' }}
+          </p>
+        </div>
+
+        <div class="col-12 col-sm-6 col-xl-3">
+          <label class="form-label text-secondary small mb-1">
+            Case Status
+          </label>
+          <p class="mb-0">
+            <span class="badge text-bg-secondary">
+              {{ underwritingCase?.status ?? 'Not loaded' }}
+            </span>
+          </p>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Customer Medical Information -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-heart-pulse text-danger me-2"></i>
+        Customer Medical Information
+      </h5>
+    </div>
+
+    <div class="card-body">
+
+      <div *ngIf="!medicalDetails" class="text-center py-5">
+        <i class="bi bi-file-earmark-medical display-4 text-secondary"></i>
+
+        <h6 class="fw-semibold mt-3 mb-2">
+          Medical details not loaded
+        </h6>
+
+        <p class="text-secondary mb-0">
+          Customer-submitted medical information will appear here when connected to the API.
+        </p>
+      </div>
+
+      <div *ngIf="medicalDetails">
+        <pre class="mb-0 text-wrap">{{ medicalDetails | json }}</pre>
+      </div>
+
+      <div class="alert alert-light border small mb-0"
+           *ngIf="medicalDetails">
+        <i class="bi bi-info-circle me-2"></i>
+        Review the submitted information. Customer answers should not be silently overwritten.
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Risk Assessment -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-graph-up-arrow text-primary me-2"></i>
+        Risk Assessment
+      </h5>
+    </div>
+
+    <div class="card-body">
+
+      <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+        <div>
+          <h6 class="fw-semibold mb-1">Risk Score Calculation</h6>
+          <p class="text-secondary small mb-0">
+            Calculate the risk score for this underwriting case.
+          </p>
+        </div>
+
+        <button type="button" class="btn btn-primary" disabled>
+          <i class="bi bi-calculator me-2"></i>
+          Calculate Risk Score
+        </button>
+      </div>
+
+      <div class="row g-3">
+
+        <div class="col-12 col-md-6">
+          <div class="border rounded-3 p-3 h-100">
+            <label class="form-label text-secondary small">
+              Risk Score
+            </label>
+            <h3 class="fw-bold mb-1">—</h3>
+            <p class="text-secondary small mb-0">
+              Score will appear after calculation.
+            </p>
+          </div>
+        </div>
+
+        <div class="col-12 col-md-6">
+          <div class="border rounded-3 p-3 h-100">
+            <label class="form-label text-secondary small">
+              Risk Category
+            </label>
+            <h5 class="fw-semibold mb-1">Not assessed</h5>
+            <p class="text-secondary small mb-0">
+              Category will be provided by the risk assessment service.
+            </p>
+          </div>
+        </div>
+
+      </div>
+
+      <div *ngIf="riskScore" class="alert alert-info mt-3 mb-0">
+        <strong>Risk Assessment Result</strong>
+        <pre class="mb-0 mt-2 text-wrap">{{ riskScore | json }}</pre>
+      </div>
+
+      <p class="text-secondary small mt-3 mb-0">
+        Risk calculation will be enabled after API integration.
+      </p>
+
+    </div>
+  </div>
+
+  <!-- Underwriting Decision -->
+  <div class="card border-0 shadow-sm mb-4">
+    <div class="card-header bg-white py-3">
+      <h5 class="fw-bold mb-0">
+        <i class="bi bi-clipboard-check text-success me-2"></i>
+        Underwriting Decision
+      </h5>
+    </div>
+
+    <div class="card-body">
+
+      <div class="alert alert-light border">
+        <i class="bi bi-info-circle text-primary me-2"></i>
+        Review the customer information and risk assessment before recording a decision.
+      </div>
+
+      <!-- Decision Reason -->
+      <div class="mb-4">
+        <label for="decisionReason" class="form-label fw-semibold">
+          Decision Reason / Remarks
+        </label>
+
+        <textarea
+          id="decisionReason"
+          class="form-control"
+          rows="3"
+          placeholder="Enter rejection reason or underwriting remarks..."
+          disabled>
+        </textarea>
+
+        <div class="form-text">
+          A rejection reason will be required when rejecting a case.
+        </div>
+      </div>
+
+      <!-- Premium Loading -->
+      <div class="mb-4">
+        <label for="premiumLoading" class="form-label fw-semibold">
+          Premium Loading (%)
+        </label>
+
+        <div class="input-group">
+          <input
+            id="premiumLoading"
+            type="number"
+            class="form-control"
+            placeholder="Enter loading percentage"
+            disabled>
+
+          <span class="input-group-text">%</span>
+        </div>
+
+        <div class="form-text">
+          Use this field when additional premium loading is appropriate.
+        </div>
+      </div>
+
+      <!-- Decision Actions -->
+      <div class="d-flex flex-wrap gap-2">
+        <button type="button" class="btn btn-success" disabled>
+          <i class="bi bi-check-circle me-2"></i>
+          Approve
+        </button>
+
+        <button type="button" class="btn btn-outline-danger" disabled>
+          <i class="bi bi-x-circle me-2"></i>
+          Reject
+        </button>
+
+        <button type="button" class="btn btn-outline-warning" disabled>
+          <i class="bi bi-percent me-2"></i>
+          Apply Premium Loading
+        </button>
+      </div>
+
+      <p class="text-secondary small mt-3 mb-0">
+        Decision actions will be enabled after API integration.
+      </p>
+
+    </div>
+  </div>
+
+</div>

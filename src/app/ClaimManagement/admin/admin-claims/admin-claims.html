@@ -1,0 +1,160 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">{{ title }}</h3>
+      <p class="text-muted mb-0">{{ totalCount }} claim(s) in the system</p>
+    </div>
+
+    <a *ngIf="showRegister" class="btn btn-primary" [routerLink]="basePath + '/new'">
+      <i class="bi bi-plus-lg me-1"></i>
+      Register a Claim
+    </a>
+  </div>
+
+  <div class="row g-3 mb-4">
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm stat-card" [class.active]="selectedStatus === 'Pending Verification'"
+        (click)="filterByStatus('Pending Verification')">
+        <div class="card-body">
+          <div class="text-muted small">Pending verification</div>
+          <div class="fs-3 fw-bold text-warning">{{ pendingCount }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm stat-card" [class.active]="selectedStatus === 'Under Survey'"
+        (click)="filterByStatus('Under Survey')">
+        <div class="card-body">
+          <div class="text-muted small">Under survey</div>
+          <div class="fs-3 fw-bold text-primary">{{ surveyCount }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm stat-card" [class.active]="selectedStatus === 'Under Investigation'"
+        (click)="filterByStatus('Under Investigation')">
+        <div class="card-body">
+          <div class="text-muted small">Under investigation</div>
+          <div class="fs-3 fw-bold text-primary">{{ investigationCount }}</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-6 col-lg-3">
+      <div class="card border-0 shadow-sm stat-card" [class.active]="selectedStatus === 'Approved'"
+        (click)="filterByStatus('Approved')">
+        <div class="card-body">
+          <div class="text-muted small">Approved (awaiting settlement)</div>
+          <div class="fs-3 fw-bold text-success">{{ approvedCount }}</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card border-0 shadow-sm">
+    <div class="card-header bg-white py-3">
+      <div class="row g-2 align-items-end">
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Claim number</label>
+          <input class="form-control" placeholder="e.g. CLM-20261024" [ngModel]="searchText"
+            (ngModelChange)="searchText = $event; applyFilters()" />
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small text-muted mb-1">Customer id</label>
+          <input type="number" class="form-control" [ngModel]="customerFilter"
+            (ngModelChange)="customerFilter = $event; applyFilters()" />
+        </div>
+
+        <div class="col-md-3">
+          <label class="form-label small text-muted mb-1">Status</label>
+          <select class="form-select" [ngModel]="selectedStatus" (ngModelChange)="selectedStatus = $event; applyFilters()">
+            <option value="">All statuses</option>
+            <option *ngFor="let status of statuses" [value]="status">{{ status }}</option>
+          </select>
+        </div>
+
+        <div class="col-md-2">
+          <label class="form-label small text-muted mb-1">Claim type</label>
+          <select class="form-select" [ngModel]="selectedType" (ngModelChange)="selectedType = $event; applyFilters()">
+            <option value="">All types</option>
+            <option *ngFor="let type of types" [value]="type">{{ type }}</option>
+          </select>
+        </div>
+
+        <div class="col-md-2 d-flex gap-2">
+          <button class="btn btn-outline-primary flex-fill" (click)="loadClaims()" [disabled]="loading">
+            <i class="bi bi-arrow-clockwise"></i>
+          </button>
+          <button class="btn btn-outline-secondary flex-fill" (click)="clearFilters()">Clear</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-body">
+      <div *ngIf="loading" class="text-center py-4">
+        <div class="spinner-border spinner-border-sm text-primary"></div>
+        <span class="ms-2">Loading claims...</span>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
+
+      <div class="table-responsive" *ngIf="!loading && !errorMessage">
+        <table class="table table-hover table-bordered align-middle">
+          <thead class="table-light">
+            <tr>
+              <th>Claim No</th>
+              <th>Type</th>
+              <th>Policy</th>
+              <th>Customer</th>
+              <th class="text-end">Estimated Loss</th>
+              <th>Status</th>
+              <th>Claim Date</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let claim of claims; trackBy: trackByClaimId">
+              <td class="fw-semibold">{{ claim.claim_number }}</td>
+              <td>{{ claim.claim_type }}</td>
+              <td>{{ claim.policy_id }}</td>
+              <td>{{ claim.customer_id }}</td>
+              <td class="text-end">{{ claim.estimated_loss | currency:'INR':'symbol':'1.0-0' }}</td>
+              <td>
+                <span class="badge" [ngClass]="getStatusBadge(claim.claim_status)">{{ claim.claim_status }}</span>
+              </td>
+              <td>{{ claim.claim_date | date:'dd/MM/yyyy' }}</td>
+              <td>
+                <a class="btn btn-sm btn-outline-primary" [routerLink]="[basePath, claim.claim_id]">
+                  {{ showRegister ? 'Track' : 'Review' }}
+                </a>
+              </td>
+            </tr>
+
+            <tr *ngIf="claims.length === 0">
+              <td colspan="8" class="text-center text-muted py-4">No claims found.</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card-footer bg-white d-flex justify-content-between align-items-center">
+      <small class="text-muted">Page {{ currentPage }} of {{ totalPages }} ({{ filteredClaims.length }} claims)</small>
+
+      <div class="btn-group">
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage <= 1" (click)="goToPage(currentPage - 1)">
+          Previous
+        </button>
+        <button class="btn btn-sm btn-outline-secondary" [disabled]="currentPage >= totalPages" (click)="goToPage(currentPage + 1)">
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

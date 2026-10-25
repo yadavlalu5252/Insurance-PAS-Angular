@@ -1,6 +1,5 @@
-
 import { Injectable, inject } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable } from 'rxjs';
 
 export interface DashboardMetrics {
@@ -28,6 +27,20 @@ export class DashboardMetricsService {
   private apiUrl = 'https://localhost:7193/api/v1/dashboard-metrics';
 
   getDashboardMetrics(): Observable<ApiResponse<DashboardMetrics>> {
-    return this.http.get<ApiResponse<DashboardMetrics>>(this.apiUrl);
+
+    const token =
+      localStorage.getItem('accessToken') ||
+      localStorage.getItem('token') ||
+      sessionStorage.getItem('accessToken') ||
+      sessionStorage.getItem('token');
+
+    const headers = new HttpHeaders({
+      Authorization: `Bearer ${token ?? ''}`
+    });
+
+    return this.http.get<ApiResponse<DashboardMetrics>>(
+      this.apiUrl,
+      { headers }
+    );
   }
 }

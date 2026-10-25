@@ -1,0 +1,97 @@
+
+<section class="page">
+  <div class="page-header">
+    <div>
+      <h1>Audit Logs</h1>
+      <p>Monitor activities across Insurance-PAS services.</p>
+    </div>
+
+    <button class="refresh-btn" (click)="loadLogs()">
+      Refresh
+    </button>
+  </div>
+
+  <div class="summary">
+    <div class="summary-card">
+      <span>Total Events</span>
+      <h2>{{ logs.length }}</h2>
+    </div>
+
+    <div class="summary-card">
+  <span>Successful Events</span>
+ <h2>{{ successfulEvents }}</h2>
+</div>
+
+    <div class="summary-card">
+      <span>Filtered Results</span>
+      <h2>{{ filteredLogs.length }}</h2>
+    </div>
+  </div>
+
+  <div class="filters">
+    <input
+      type="text"
+      placeholder="Search action, user, module..."
+      [(ngModel)]="searchText"
+    />
+
+    <select [(ngModel)]="selectedModule">
+      <option value="">All modules</option>
+      <option *ngFor="let module of modules" [value]="module">
+        {{ module }}
+      </option>
+    </select>
+
+    <select [(ngModel)]="selectedOutcome">
+      <option value="">All outcomes</option>
+      <option *ngFor="let outcome of outcomes" [value]="outcome">
+        {{ outcome }}
+      </option>
+    </select>
+  </div>
+
+  <p *ngIf="loading">Loading audit logs...</p>
+  <p class="error" *ngIf="errorMessage">{{ errorMessage }}</p>
+
+  <div class="table-container">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Module</th>
+          <th>Action</th>
+          <th>User</th>
+          <th>Role</th>
+          <th>Outcome</th>
+          <th>Source Service</th>
+          <th>Date & Time (UTC)</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        <tr *ngFor="let log of filteredLogs">
+          <td>{{ log.id }}</td>
+          <td>{{ log.moduleName }}</td>
+          <td>{{ log.action }}</td>
+          <td>{{ log.actorUserId || '-' }}</td>
+          <td>{{ log.actorRole || '-' }}</td>
+          <td>
+            <span class="status">{{ log.outcome || 'Unknown' }}</span>
+          </td>
+          <td>{{ log.sourceService || '-' }}</td>
+          <td>
+            {{ log.occurredAtUtc
+              ? (log.occurredAtUtc | date:'medium':'UTC')
+              : '-' }}
+          </td>
+        </tr>
+
+        <tr *ngIf="!loading && filteredLogs.length === 0">
+          <td colspan="8" class="empty">
+            No audit logs found.
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</section>

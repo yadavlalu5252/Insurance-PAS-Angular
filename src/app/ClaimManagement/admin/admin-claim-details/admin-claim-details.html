@@ -1,0 +1,230 @@
+<div class="container-fluid py-4">
+  <a routerLink="/claims/admin" class="text-decoration-none"><i class="bi bi-arrow-left"></i> Back to claims</a>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span class="ms-2">Loading claim...</span>
+  </div>
+
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+
+  <ng-container *ngIf="claim">
+    <!-- header -->
+    <div class="d-flex flex-wrap justify-content-between align-items-center my-3 gap-2">
+      <h3 class="mb-0 fw-bold">
+        {{ claim.claim_number }}
+        <span class="badge ms-2 fs-6" [ngClass]="getStatusBadge(claim.claim_status)">{{ claim.claim_status }}</span>
+      </h3>
+    </div>
+
+    <!-- stepper -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <div *ngIf="isClosed()" class="alert mb-0" [ngClass]="claim.claim_status === 'Rejected' ? 'alert-danger' : 'alert-secondary'">
+          <i class="bi bi-info-circle"></i> This claim is <b>{{ claim.claim_status }}</b>. No further processing will happen.
+        </div>
+
+        <div *ngIf="!isClosed()" class="stepper">
+          <div *ngFor="let s of steps; let i = index" class="step" [ngClass]="stepClass(i)">
+            <span class="dot">{{ stepClass(i) === 'done' ? '✓' : i + 1 }}</span>
+            <div class="step-label">{{ s }}</div>
+            <div class="step-sub" *ngIf="i === 1 && stepClass(i) === 'current'">{{ claim.claim_status }}</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- actions: approve, reject, cancel -->
+    <div class="card border-0 shadow-sm mb-3" *ngIf="canDecide() || canCancel()">
+      <div class="card-body">
+        <div class="d-flex flex-wrap gap-2 align-items-center">
+          <b class="me-2"><i class="bi bi-lightning-charge text-primary"></i> Actions</b>
+
+          <ng-container *ngIf="canDecide()">
+            <button class="btn btn-success" (click)="panel = 'approve'" [disabled]="busy !== ''"><i class="bi bi-check-circle me-1"></i> Approve</button>
+            <button class="btn btn-danger" (click)="panel = 'reject'" [disabled]="busy !== ''"><i class="bi bi-x-circle me-1"></i> Reject</button>
+          </ng-container>
+
+          <button *ngIf="canCancel()" class="btn btn-outline-secondary" (click)="cancelClaim()" [disabled]="busy !== ''">
+            <i class="bi bi-slash-circle me-1"></i> Cancel claim
+          </button>
+        </div>
+
+        <div *ngIf="panel === 'approve'" class="mt-3 p-3 rounded bg-success-subtle">
+          <label class="form-label small">Remarks (optional)</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="approveRemarks"></textarea>
+          <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-success" (click)="approveClaim()" [disabled]="busy === 'approve'">
+              <span *ngIf="busy === 'approve'" class="spinner-border spinner-border-sm me-1"></span> Confirm approval
+            </button>
+            <button class="btn btn-outline-secondary" (click)="panel = ''">Close</button>
+          </div>
+          <p class="small text-muted mb-0 mt-2">
+            The API approves a claim only when all documents are verified, any survey report is submitted,
+            any investigation is finished, and the claim is assessed.
+          </p>
+        </div>
+
+        <div *ngIf="panel === 'reject'" class="mt-3 p-3 rounded bg-danger-subtle">
+          <label class="form-label small">Reason (required)</label>
+          <textarea class="form-control" rows="2" [(ngModel)]="rejectReason"></textarea>
+          <div class="form-check mt-2">
+            <input class="form-check-input" type="checkbox" id="fraud" [(ngModel)]="rejectFraud" />
+            <label class="form-check-label" for="fraud">Rejected because of fraud (needs a completed investigation report)</label>
+          </div>
+          <div class="mt-2 d-flex gap-2">
+            <button class="btn btn-danger" (click)="rejectClaim()" [disabled]="busy === 'reject'">
+              <span *ngIf="busy === 'reject'" class="spinner-border spinner-border-sm me-1"></span> Confirm rejection
+            </button>
+            <button class="btn btn-outline-secondary" (click)="panel = ''">Close</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- tabs -->
+    <ul class="nav nav-tabs mb-3">
+      <li class="nav-item" *ngFor="let t of tabs">
+        <button type="button" class="nav-link" [class.active]="activeTab === t.key" (click)="activeTab = t.key">
+          <i class="bi {{ t.icon }} me-1"></i>{{ t.label }}
+        </button>
+      </li>
+    </ul>
+
+    <!-- overview -->
+    <div *ngIf="activeTab === 'overview'" class="row g-3">
+      <div class="col-lg-7">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="mb-3">Claim details</h5>
+            <div class="row g-3">
+              <div class="col-sm-4"><div class="small text-muted">Claim type</div><b>{{ claim.claim_type }}</b></div>
+              <div class="col-sm-4"><div class="small text-muted">Policy id</div><b>{{ claim.policy_id }}</b></div>
+              <div class="col-sm-4"><div class="small text-muted">Customer id</div><b>{{ claim.customer_id }}</b></div>
+              <div class="col-sm-4"><div class="small text-muted">Incident date</div><b>{{ claim.incident_date | date:'dd/MM/yyyy' }}</b></div>
+              <div class="col-sm-4"><div class="small text-muted">Claim date</div><b>{{ claim.claim_date | date:'dd/MM/yyyy' }}</b></div>
+              <div class="col-sm-4"><div class="small text-muted">Estimated loss</div><b>{{ claim.estimated_loss | currency:'INR':'symbol':'1.0-0' }}</b></div>
+              <div class="col-12"><div class="small text-muted">Description</div>{{ claim.description }}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-body">
+            <h5 class="mb-3">Claim tracking</h5>
+            <ul class="timeline">
+              <li *ngFor="let h of history">
+                <div class="fw-semibold"><i class="bi {{ getIcon(h.action) }} text-primary me-1"></i>{{ h.action }}</div>
+                <div class="small text-muted">{{ h.action_date | date:'dd/MM/yyyy HH:mm' }} · user #{{ h.performed_by }}</div>
+                <div class="small" *ngIf="h.remarks">{{ h.remarks }}</div>
+              </li>
+              <li *ngIf="history.length === 0" class="text-muted">No history yet</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- documents -->
+    <div *ngIf="activeTab === 'documents'" class="card border-0 shadow-sm overflow-hidden">
+      <div class="table-responsive">
+        <table class="table align-middle mb-0">
+          <thead class="table-light">
+            <tr><th>Document</th><th>Uploaded</th><th>Verification</th><th class="text-end">Admin action</th></tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of documents">
+              <td><i class="bi bi-file-earmark-text text-primary me-2"></i>{{ d.document_name }}</td>
+              <td>{{ d.uploaded_date | date:'dd/MM/yyyy HH:mm' }}</td>
+              <td><span class="badge" [ngClass]="docBadge(d.verification_status)">{{ d.verification_status }}</span></td>
+              <td class="text-end">
+                <ng-container *ngIf="canVerifyDocuments()">
+                  <button *ngIf="d.verification_status !== 'Verified'" class="btn btn-sm btn-outline-success me-1"
+                          (click)="verifyDocument(d, 'Verified')" [disabled]="busy === 'doc-' + d.document_id">Verify</button>
+                  <button *ngIf="d.verification_status !== 'Rejected'" class="btn btn-sm btn-outline-danger"
+                          (click)="verifyDocument(d, 'Rejected')" [disabled]="busy === 'doc-' + d.document_id">Reject</button>
+                </ng-container>
+              </td>
+            </tr>
+            <tr *ngIf="documents.length === 0">
+              <td colspan="4" class="text-center text-muted py-4">No documents uploaded yet</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- survey -->
+    <div *ngIf="activeTab === 'survey'">
+      <div *ngIf="survey" class="card border-0 shadow-sm mb-3">
+        <div class="card-body">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="mb-0"><i class="bi bi-clipboard-check text-primary me-1"></i> Survey</h5>
+            <span class="badge" [ngClass]="survey.survey_status === 'Completed' ? 'bg-success' : 'bg-warning text-dark'">{{ survey.survey_status }}</span>
+          </div>
+          <div class="row g-3">
+            <div class="col-sm-4"><div class="small text-muted">Surveyor id</div><b>{{ survey.surveyor_id }}</b></div>
+            <div class="col-sm-4"><div class="small text-muted">Assigned on</div><b>{{ survey.assigned_date | date:'dd/MM/yyyy' }}</b></div>
+            <div class="col-sm-4" *ngIf="survey.inspection_date">
+              <div class="small text-muted">Inspection date</div><b>{{ survey.inspection_date | date:'dd/MM/yyyy' }}</b>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="canAssignSurvey()" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Assign a surveyor</h5>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-5">
+              <label class="form-label small text-muted">Surveyor (employee) id</label>
+              <input type="number" class="form-control" [(ngModel)]="surveyorId" />
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary w-100" (click)="assignSurvey()" [disabled]="busy === 'survey'">
+                <span *ngIf="busy === 'survey'" class="spinner-border spinner-border-sm me-1"></span> Assign
+              </button>
+            </div>
+          </div>
+          <p class="small text-muted mt-3 mb-0">The claim moves to <b>Under Survey</b>. A claim type with a survey threshold needs a completed survey before approval.</p>
+        </div>
+      </div>
+
+      <div *ngIf="canSubmitSurveyReport()" class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Submit the survey report</h5>
+          <div class="row g-2 align-items-end">
+            <div class="col-md-4">
+              <label class="form-label small text-muted">Inspection date</label>
+              <input type="date" class="form-control" [max]="today" [(ngModel)]="inspectionDate" />
+            </div>
+            <div class="col-md-5">
+              <label class="form-label small text-muted">Report file (pdf, jpg or png, up to 5 MB)</label>
+              <input type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" (change)="onSurveyFileSelected($event)" />
+            </div>
+            <div class="col-md-3">
+              <button class="btn btn-primary w-100" (click)="submitSurveyReport()" [disabled]="busy === 'survey-report'">
+                <span *ngIf="busy === 'survey-report'" class="spinner-border spinner-border-sm me-1"></span> Submit report
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!survey && !canAssignSurvey()" class="alert alert-secondary">
+        <i class="bi bi-info-circle"></i> A surveyor can be assigned only while the claim is <b>Pending Verification</b>.
+      </div>
+    </div>
+
+    <!-- the three separate components -->
+    <app-admin-assessment *ngIf="activeTab === 'assessment'" [claim]="claim" (changed)="loadAll()"></app-admin-assessment>
+
+    <app-admin-investigation *ngIf="activeTab === 'investigation'" [claim]="claim"
+      [canStart]="canAssignInvestigation()" (changed)="loadAll()"></app-admin-investigation>
+
+    <app-admin-settlement *ngIf="activeTab === 'settlement'" [claim]="claim" (changed)="loadAll()"></app-admin-settlement>
+  </ng-container>
+</div>

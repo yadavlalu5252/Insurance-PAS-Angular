@@ -1,7 +1,8 @@
 
 <div class="container-fluid py-4">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
+  <!-- Page Heading -->
+  <div class="d-flex justify-content-between align-items-center flex-wrap gap-3 mb-4">
     <div>
       <h2 class="fw-bold mb-1">
         {{ isEdit ? 'Edit Product' : 'Add Product' }}
@@ -11,97 +12,175 @@
       </p>
     </div>
 
-    <button type="button" class="btn btn-outline-secondary"
-            (click)="Cancel()">
+    <button
+      type="button"
+      class="btn btn-outline-secondary"
+      (click)="Cancel()">
+      <i class="bi bi-arrow-left me-2"></i>
       Back
     </button>
   </div>
 
+  <!-- Error Message -->
   <div class="alert alert-danger" *ngIf="errorMessage">
     {{ errorMessage }}
   </div>
 
-  <div class="card shadow-sm">
+  <!-- Product Form -->
+  <div class="card border-0 shadow-sm">
     <div class="card-header bg-white py-3">
-      <h5 class="mb-0">Product Information</h5>
+      <h5 class="fw-bold mb-0">Product Information</h5>
     </div>
 
-    <div class="card-body">
+    <div class="card-body p-4">
       <form [formGroup]="productForm" (ngSubmit)="SaveProduct()">
 
         <div class="row g-3">
 
+          <!-- Product Code -->
           <div class="col-md-6">
-            <label class="form-label">Product Code *</label>
-            <input type="text" class="form-control"
-                   formControlName="product_code"
-                   placeholder="Enter product code" required>
+            <label class="form-label">
+              Product Code <span class="text-danger">*</span>
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              formControlName="product_code"
+              placeholder="Enter product code">
+
+            <div
+              class="text-danger small mt-1"
+              *ngIf="productForm.get('product_code')?.invalid &&
+                     productForm.get('product_code')?.touched">
+              Product code is required.
+            </div>
           </div>
 
+          <!-- Product Name -->
           <div class="col-md-6">
-            <label class="form-label">Product Name *</label>
-            <input type="text" class="form-control"
-                   formControlName="product_name"
-                   placeholder="Enter product name" required>
+            <label class="form-label">
+              Product Name <span class="text-danger">*</span>
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              formControlName="product_name"
+              placeholder="Enter product name">
+
+            <div
+              class="text-danger small mt-1"
+              *ngIf="productForm.get('product_name')?.invalid &&
+                     productForm.get('product_name')?.touched">
+              Product name is required.
+            </div>
           </div>
 
+          <!-- Category -->
           <div class="col-md-6">
-            <label class="form-label">Category *</label>
+            <label class="form-label">
+              Category <span class="text-danger">*</span>
+            </label>
+
             <select class="form-select" formControlName="category_id">
-              <option [ngValue]="null" disabled>Select a category</option>
-              <option *ngFor="let category of categories"
-                      [ngValue]="category.category_id">
+              <option value="" disabled>Select a category</option>
+
+              <option
+                *ngFor="let category of categories"
+                [value]="category.category_id">
                 {{ category.category_name }}
               </option>
             </select>
 
-            <div class="text-danger small mt-1"
-                 *ngIf="productForm.get('category_id')?.invalid &&
-                        productForm.get('category_id')?.touched">
+            <div
+              class="text-danger small mt-1"
+              *ngIf="productForm.get('category_id')?.invalid &&
+                     productForm.get('category_id')?.touched">
               Please select a category.
             </div>
           </div>
 
+          <!-- Product Type -->
           <div class="col-md-6">
-            <label class="form-label">Product Type *</label>
-            <input type="text" class="form-control"
-                   formControlName="product_type"
-                   placeholder="Health, Life, Motor..." required>
+            <label class="form-label">
+              Product Type <span class="text-danger">*</span>
+            </label>
+
+            <input
+              type="text"
+              class="form-control"
+              formControlName="product_type"
+              placeholder="Health, Life, Motor...">
+
+            <div
+              class="text-danger small mt-1"
+              *ngIf="productForm.get('product_type')?.invalid &&
+                     productForm.get('product_type')?.touched">
+              Product type is required.
+            </div>
           </div>
 
+          <!-- Description -->
           <div class="col-12">
             <label class="form-label">Description</label>
-            <textarea class="form-control" rows="3"
-                      formControlName="description"
-                      placeholder="Enter product description"></textarea>
+
+            <textarea
+              class="form-control"
+              rows="3"
+              formControlName="description"
+              placeholder="Enter product description">
+            </textarea>
           </div>
 
+          <!-- Minimum Age -->
           <div class="col-md-6">
             <label class="form-label">Minimum Age</label>
-            <input type="number" class="form-control"
-                   formControlName="minimum_age" min="0">
+            <input
+              type="number"
+              class="form-control"
+              formControlName="minimum_age"
+              min="0"
+              placeholder="Enter minimum age">
           </div>
 
+          <!-- Maximum Age -->
           <div class="col-md-6">
             <label class="form-label">Maximum Age</label>
-            <input type="number" class="form-control"
-                   formControlName="maximum_age" min="0">
+            <input
+              type="number"
+              class="form-control"
+              formControlName="maximum_age"
+              min="0"
+              placeholder="Enter maximum age">
           </div>
 
+          <!-- Minimum Sum Insured -->
           <div class="col-md-6">
             <label class="form-label">Minimum Sum Insured</label>
-            <input type="number" class="form-control"
-                   formControlName="minimum_sum_insured" min="0">
+            <input
+              type="number"
+              class="form-control"
+              formControlName="minimum_sum_insured"
+              min="0"
+              placeholder="Enter minimum amount">
           </div>
 
+          <!-- Maximum Sum Insured -->
           <div class="col-md-6">
             <label class="form-label">Maximum Sum Insured</label>
-            <input type="number" class="form-control"
-                   formControlName="maximum_sum_insured" min="0">
+            <input
+              type="number"
+              class="form-control"
+              formControlName="maximum_sum_insured"
+              min="0"
+              placeholder="Enter maximum amount">
           </div>
 
+          <!-- Status: Edit Only -->
           <div class="col-md-6" *ngIf="isEdit">
             <label class="form-label">Status</label>
+
             <select class="form-select" formControlName="status">
               <option value="Active">Active</option>
               <option value="Inactive">Inactive</option>
@@ -112,13 +191,17 @@
 
         <hr class="my-4">
 
-        <div class="d-flex justify-content-end gap-2">
-          <button type="button" class="btn btn-outline-secondary"
-                  (click)="Cancel()">
+        <!-- Buttons -->
+        <div class="d-flex justify-content-end flex-wrap gap-2">
+          <button
+            type="button"
+            class="btn btn-outline-secondary"
+            (click)="Cancel()">
             Cancel
           </button>
 
           <button type="submit" class="btn btn-primary">
+            <i class="bi bi-check-circle me-2"></i>
             {{ isEdit ? 'Update Product' : 'Save Product' }}
           </button>
         </div>

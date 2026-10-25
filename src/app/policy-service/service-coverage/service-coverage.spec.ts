@@ -1,16 +1,16 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
-import { UnderwritingForm } from './underwriting-form';
+import { ServiceCoverage } from './service-coverage';
 
-describe('UnderwritingForm', () => {
-  let component: UnderwritingForm;
-  let fixture: ComponentFixture<UnderwritingForm>;
+describe('ServiceCoverage', () => {
+  let component: ServiceCoverage;
+  let fixture: ComponentFixture<ServiceCoverage>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [UnderwritingForm],
+      imports: [ServiceCoverage],
     }).compileComponents();
 
-    fixture = TestBed.createComponent(UnderwritingForm);
+    fixture = TestBed.createComponent(ServiceCoverage);
     component = fixture.componentInstance;
     await fixture.whenStable();
   });

@@ -1,6 +1,12 @@
+
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormControl, FormGroup, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormControl,
+  FormGroup,
+  ReactiveFormsModule,
+  Validators
+} from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService } from '../../product-service';
 
@@ -24,7 +30,7 @@ export class ProductForm implements OnInit {
   ) {}
 
   productForm = new FormGroup({
-    product_code: new FormControl('', Validators.required),
+    product_code: new FormControl(''),
     product_name: new FormControl('', Validators.required),
     category_id: new FormControl('', Validators.required),
     product_type: new FormControl('', Validators.required),
@@ -66,15 +72,19 @@ export class ProductForm implements OnInit {
         const product = res.data ?? res;
 
         this.productForm.patchValue({
-          product_code: product.product_code,
-          product_name: product.product_name,
+          product_code: product.product_code ?? '',
+          product_name: product.product_name ?? '',
           category_id: String(product.category_id ?? ''),
-          product_type: product.product_type,
+          product_type: product.product_type ?? '',
           description: product.description ?? '',
           minimum_age: String(product.minimum_age ?? ''),
           maximum_age: String(product.maximum_age ?? ''),
-          minimum_sum_insured: String(product.minimum_sum_insured ?? ''),
-          maximum_sum_insured: String(product.maximum_sum_insured ?? ''),
+          minimum_sum_insured: String(
+            product.minimum_sum_insured ?? ''
+          ),
+          maximum_sum_insured: String(
+            product.maximum_sum_insured ?? ''
+          ),
           status: product.status ?? 'Active'
         });
       },
@@ -90,26 +100,44 @@ export class ProductForm implements OnInit {
 
     if (this.productForm.invalid) {
       this.productForm.markAllAsTouched();
-      this.errorMessage = 'Please fill in all required product details.';
+      this.errorMessage =
+        'Please fill in all required product details.';
       return;
     }
 
     const formData = this.productForm.getRawValue();
 
-    const data = {
-      ...formData,
+    const data: any = {
+      product_name: formData.product_name,
       category_id: Number(formData.category_id),
-      minimum_age: formData.minimum_age !== '' ? Number(formData.minimum_age) : null,
-      maximum_age: formData.maximum_age !== '' ? Number(formData.maximum_age) : null,
-      minimum_sum_insured: formData.minimum_sum_insured !== ''
-        ? Number(formData.minimum_sum_insured)
-        : null,
-      maximum_sum_insured: formData.maximum_sum_insured !== ''
-        ? Number(formData.maximum_sum_insured)
-        : null
+      product_type: formData.product_type,
+      description: formData.description || null,
+      minimum_age:
+        formData.minimum_age !== '' &&
+        formData.minimum_age !== null
+          ? Number(formData.minimum_age)
+          : null,
+      maximum_age:
+        formData.maximum_age !== '' &&
+        formData.maximum_age !== null
+          ? Number(formData.maximum_age)
+          : null,
+      minimum_sum_insured:
+        formData.minimum_sum_insured !== '' &&
+        formData.minimum_sum_insured !== null
+          ? Number(formData.minimum_sum_insured)
+          : null,
+      maximum_sum_insured:
+        formData.maximum_sum_insured !== '' &&
+        formData.maximum_sum_insured !== null
+          ? Number(formData.maximum_sum_insured)
+          : null
     };
 
-    if (this.isEdit && this.productId) {
+    if (this.isEdit && this.productId !== null) {
+      data.product_code = formData.product_code;
+      data.status = formData.status;
+
       this.ps.UpdateProduct(this.productId, data).subscribe({
         next: (res: any) => {
           alert(res.message ?? 'Product updated successfully.');
@@ -117,10 +145,12 @@ export class ProductForm implements OnInit {
         },
         error: (err: any) => {
           console.error('Unable to update product:', err);
-          this.errorMessage = 'Unable to update product.';
+          this.errorMessage =
+            err?.error?.message ?? 'Unable to update product.';
         }
       });
     } else {
+      // The backend must generate product_code for new products.
       this.ps.AddProduct(data).subscribe({
         next: (res: any) => {
           alert(res.message ?? 'Product added successfully.');
@@ -128,7 +158,8 @@ export class ProductForm implements OnInit {
         },
         error: (err: any) => {
           console.error('Unable to add product:', err);
-          this.errorMessage = 'Unable to add product.';
+          this.errorMessage =
+            err?.error?.message ?? 'Unable to add product.';
         }
       });
     }

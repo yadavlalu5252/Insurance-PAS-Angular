@@ -1,0 +1,199 @@
+<div class="container-fluid py-4">
+  <!-- basePath comes from the route data, so the Customer and Agent screens each go back to their own list -->
+  <a [routerLink]="basePath" class="text-decoration-none">
+    <i class="bi bi-arrow-left me-1"></i>
+    Back to my claims
+  </a>
+
+  <div *ngIf="errorMessage" class="alert alert-danger mt-3">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success mt-3">{{ successMessage }}</div>
+
+  <div *ngIf="loading" class="text-center py-5">
+    <div class="spinner-border spinner-border-sm text-primary"></div>
+    <span class="ms-2">Loading claim...</span>
+  </div>
+
+  <ng-container *ngIf="claim">
+    <div class="d-flex justify-content-between align-items-center my-3">
+      <h3 class="fw-bold mb-0">
+        {{ claim.claim_number }}
+        <span class="badge ms-2" [ngClass]="getStatusBadge(claim.claim_status)">{{ claim.claim_status }}</span>
+      </h3>
+
+      <button *ngIf="canCancel()" class="btn btn-outline-danger" (click)="cancelClaim()">
+        <i class="bi bi-slash-circle me-1"></i>
+        Cancel Claim
+      </button>
+    </div>
+
+    <!-- Tracking card -->
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <div *ngIf="isClosed(); else stepper" class="alert mb-0"
+          [ngClass]="claim.claim_status === 'Rejected' ? 'alert-danger' : 'alert-secondary'">
+          <i class="bi bi-info-circle me-1"></i>
+          This claim is <b>{{ claim.claim_status }}</b>. No further processing will happen.
+        </div>
+
+        <ng-template #stepper>
+          <div class="cm-stepper">
+            <div class="cm-step" *ngFor="let step of steps; let i = index" [ngClass]="getStepClass(i)">
+              <span class="dot">
+                <i *ngIf="getStepClass(i) === 'done'; else stepNumber" class="bi bi-check-lg"></i>
+                <ng-template #stepNumber>{{ i + 1 }}</ng-template>
+              </span>
+              <div class="step-label">{{ step }}</div>
+              <div class="step-sub" *ngIf="i === 1 && getStepClass(i) === 'current'">{{ claim.claim_status }}</div>
+            </div>
+          </div>
+        </ng-template>
+      </div>
+    </div>
+
+    <!-- Settlement details: this component loads and shows the settlement itself -->
+    <app-claim-settlement-view [claimId]="claimId"></app-claim-settlement-view>
+
+    <div class="row g-3">
+      <div class="col-lg-7">
+
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Claim Details</h5></div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="text-muted small">Claim type</div>
+                <div class="fw-semibold">{{ claim.claim_type }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Policy id</div>
+                <div class="fw-semibold">{{ claim.policy_id }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Customer id</div>
+                <div class="fw-semibold">{{ claim.customer_id }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Incident date</div>
+                <div class="fw-semibold">{{ claim.incident_date | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Claim date</div>
+                <div class="fw-semibold">{{ claim.claim_date | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Estimated loss</div>
+                <div class="fw-semibold">{{ claim.estimated_loss | currency:'INR':'symbol':'1.0-0' }}</div>
+              </div>
+              <div class="col-12" *ngIf="claim.description">
+                <div class="text-muted small">Description</div>
+                <div>{{ claim.description }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Documents</h5></div>
+          <div class="card-body">
+            <div *ngIf="documents.length === 0" class="text-muted">No documents uploaded yet.</div>
+
+            <div class="table-responsive" *ngIf="documents.length > 0">
+              <table class="table table-sm table-hover table-bordered align-middle mb-0">
+                <thead class="table-light">
+                  <tr>
+                    <th>Document</th>
+                    <th>Status</th>
+                    <th>Uploaded</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr *ngFor="let document of documents; trackBy: trackByDocumentId">
+                    <td>{{ document.document_name }}</td>
+                    <td>
+                      <span class="badge" [ngClass]="getStatusBadge(document.verification_status)">
+                        {{ document.verification_status }}
+                      </span>
+                    </td>
+                    <td>{{ document.uploaded_date ? (document.uploaded_date | date:'dd/MM/yyyy') : '—' }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <div *ngIf="canUpload()">
+              <hr />
+              <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                  <label class="form-label small text-muted mb-1">Document name</label>
+                  <input class="form-control" list="documentNames" placeholder="e.g. FIR" [(ngModel)]="documentName" />
+                  <datalist id="documentNames">
+                    <option *ngFor="let name of suggestions" [value]="name"></option>
+                  </datalist>
+                </div>
+
+                <div class="col-md-5">
+                  <label class="form-label small text-muted mb-1">File (pdf, jpg, png)</label>
+                  <input #fileInput type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png"
+                    (change)="onFileSelected($event)" />
+                </div>
+
+                <div class="col-md-2">
+                  <button class="btn btn-primary w-100" [disabled]="uploading" (click)="uploadDocument()">
+                    <span *ngIf="uploading" class="spinner-border spinner-border-sm"></span>
+                    <span *ngIf="!uploading">Upload</span>
+                  </button>
+                </div>
+              </div>
+
+              <div *ngIf="uploadError" class="alert alert-danger mt-3 mb-0 py-2">{{ uploadError }}</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card border-0 shadow-sm mb-3" *ngIf="survey">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Survey</h5></div>
+          <div class="card-body">
+            <div class="row g-3">
+              <div class="col-md-4">
+                <div class="text-muted small">Status</div>
+                <span class="badge" [ngClass]="getStatusBadge(survey.survey_status)">{{ survey.survey_status }}</span>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Assigned on</div>
+                <div class="fw-semibold">{{ survey.assigned_date | date:'dd/MM/yyyy' }}</div>
+              </div>
+              <div class="col-md-4">
+                <div class="text-muted small">Inspection date</div>
+                <div class="fw-semibold">
+                  {{ survey.inspection_date ? (survey.inspection_date | date:'dd/MM/yyyy') : 'Not done yet' }}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Claim tracking: the history of every action on this claim -->
+      <div class="col-lg-5">
+        <div class="card border-0 shadow-sm h-100">
+          <div class="card-header bg-white py-3"><h5 class="mb-0">Claim Tracking</h5></div>
+          <div class="card-body">
+            <ul class="cm-timeline">
+              <li *ngFor="let item of history; trackBy: trackByHistoryId">
+                <div class="fw-semibold">
+                  <i class="bi text-primary me-1" [ngClass]="getIcon(item.action)"></i>
+                  {{ item.action }}
+                </div>
+                <div class="text-muted small">{{ item.action_date | date:'dd/MM/yyyy, HH:mm' }}</div>
+                <div class="small" *ngIf="item.remarks">{{ item.remarks }}</div>
+              </li>
+
+              <li *ngIf="history.length === 0" class="text-muted">No history yet</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</div>

@@ -1,1 +1,232 @@
+
+<div class="customer-dashboard">
+
+  <h2>Customer Dashboard</h2>
+  <p class="subtitle">Insurance Policy Administration System</p>
+
+  <p *ngIf="loading">Loading customer dashboard...</p>
+
+  <p *ngIf="errorMessage" class="error-message">
+    {{ errorMessage }}
+  </p>
+
+  <ng-container *ngIf="!loading && !errorMessage">
+
+    <!-- Customer summary cards -->
+    <div class="dashboard-cards">
+
+      <div class="dashboard-card total-customers">
+        <h3>Total Customers</h3>
+        <p>{{ metrics.totalCustomers }}</p>
+        <span>All registered customers</span>
+      </div>
+
+      <div class="dashboard-card new-customers">
+        <h3>New Customers Today</h3>
+        <p>{{ metrics.newCustomersToday }}</p>
+        <span>Registered today</span>
+      </div>
+
+      <div class="dashboard-card active-customers">
+        <h3>Active Customers</h3>
+        <p>{{ metrics.activeCustomers }}</p>
+        <span>Currently active</span>
+      </div>
+
+      <div class="dashboard-card inactive-customers">
+        <h3>Inactive Customers</h3>
+        <p>{{ metrics.inactiveCustomers }}</p>
+        <span>Currently inactive</span>
+      </div>
+
+    </div>
+
+    <!-- Additional summary cards -->
+    <div class="dashboard-cards secondary-cards">
+
+      <div class="dashboard-card pending-kyc">
+        <h3>Pending KYC Customers</h3>
+        <p>{{ metrics.pendingKycCustomers }}</p>
+        <span>KYC verification pending</span>
+      </div>
+
+      <div class="dashboard-card product-summary">
+        <h3>Total Products</h3>
+        <p>{{ products.length }}</p>
+        <span>Insurance products available</span>
+      </div>
+
+      <div class="dashboard-card agent-summary">
+        <h3>Customers by Agent</h3>
+        <p>—</p>
+        <span>Agent data not connected</span>
+      </div>
+
+    </div>
+
+    <!-- Analytics panels -->
+    <div class="dashboard-panels">
+
+      <!-- Customers by City bar chart -->
+      <section class="dashboard-panel city-chart-card">
+        <h3>Customers by City</h3>
+
+        <div
+          class="city-bar-chart"
+          *ngIf="metrics.customersByCity.length > 0">
+
+          <canvas #cityChart></canvas>
+
+        </div>
+
+        <p *ngIf="metrics.customersByCity.length === 0">
+          No city data available.
+        </p>
+      </section>
+
+      <!-- Customers by Product pie chart -->
+      <section class="dashboard-panel product-chart-card">
+        <h3>Customers by Product</h3>
+
+        <p *ngIf="productLoading">
+          Loading product data...
+        </p>
+
+        <p *ngIf="productError" class="error-message">
+          {{ productError }}
+        </p>
+
+        <ng-container *ngIf="!productLoading && !productError">
+
+          <div
+            class="product-pie-chart"
+            *ngIf="productCustomerCounts.length > 0">
+
+            <canvas #productChart></canvas>
+
+          </div>
+
+          <div
+            class="product-legend"
+            *ngIf="productCustomerCounts.length > 0">
+
+            <div
+              class="legend-row"
+              *ngFor="let item of productCustomerCounts; let i = index">
+
+              <span
+                class="legend-dot"
+                [style.backgroundColor]="[
+                  '#2878e8',
+                  '#36ad83',
+                  '#ffc52f',
+                  '#9867e8'
+                ][i % 4]">
+              </span>
+
+              <span class="legend-name">
+                {{ item.productName }}
+              </span>
+
+              <span class="legend-count">
+                {{ item.totalCustomers }}
+                ({{ productCustomerCounts.length > 0
+                  ? (
+                      item.totalCustomers /
+                      (productCustomerCounts.reduce(
+                        getProductTotal,
+                        0
+                      ) || 1) * 100
+                    | number:'1.0-0')
+                  : 0 }}%)
+              </span>
+
+            </div>
+
+          </div>
+
+          <p *ngIf="productCustomerCounts.length === 0">
+            No product data available.
+          </p>
+
+        </ng-container>
+      </section>
+
+      <!-- Customers by Agent -->
+      <section class="dashboard-panel">
+        <h3>Customers by Agent</h3>
+
+        <div class="empty-chart">
+          Agent-wise customer data is not connected yet.
+        </div>
+      </section>
+
+    </div>
+
+    <!-- Recent Customers -->
+    <section class="dashboard-panel recent-customers">
+      <h3>Recent Customers</h3>
+
+      <p *ngIf="customersLoading">
+        Loading recent customers...
+      </p>
+
+      <p *ngIf="customersError" class="error-message">
+        {{ customersError }}
+      </p>
+
+      <div
+        class="table-responsive"
+        *ngIf="!customersLoading && !customersError">
+
+        <table>
+          <thead>
+            <tr>
+              <th>Customer Code</th>
+              <th>Customer Name</th>
+              <th>Mobile Number</th>
+              <th>Email</th>
+              <th>Status</th>
+              <th>Created Date</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let customer of recentCustomers">
+              <td>{{ customer.customer_code }}</td>
+
+              <td>
+                {{ customer.first_name }}
+                {{ customer.middle_name || '' }}
+                {{ customer.last_name }}
+              </td>
+
+              <td>{{ customer.mobile_number }}</td>
+              <td>{{ customer.email }}</td>
+
+              <td>
+                <span
+                  [class.active-status]="customer.customer_status === 'Active'"
+                  [class.inactive-status]="customer.customer_status === 'Inactive'">
+                  {{ customer.customer_status }}
+                </span>
+              </td>
+
+              <td>
+                {{ customer.created_at | date:'dd MMM yyyy' }}
+              </td>
+            </tr>
+          </tbody>
+        </table>
+
+        <p *ngIf="recentCustomers.length === 0">
+          No customers found.
+        </p>
+
+      </div>
+    </section>
+
+  </ng-container>
+
+</div>
 <p>customer-layout works!</p>
