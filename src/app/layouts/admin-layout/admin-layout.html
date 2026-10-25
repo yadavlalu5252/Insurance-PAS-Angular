@@ -1,3 +1,105 @@
+<div class="admin-dashboard">
+  <h2>Admin Dashboard</h2>
+  <p class="subtitle">Insurance Policy Administration System</p>
+
+  <div class="dashboard-cards">
+
+    <div class="dashboard-card total-users">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="10" cy="7" r="4"/>
+        <path d="M20 21v-2a4 4 0 0 0-3-3.87"/>
+        <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+      </svg>
+      <h3>Total Users</h3>
+      <p>{{ metrics.totalUsers }}</p>
+    </div>
+
+    <div class="dashboard-card active-users">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="10" cy="7" r="4"/>
+        <path d="m16 11 2 2 4-4"/>
+      </svg>
+      <h3>Active Users</h3>
+      <p>{{ metrics.activeUsers }}</p>
+    </div>
+
+    <div class="dashboard-card locked-users">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M16 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+        <circle cx="10" cy="7" r="4"/>
+        <path d="m17 8 5 5"/>
+        <path d="m22 8-5 5"/>
+      </svg>
+      <h3>Locked Users</h3>
+      <p>{{ metrics.lockedUsers }}</p>
+    </div>
+
+    <div class="dashboard-card total-roles">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+      </svg>
+      <h3>Total Roles</h3>
+      <p>{{ metrics.totalRoles }}</p>
+    </div>
+
+    <div class="dashboard-card total-branches">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="4" width="8" height="16" rx="1"/>
+        <path d="M11 8h6a2 2 0 0 1 2 2v10"/>
+        <path d="M2 20h20"/>
+      </svg>
+      <h3>Total Branches</h3>
+      <p>—</p>
+    </div>
+
+    <div class="dashboard-card login-today">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="5" width="18" height="16" rx="2"/>
+        <path d="M16 3v4M8 3v4M3 11h18"/>
+        <path d="m9 16 2 2 4-4"/>
+      </svg>
+      <h3>Login Today</h3>
+      <p>—</p>
+    </div>
+
+    <div class="dashboard-card failed-logins">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M12 22s8-4 8-11V5l-8-3-8 3v6c0 7 8 11 8 11z"/>
+        <path d="M12 8v4"/>
+        <path d="M12 16h.01"/>
+      </svg>
+      <h3>Failed Login Attempts</h3>
+      <p>—</p>
+    </div>
+
+    <div class="dashboard-card notifications-sent">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M18 8a6 6 0 0 0-12 0c0 7-3 7-3 9h18c0-2-3-2-3-9"/>
+        <path d="M10 21h4"/>
+      </svg>
+      <h3>Notifications Sent</h3>
+      <p>—</p>
+    </div>
+
+    <div class="dashboard-card audit-events">
+      <svg viewBox="0 0 24 24" width="24" height="24" fill="none"
+           stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="18" height="18" rx="3"/>
+        <path d="m7 14 3-3 3 3 4-5"/>
+      </svg>
+      <h3>Audit Events</h3>
+      <p>—</p>
+    </div>
 <div class="admin-wrapper d-flex min-vh-100">
 
   <aside class="admin-sidebar d-flex flex-column" [class.sidebar-collapsed]="!sidebarOpen">

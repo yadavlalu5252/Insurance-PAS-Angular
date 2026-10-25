@@ -44,7 +44,50 @@ import { AgentClaims } from './ClaimManagement/agent/agent-claims/agent-claims';
 import { AgentClaimNew } from './ClaimManagement/agent/agent-claim-new/agent-claim-new';
 import { AgentClaimDetails } from './ClaimManagement/agent/agent-claim-details/agent-claim-details';
 
+import { AdminLayout } from './layouts/admin-layout/admin-layout';
+import { AgentLayout } from './layouts/agent-layout/agent-layout';
+import { CustomerLayout } from './layouts/customer-layout/customer-layout';
+
+import { authGuard } from './core/guards/auth-guard';
+import { roleGuard } from './core/guards/role-guard';
+
 export const routes: Routes = [
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
+
+  { path: 'login', component: Login },
+  { path: 'two-factor', component: TwoFactor },
+  { path: 'register', component: Register },
+
+  // Admin Dashboard
+  {
+    path: 'dashboard',
+    component: AdminLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { role: ['Admin'] }
+  },
+
+  // Agent Dashboard
+  {
+    path: 'agent-dashboard',
+    component: AgentLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { role: ['Agent'] },
+    children: [
+      {
+        path: '',
+        component: Dashboard
+      }
+    ]
+  },
+
+  // Customer Dashboard
+  {
+    path: 'customer-dashboard',
+    component: CustomerLayout,
+    canActivate: [authGuard, roleGuard],
+    data: { role: ['Customer'] }
+  },
+
   // Default route - Login
   { path: '', redirectTo: 'login', pathMatch: 'full' },
 

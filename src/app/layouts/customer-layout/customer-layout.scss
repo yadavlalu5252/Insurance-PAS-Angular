@@ -1,0 +1,323 @@
+
+.customer-dashboard {
+  padding: 16px;
+  min-height: 100vh;
+  background: #f1f6fc;
+  color: #101b35;
+  font-family: Arial, Helvetica, sans-serif;
+  box-sizing: border-box;
+}
+
+.customer-dashboard h2 {
+  margin: 0 0 24px 4px;
+  color: #101b35;
+  font-size: 32px;
+  font-weight: 700;
+}
+
+.subtitle {
+  color: #526783;
+  margin: -16px 0 24px 4px;
+  font-size: 16px;
+}
+
+/* Customer summary cards */
+.dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin-bottom: 14px;
+}
+
+.dashboard-card {
+  min-width: 0;
+  min-height: 122px;
+  padding: 20px;
+  border: 1px solid #dce7f5;
+  border-radius: 9px;
+  box-sizing: border-box;
+  background: #ffffff;
+}
+
+.dashboard-card h3 {
+  margin: 0 0 8px;
+  color: #12254b;
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.dashboard-card p {
+  margin: 0;
+  color: #0c1730;
+  font-size: 36px;
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+.dashboard-card span {
+  display: block;
+  margin-top: 6px;
+  color: #526783;
+  font-size: 14px;
+}
+
+/* Summary card colors */
+.total-customers {
+  background: #e5f1ff;
+  border-color: #d3e6ff;
+}
+
+.new-customers {
+  background: #e5f7e9;
+  border-color: #d3efdb;
+}
+
+.active-customers {
+  background: #e4f7e7;
+  border-color: #d1eed7;
+}
+
+.inactive-customers {
+  background: #ffebed;
+  border-color: #ffdbdf;
+}
+
+.pending-kyc {
+  background: #fff4dc;
+  border-color: #ffebc5;
+}
+
+.product-summary {
+  background: #f0eaff;
+  border-color: #e2d7ff;
+}
+
+.agent-summary {
+  background: #e5f1ff;
+  border-color: #d3e6ff;
+}
+
+/* Additional summary cards */
+.secondary-cards {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  margin-top: 0;
+}
+
+/* Analytics panels */
+.dashboard-panels {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  margin-top: 14px;
+  align-items: stretch;
+}
+
+.dashboard-panel {
+  min-width: 0;
+  padding: 18px;
+  border: 1px solid #dce5ef;
+  border-radius: 9px;
+  background: #ffffff;
+  box-sizing: border-box;
+  overflow: hidden;
+}
+
+.dashboard-panel h3 {
+  margin: 0 0 16px;
+  color: #101b35;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+/* Customers by City bar chart */
+.city-chart-card {
+  min-width: 0;
+  background: #ffffff;
+}
+
+.city-bar-chart {
+  position: relative;
+  width: 100%;
+  height: 300px;
+  min-height: 250px;
+}
+
+.city-bar-chart canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Customers by Product pie chart */
+.product-chart-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.product-pie-chart {
+  position: relative;
+  width: 100%;
+  max-width: 300px;
+  height: 230px;
+  flex: 0 0 230px;
+  margin: 0 auto 16px;
+}
+
+.product-pie-chart canvas {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* Product chart legend */
+.product-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  margin-top: 8px;
+}
+
+.legend-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  color: #53647d;
+  font-size: 14px;
+}
+
+.legend-dot {
+  width: 13px;
+  height: 13px;
+  flex: 0 0 13px;
+  border-radius: 50%;
+}
+
+.legend-name {
+  flex: 1;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.legend-count {
+  flex-shrink: 0;
+  white-space: nowrap;
+  color: #53647d;
+  font-size: 13px;
+}
+
+/* Tables */
+.dashboard-panel table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.dashboard-panel th,
+.dashboard-panel td {
+  padding: 11px;
+  border-bottom: 1px solid #e1e8f0;
+  text-align: left;
+  white-space: nowrap;
+  font-size: 14px;
+}
+
+.dashboard-panel th {
+  background: #eaf0f7;
+  color: #152849;
+  font-weight: 600;
+}
+
+.dashboard-panel td {
+  color: #243653;
+}
+
+.table-responsive {
+  width: 100%;
+  overflow-x: auto;
+}
+
+/* Agent chart placeholder */
+.empty-chart {
+  min-height: 180px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  color: #64748b;
+  text-align: center;
+  background: #f8fafc;
+  border-radius: 6px;
+  box-sizing: border-box;
+}
+
+/* Recent customers */
+.recent-customers {
+  margin-top: 14px;
+}
+
+/* Error message */
+.error-message {
+  padding: 12px;
+  border: 1px solid #fecaca;
+  border-radius: 7px;
+  background: #fee2e2;
+  color: #b91c1c;
+}
+
+/* Tablet */
+@media (max-width: 1100px) {
+  .dashboard-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .secondary-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .dashboard-panels {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+  .customer-dashboard {
+    padding: 12px;
+  }
+
+  .customer-dashboard h2 {
+    font-size: 26px;
+  }
+
+  .dashboard-cards,
+  .secondary-cards,
+  .dashboard-panels {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .dashboard-card {
+    min-height: 100px;
+    padding: 16px;
+  }
+
+  .dashboard-panel {
+    padding: 14px;
+  }
+
+  .city-bar-chart {
+    height: 270px;
+    min-height: 250px;
+  }
+
+  .product-pie-chart {
+    max-width: 270px;
+    height: 220px;
+    flex-basis: 220px;
+  }
+
+  .legend-row {
+    font-size: 13px;
+  }
+}
