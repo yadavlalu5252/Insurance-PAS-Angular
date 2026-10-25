@@ -26,22 +26,32 @@ export class Category implements OnInit {
     this.GetCategories();
   }
 
-  GetCategories(): void {
-    this.isLoading = true;
-    this.errorMessage = '';
+  
+GetCategories(): void {
+  this.isLoading = true;
+  this.errorMessage = '';
 
-    this.ps.getCategories().subscribe({
-      next: (res: any) => {
-        this.categories = res.data ?? res;
-        this.isLoading = false;
-      },
-      error: (err: any) => {
-        console.error('Category loading error:', err);
-        this.errorMessage = 'Unable to load categories.';
-        this.isLoading = false;
-      }
-    });
-  }
+  this.ps.getCategories().subscribe({
+    next: (res: any) => {
+      console.log('Categories API response:', res);
+
+      const result = res?.data ?? res?.result ?? res;
+
+      this.categories = Array.isArray(result)
+        ? result
+        : [];
+
+      console.log('Categories loaded:', this.categories);
+
+      this.isLoading = false;
+    },
+    error: (err: any) => {
+      console.error('Category loading error:', err);
+      this.errorMessage = 'Unable to load categories.';
+      this.isLoading = false;
+    }
+  });
+}
 
   AddCategory(): void {
     this.router.navigate(['/categories/add']);

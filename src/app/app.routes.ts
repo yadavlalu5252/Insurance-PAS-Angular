@@ -29,6 +29,11 @@ import { ProductConfiguration } from './ProductManagement/product-configuration/
 // Quote Generation
 import { Quote } from './QuoteGeneration/quote/quote';
 import { QuoteForm } from './QuoteGeneration/quote-form/quote-form';
+import { CustomerQuotes } from './customer-quotes/customer-quotes';
+
+// Underwriting
+import { UnderwritingCases } from './Underwriting/underwriting/underwriting';
+import { CaseReview } from './Underwriting/case-review/case-review';
 
 // Policy Services
 import { EndorsemntReq } from './policy-service/endorsemnt-req/endorsemnt-req';
@@ -83,6 +88,7 @@ export const routes: Routes = [
       { path: 'dashboard', component: Reports },
       { path: 'reports', component: Reports },
 
+      // Product Management
       { path: 'products', component: Product },
       { path: 'products/add', component: ProductForm },
       { path: 'products/edit/:id', component: ProductForm },
@@ -92,13 +98,21 @@ export const routes: Routes = [
       { path: 'product-management', component: ProductManagement },
       { path: 'product-configuration/:id', component: ProductConfiguration },
 
+      // Quote Generation
       { path: 'quotes', component: Quote },
       { path: 'quotes/new', component: QuoteForm },
+      { path: 'customer/quotes', component: CustomerQuotes },
 
+      // Underwriting
+      { path: 'underwriting', component: UnderwritingCases },
+      { path: 'underwriting/:id', component: CaseReview },
+
+      // Policy Management
       { path: 'policies', component: Policies },
       { path: 'endorsements', component: Endorsements },
       { path: 'policy-closure', component: PolicyClosureComponent },
 
+      // Policy Services
       { path: 'policy-service/endorsement-request', component: EndorsemntReq },
       { path: 'policy-service/cancel', component: PolicyCancellation },
       { path: 'policy-service/renewal', component: PolicyRenewal },
@@ -108,6 +122,7 @@ export const routes: Routes = [
       { path: 'policy-service/nominee', component: ServiceNominee },
       { path: 'policy-service/rider', component: ServiceRider },
 
+      // Premium, Refund and Payments
       { path: 'customer-premium-schedule', component: Customerpremiumschedule },
       { path: 'admin-premium', component: Adminpremium },
       { path: 'customer-refund', component: Customerrefund },
@@ -115,6 +130,7 @@ export const routes: Routes = [
       { path: 'payment-history', component: Paymenthistory },
       { path: 'payment-receipts', component: Paymentreceipt },
 
+      // Claims
       {
         path: 'claims',
         canActivate: [claimRoleGuard],
@@ -137,12 +153,14 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'policies', pathMatch: 'full' },
       { path: 'dashboard', component: Reports },
+
       { path: 'policies', component: Policies },
       { path: 'endorsements', component: Endorsements },
       { path: 'policy-closure', component: PolicyClosureComponent },
       { path: 'products', component: Product },
       { path: 'quotes', component: Quote },
 
+      // Premium, Refund and Payments
       { path: 'customer-premium-schedule', component: Customerpremiumschedule },
       { path: 'admin-premium', component: Adminpremium },
       { path: 'customer-refund', component: Customerrefund },
@@ -150,6 +168,7 @@ export const routes: Routes = [
       { path: 'payment-history', component: Paymenthistory },
       { path: 'payment-receipts', component: Paymentreceipt },
 
+      // Claims
       {
         path: 'claims',
         canActivate: [claimRoleGuard],
@@ -161,6 +180,7 @@ export const routes: Routes = [
         ]
       },
 
+      // Policy Services
       { path: 'policy-service/endorsement-request', component: EndorsemntReq },
       { path: 'policy-service/cancel', component: PolicyCancellation },
       { path: 'policy-service/renewal', component: PolicyRenewal },
@@ -180,10 +200,15 @@ export const routes: Routes = [
     data: { role: ['Customer', 'customer'] },
     children: [
       { path: '', redirectTo: 'policies', pathMatch: 'full' },
+
       { path: 'policies', component: Policies },
       { path: 'endorsements', component: Endorsements },
       { path: 'policy-closure', component: PolicyClosureComponent },
 
+      // Customer Quotes
+      { path: 'quotes', component: CustomerQuotes },
+
+      // Premium, Refund and Payments
       { path: 'customer-premium-schedule', component: Customerpremiumschedule },
       { path: 'admin-premium', component: Adminpremium },
       { path: 'customer-refund', component: Customerrefund },
@@ -191,6 +216,7 @@ export const routes: Routes = [
       { path: 'payment-history', component: Paymenthistory },
       { path: 'payment-receipts', component: Paymentreceipt },
 
+      // Claims
       {
         path: 'claims',
         canActivate: [claimRoleGuard],
@@ -202,6 +228,7 @@ export const routes: Routes = [
         ]
       },
 
+      // Policy Services
       { path: 'policy-service/endorsement-request', component: EndorsemntReq },
       { path: 'policy-service/cancel', component: PolicyCancellation },
       { path: 'policy-service/renewal', component: PolicyRenewal },
@@ -213,7 +240,7 @@ export const routes: Routes = [
     ]
   },
 
-  // Legacy claim routes
+  // Legacy Customer Claims
   {
     path: 'claims/customer',
     canActivate: [authGuard, claimRoleGuard],
@@ -224,6 +251,8 @@ export const routes: Routes = [
       { path: ':id', component: CustomerClaimDetails }
     ]
   },
+
+  // Legacy Agent Claims
   {
     path: 'claims/agent',
     canActivate: [authGuard, claimRoleGuard],
@@ -234,6 +263,8 @@ export const routes: Routes = [
       { path: ':id', component: AgentClaimDetails }
     ]
   },
+
+  // Legacy Admin Claims
   {
     path: 'claims/admin',
     canActivate: [authGuard, claimRoleGuard],
