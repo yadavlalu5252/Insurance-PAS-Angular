@@ -1,0 +1,215 @@
+
+<div class="module-page">
+  <nav class="module-nav">
+    <div class="brand">
+      <span class="brand-mark">IP</span>
+      <div>
+        <strong>Insurance PAS</strong>
+        <small>Policy operations</small>
+      </div>
+    </div>
+
+    <div class="nav-links">
+      <a [routerLink]="['/', role.toLowerCase(), 'policies']"
+         routerLinkActive="active">Policy Issuance</a>
+      <a [routerLink]="['/', role.toLowerCase(), 'endorsements']"
+         routerLinkActive="active">Endorsements</a>
+      <a [routerLink]="['/', role.toLowerCase(), 'policy-closure']"
+         routerLinkActive="active">Policy Closure</a>
+    </div>
+
+    <span class="role-chip">{{ role }} workspace</span>
+  </nav>
+
+  <header class="page-heading">
+    <div>
+      <p class="eyebrow">INSURANCE PAS / POLICY SERVICING</p>
+      <h1>Policy <span>Endorsements</span></h1>
+      <p>Request and review changes to an existing policy.</p>
+    </div>
+
+    <button *ngIf="canRequest()" class="primary" type="button"
+            (click)="openCreate()">
+      ＋ New endorsement
+    </button>
+  </header>
+
+  <div class="alert success" *ngIf="successMessage()">
+    {{ successMessage() }}
+    <button type="button" (click)="successMessage.set('')">×</button>
+  </div>
+
+  <div class="alert error" *ngIf="errorMessage()">
+    {{ errorMessage() }}
+    <button type="button" (click)="errorMessage.set('')">×</button>
+  </div>
+
+  <section class="stats">
+    <article>
+      <small>Total requests</small>
+      <strong>{{ rows().length }}</strong>
+    </article>
+    <article>
+      <small>Pending review</small>
+      <strong>{{ pendingCount }}</strong>
+    </article>
+    <article>
+      <small>Approved</small>
+      <strong>{{ approvedCount }}</strong>
+    </article>
+  </section>
+
+  <section class="panel">
+    <div class="panel-heading">
+      <div>
+        <h2>Endorsement register</h2>
+        <p>Track policy change requests and decisions.</p>
+      </div>
+
+      <button class="secondary" type="button"
+              (click)="loadPolicies()" [disabled]="loading()">
+        {{ loading() ? 'Loading...' : '↻ Refresh' }}
+      </button>
+    </div>
+
+    <input
+      class="search"
+      [value]="search()"
+      (input)="search.set($any($event.target).value)"
+      placeholder="Search endorsement, policy or status..."
+      aria-label="Search endorsements"
+    />
+
+    <div *ngIf="loading()" class="empty">
+      Loading endorsement records...
+    </div>
+
+    <div class="table-wrap" *ngIf="!loading()">
+      <table>
+        <thead>
+          <tr>
+            <th>Request</th>
+            <th>Policy</th>
+            <th>Change type</th>
+            <th>Requested changes</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th *ngIf="canDecide()">Decision</th>
+          </tr>
+        </thead>
+
+        <tbody>
+          <tr *ngFor="let row of filteredRows">
+            <td>
+              <strong>{{ row.endorsement_number || ('END-' + row.endorsement_id) }}</strong>
+              <small>#{{ row.endorsement_id }}</small>
+            </td>
+
+            <td>{{ policyLabel(row.policy_id) }}</td>
+            <td>{{ row.endorsement_type }}</td>
+
+            <td>
+              <small>From: {{ row.old_values || '—' }}</small>
+              <small>To: {{ row.new_values || '—' }}</small>
+            </td>
+
+            <td>{{ row.created_date | date:'dd MMM yyyy' }}</td>
+
+            <td>
+              <span class="status" [ngClass]="statusClass(row.status)">
+                {{ row.status || 'Pending' }}
+              </span>
+            </td>
+
+            <td *ngIf="canDecide()">
+              <button
+                *ngIf="['pending', 'submitted', 'under review'].includes((row.status || 'pending').toLowerCase())"
+                type="button"
+                (click)="decide(row, true)">
+                Approve
+              </button>
+
+              <button
+                class="danger"
+                *ngIf="['pending', 'submitted', 'under review'].includes((row.status || 'pending').toLowerCase())"
+                type="button"
+                (click)="decide(row, false)">
+                Reject
+              </button>
+            </td>
+          </tr>
+
+          <tr *ngIf="!filteredRows.length">
+            <td [attr.colspan]="canDecide() ? 7 : 6" class="empty">
+              No endorsement requests found.
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- New Endorsement Modal -->
+  <div class="modal-backdrop" *ngIf="modalOpen()" (click)="closeModal()">
+    <section class="modal" role="dialog" aria-modal="true"
+             aria-labelledby="endorsementModalTitle"
+             (click)="$event.stopPropagation()">
+
+      <header>
+        <div>
+          <p class="eyebrow">POLICY SERVICING</p>
+          <h2 id="endorsementModalTitle">New endorsement</h2>
+          <p>Describe the change requested for this policy.</p>
+        </div>
+
+        <button class="close" type="button"
+                aria-label="Close modal" (click)="closeModal()">×</button>
+      </header>
+
+      <form (ngSubmit)="create()">
+        <label>
+          Policy *
+          <select name="policy" [(ngModel)]="policyId" required>
+            <option [ngValue]="0">Select policy</option>
+            <option *ngFor="let p of policies()" [ngValue]="p.policy_id">
+              {{ p.policy_number || ('Policy #' + p.policy_id) }}
+              — {{ p.customer_name || ('Customer #' + p.customer_id) }}
+            </option>
+          </select>
+        </label>
+
+        <label>
+          Change type *
+          <select name="type" [(ngModel)]="endorsementType" required>
+            <option>Correction</option>
+            <option>Address Change</option>
+            <option>Nominee Change</option>
+            <option>Coverage Change</option>
+            <option>Contact Details</option>
+            <option>Other</option>
+          </select>
+        </label>
+
+        <label>
+          Existing details
+          <textarea name="old" [(ngModel)]="oldValues" rows="3"
+                    placeholder="Current policy details"></textarea>
+        </label>
+
+        <label>
+          Requested details *
+          <textarea name="new" [(ngModel)]="newValues" rows="3"
+                    required placeholder="Describe the requested change"></textarea>
+        </label>
+
+        <footer>
+          <button type="button" class="secondary"
+                  (click)="closeModal()">Cancel</button>
+          <button type="submit" [disabled]="saving()">
+            {{ saving() ? 'Submitting...' : 'Submit request' }}
+          </button>
+        </footer>
+      </form>
+    </section>
+  </div>
+</div>
