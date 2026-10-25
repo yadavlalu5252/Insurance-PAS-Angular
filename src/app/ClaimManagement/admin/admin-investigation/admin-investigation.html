@@ -1,0 +1,135 @@
+<div *ngIf="loading" class="text-center py-4">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span class="ms-2">Loading investigation...</span>
+</div>
+
+<ng-container *ngIf="!loading">
+  <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+  <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+
+  <!-- the investigation -->
+  <div *ngIf="investigation" class="card border-0 shadow-sm mb-3">
+    <div class="card-body">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="mb-0"><i class="bi bi-search text-primary me-1"></i> {{ investigation.investigation_number }}</h5>
+        <span class="badge" [ngClass]="isPending ? 'bg-warning text-dark' : 'bg-success'">{{ investigation.investigation_status }}</span>
+      </div>
+
+      <div class="row g-3">
+        <div class="col-sm-4"><div class="small text-muted">Investigator id</div><b>{{ investigation.investigator_id }}</b></div>
+        <div class="col-sm-4"><div class="small text-muted">Assigned on</div><b>{{ investigation.assigned_date | date:'dd/MM/yyyy' }}</b></div>
+        <div class="col-sm-4" *ngIf="investigation.completed_date">
+          <div class="small text-muted">Completed on</div><b>{{ investigation.completed_date | date:'dd/MM/yyyy' }}</b>
+        </div>
+        <div class="col-12"><div class="small text-muted">Reason</div>{{ investigation.investigation_reason }}</div>
+        <div class="col-12" *ngIf="investigation.findings">
+          <div class="small text-muted">Findings</div>{{ investigation.findings }}
+        </div>
+        <div class="col-12" *ngIf="investigation.recommendation">
+          <div class="small text-muted">Recommendation</div>
+          <span class="badge" [ngClass]="investigation.recommendation === 'Fraud' ? 'bg-danger' : 'bg-success'">{{ investigation.recommendation }}</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- evidence -->
+  <div *ngIf="investigation" class="card border-0 shadow-sm mb-3">
+    <div class="card-header bg-white fw-semibold"><i class="bi bi-paperclip"></i> Evidence</div>
+    <div class="table-responsive">
+      <table class="table align-middle mb-0">
+        <thead class="table-light"><tr><th>Description</th><th>File</th><th>Added</th><th>By</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let e of evidence">
+            <td>{{ e.description }}</td>
+            <td><i class="bi bi-file-earmark me-1"></i>{{ e.file_name }}</td>
+            <td>{{ e.uploaded_date | date:'dd/MM/yyyy HH:mm' }}</td>
+            <td>user #{{ e.uploaded_by }}</td>
+          </tr>
+          <tr *ngIf="evidence.length === 0">
+            <td colspan="4" class="text-center text-muted py-3">No evidence added yet</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- add evidence and submit the report: only while the investigation is open -->
+  <ng-container *ngIf="investigation && isPending">
+    <div class="card border-0 shadow-sm mb-3">
+      <div class="card-body">
+        <h6 class="mb-3">Add evidence</h6>
+        <div class="row g-2 align-items-end">
+          <div class="col-md-5">
+            <label class="form-label small text-muted">Description</label>
+            <input class="form-control" [(ngModel)]="evidenceDescription" placeholder="e.g. Repair shop statement" />
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-muted">File (pdf, jpg or png, up to 5 MB)</label>
+            <input #evidenceInput type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" (change)="onEvidenceFile($event)" />
+          </div>
+          <div class="col-md-3">
+            <button class="btn btn-outline-primary w-100" (click)="addEvidence(evidenceInput)" [disabled]="busy === 'evidence'">
+              <span *ngIf="busy === 'evidence'" class="spinner-border spinner-border-sm me-1"></span> Add
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h6 class="mb-3">Submit the investigation report</h6>
+        <div class="row g-3">
+          <div class="col-12">
+            <label class="form-label small text-muted">Findings</label>
+            <textarea rows="3" class="form-control" [(ngModel)]="findings"></textarea>
+          </div>
+          <div class="col-md-4">
+            <label class="form-label small text-muted">Recommendation</label>
+            <select class="form-select" [(ngModel)]="recommendation">
+              <option value="">Select</option>
+              <option *ngFor="let r of recommendations" [value]="r">{{ r }}</option>
+            </select>
+          </div>
+          <div class="col-md-5">
+            <label class="form-label small text-muted">Report file (pdf, jpg or png, up to 5 MB)</label>
+            <input #reportInput type="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png" (change)="onReportFile($event)" />
+          </div>
+          <div class="col-md-3 d-flex align-items-end">
+            <button class="btn btn-primary w-100" (click)="submitReport(reportInput)" [disabled]="busy === 'report'">
+              <span *ngIf="busy === 'report'" class="spinner-border spinner-border-sm me-1"></span> Submit report
+            </button>
+          </div>
+        </div>
+        <p class="small text-muted mt-3 mb-0">A claim can be rejected for fraud only after this report is submitted.</p>
+      </div>
+    </div>
+  </ng-container>
+
+  <!-- start an investigation -->
+  <div *ngIf="!investigation && canStart" class="card border-0 shadow-sm">
+    <div class="card-body">
+      <h5 class="mb-3">Start an investigation</h5>
+      <div class="row g-3">
+        <div class="col-md-4">
+          <label class="form-label small text-muted">Investigator (employee) id</label>
+          <input type="number" class="form-control" [(ngModel)]="investigatorId" />
+        </div>
+        <div class="col-md-8">
+          <label class="form-label small text-muted">Reason</label>
+          <input class="form-control" [(ngModel)]="reason" placeholder="e.g. Fake documents suspected" />
+        </div>
+      </div>
+      <button class="btn btn-primary mt-3" (click)="start()" [disabled]="busy === 'start'">
+        <span *ngIf="busy === 'start'" class="spinner-border spinner-border-sm me-1"></span> Start investigation
+      </button>
+      <p class="small text-muted mt-3 mb-0">The claim moves to <b>Under Investigation</b>. Approval and rejection wait until the report is submitted.</p>
+    </div>
+  </div>
+
+  <div *ngIf="!investigation && !canStart" class="alert alert-secondary">
+    <i class="bi bi-info-circle"></i>
+    An investigation can be started while the claim is <b>Pending Verification</b>, or <b>Under Survey</b> after the survey is completed.
+  </div>
+</ng-container>

@@ -4,16 +4,18 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { finalize } from 'rxjs/operators';
 import {
-  ClaimService, ClaimItem, ClaimHistoryItem, ClaimDocumentItem, SurveyItem, SettlementItem
+  ClaimService, ClaimItem, ClaimHistoryItem, ClaimDocumentItem, SurveyItem
 } from '../../../claim-service';
 import {
   DOCUMENT_SUGGESTIONS, getErrorMessage, getStatusBadge, unwrapData, unwrapList
 } from '../../../claim-helpers';
+import { ClaimSettlementView } from '../../claim-settlement-view/claim-settlement-view';
 
 @Component({
   selector: 'app-customer-claim-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  // ClaimSettlementView must be listed here, or <app-claim-settlement-view> is "not a known element"
+  imports: [CommonModule, FormsModule, RouterLink, ClaimSettlementView],
   templateUrl: './customer-claim-details.html',
   styleUrl: './customer-claim-details.scss',
 })
@@ -32,7 +34,6 @@ export class CustomerClaimDetails implements OnInit {
   history: ClaimHistoryItem[] = [];
   documents: ClaimDocumentItem[] = [];
   survey: SurveyItem | null = null;
-  settlement: SettlementItem | null = null;
 
   loading = false;
   errorMessage = '';
@@ -68,7 +69,6 @@ export class CustomerClaimDetails implements OnInit {
         next: (response: any) => {
           this.claim = unwrapData(response) ?? null;
           this.suggestions = DOCUMENT_SUGGESTIONS[this.claim?.claim_type ?? ''] ?? [];
-          this.loadSettlement();
           this.cd.detectChanges();
         },
         error: (error: any) => {
@@ -110,27 +110,6 @@ export class CustomerClaimDetails implements OnInit {
       },
       error: () => {
         this.survey = null;
-        this.cd.detectChanges();
-      },
-    });
-  }
-
-  // a settlement exists only after approval. A 404 (or an API that is not built yet) shows nothing.
-  private loadSettlement(): void {
-    const status = this.claim?.claim_status;
-
-    if (status !== 'Approved' && status !== 'Settled') {
-      this.settlement = null;
-      return;
-    }
-
-    this.claimService.getSettlement(this.claimId).subscribe({
-      next: (response: any) => {
-        this.settlement = unwrapData(response) ?? null;
-        this.cd.detectChanges();
-      },
-      error: () => {
-        this.settlement = null;
         this.cd.detectChanges();
       },
     });
