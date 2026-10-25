@@ -1,0 +1,103 @@
+<div class="container-fluid py-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h3 class="fw-bold mb-1">Register a Claim</h3>
+      <p class="text-muted mb-0">Fill in the details of the incident</p>
+    </div>
+
+    <a routerLink="/claims/customer" class="btn btn-outline-secondary">
+      <i class="bi bi-arrow-left me-1"></i>
+      Back
+    </a>
+  </div>
+
+  <div class="row">
+    <div class="col-lg-8">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <form [formGroup]="form" (ngSubmit)="submit()" novalidate>
+            <div class="row g-3">
+              <div class="col-md-6">
+                <label class="form-label">Policy Id</label>
+                <input type="number" class="form-control" formControlName="policy_id"
+                  [class.is-invalid]="isInvalid('policy_id')" />
+                <div class="invalid-feedback">Enter a valid policy id.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Customer Id</label>
+                <input type="number" class="form-control" formControlName="customer_id"
+                  [class.is-invalid]="isInvalid('customer_id')" />
+                <div class="invalid-feedback">Enter a valid customer id.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Claim Type</label>
+                <select class="form-select" formControlName="claim_type" [class.is-invalid]="isInvalid('claim_type')">
+                  <option value="">Select claim type</option>
+                  <option *ngFor="let type of claimTypes" [value]="type">{{ type }}</option>
+                </select>
+                <div class="invalid-feedback">Select a claim type.</div>
+              </div>
+
+              <div class="col-md-6">
+                <label class="form-label">Incident Date</label>
+                <input type="date" class="form-control" [max]="today" formControlName="incident_date"
+                  [class.is-invalid]="isInvalid('incident_date')" />
+                <div class="invalid-feedback">
+                  <span *ngIf="form.get('incident_date')?.errors?.['future']; else requiredDate">
+                    The incident date cannot be in the future.
+                  </span>
+                  <ng-template #requiredDate>Incident date is required.</ng-template>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Estimated Loss</label>
+                <div class="input-group has-validation">
+                  <span class="input-group-text">₹</span>
+                  <input type="number" class="form-control" formControlName="estimated_loss"
+                    [class.is-invalid]="isInvalid('estimated_loss')" />
+                  <div class="invalid-feedback">Estimated loss must be greater than 0.</div>
+                </div>
+              </div>
+
+              <div class="col-12">
+                <label class="form-label">Description</label>
+                <textarea rows="4" class="form-control" formControlName="description"
+                  [class.is-invalid]="isInvalid('description')"></textarea>
+                <div class="invalid-feedback">Description is required (maximum 1000 characters).</div>
+              </div>
+            </div>
+
+            <div *ngIf="errorMessage" class="alert alert-danger mt-3 mb-0">
+              {{ errorMessage }}
+            </div>
+
+            <div class="mt-4 d-flex gap-2">
+              <button type="submit" class="btn btn-primary" [disabled]="saving">
+                <span *ngIf="saving" class="spinner-border spinner-border-sm me-2"></span>
+                {{ saving ? 'Saving...' : 'Register Claim' }}
+              </button>
+
+              <a [routerLink]="basePath" class="btn btn-outline-secondary">Cancel</a>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4 mt-3 mt-lg-0">
+      <div class="card border-0 shadow-sm">
+        <div class="card-body">
+          <h6 class="mb-3"><i class="bi bi-info-circle text-primary me-1"></i> Before you submit</h6>
+          <p class="small text-muted">
+            Your policy is checked with the Policy and Premium services. A claim is not accepted if the policy is not
+            active, has expired, belongs to another customer, or has unpaid premium.
+          </p>
+          <p class="small text-muted mb-0">After registering, you can upload your documents on the claim page.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

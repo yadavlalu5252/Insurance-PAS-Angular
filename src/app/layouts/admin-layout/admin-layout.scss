@@ -1,0 +1,231 @@
+.admin-dashboard {
+  padding: 25px;
+  background-color: #f5f7fb;
+  min-height: 100vh;
+  box-sizing: border-box;
+}
+
+.admin-dashboard h2 {
+  margin: 0 0 5px;
+  color: #263238;
+  font-size: 30px;
+  font-weight: 600;
+}
+
+.admin-dashboard .subtitle {
+  color: #757575;
+  margin: 0 0 25px;
+}
+
+/* Dashboard grid */
+
+.admin-dashboard .dashboard-cards {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  width: 100%;
+}
+
+/* Dashboard cards */
+
+.admin-dashboard .dashboard-card {
+  display: block;
+  box-sizing: border-box;
+  min-width: 0;
+  background-color: #ffffff;
+  padding: 20px;
+  border-radius: 16px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+/* Card icons */
+
+.admin-dashboard .dashboard-card svg {
+  display: block;
+  width: 24px;
+  height: 24px;
+  margin-bottom: 14px;
+}
+
+/* Card headings */
+
+.admin-dashboard .dashboard-card h3 {
+  font-size: 16px;
+  font-weight: 400;
+  color: #68758c;
+  margin: 0 0 18px;
+}
+
+/* Card values */
+
+.admin-dashboard .dashboard-card p {
+  font-size: 32px;
+  font-weight: 600;
+  margin: 0;
+  color: #1e3152;
+}
+
+/* Icon colors */
+
+.admin-dashboard .total-users svg,
+.admin-dashboard .notifications-sent svg {
+  color: #2563ff;
+}
+
+.admin-dashboard .active-users svg {
+  color: #168a45;
+}
+
+.admin-dashboard .locked-users svg,
+.admin-dashboard .failed-logins svg {
+  color: #ff2028;
+}
+
+.admin-dashboard .total-roles svg {
+  color: #813cff;
+}
+
+.admin-dashboard .total-branches svg {
+  color: #009f91;
+}
+
+.admin-dashboard .login-today svg {
+  color: #ed7900;
+}
+
+.admin-dashboard .audit-events svg {
+  color: #a020ff;
+}
+
+/* Tablet */
+
+@media (max-width: 1000px) {
+  .admin-dashboard .dashboard-cards {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+/* Mobile */
+
+@media (max-width: 600px) {
+  .admin-dashboard {
+    padding: 16px;
+  }
+
+  .admin-dashboard h2 {
+    font-size: 24px;
+  }
+
+  .admin-dashboard .dashboard-cards {
+    grid-template-columns: 1fr;
+    gap: 14px;
+  }
+
+  .admin-dashboard .dashboard-card {
+    padding: 20px;
+:host {
+  display: block;
+  min-height: 100vh;
+}
+
+.admin-wrapper {
+  background-color: #f5f7fb;
+}
+
+.admin-sidebar {
+  width: 260px;
+  min-width: 260px;
+  background-color: #ffffff;
+  border-right: 1px solid #e5e7eb;
+  transition: width 0.25s ease, min-width 0.25s ease;
+  overflow: hidden;
+}
+
+.sidebar-brand {
+  height: 72px;
+  white-space: nowrap;
+}
+
+.sidebar-brand h4 {
+  color: #1d4ed8;
+}
+
+.sidebar-heading {
+  color: #94a3b8;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.sidebar-link {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 12px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  color: #475569;
+  text-decoration: none;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: #eff6ff;
+  color: #1d4ed8;
+}
+
+.sidebar-link.active {
+  background-color: #1d4ed8;
+  color: #ffffff;
+}
+
+.menu-icon {
+  width: 22px;
+  min-width: 22px;
+  text-align: center;
+  font-size: 18px;
+}
+
+.sidebar-footer {
+  white-space: nowrap;
+}
+
+.admin-main {
+  min-width: 0;
+}
+
+.admin-navbar {
+  height: 72px;
+}
+
+.navbar-title {
+  color: #1e293b;
+}
+
+.admin-content {
+  min-height: calc(100vh - 72px);
+}
+
+.sidebar-collapsed {
+  width: 0;
+  min-width: 0;
+  border-right: 0;
+}
+
+@media (max-width: 768px) {
+  .admin-sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .admin-sidebar.sidebar-collapsed {
+    width: 0;
+    min-width: 0;
+  }
+
+  .admin-content {
+    padding: 1rem !important;
+  }
+}

@@ -1,0 +1,65 @@
+<div *ngIf="loading" class="text-center py-4">
+  <div class="spinner-border spinner-border-sm text-primary"></div>
+  <span class="ms-2">Loading assessment...</span>
+</div>
+
+<div class="row g-3" *ngIf="!loading">
+  <div class="col-lg-7">
+    <div class="card border-0 shadow-sm">
+      <div class="card-body">
+        <h5 class="mb-3"><i class="bi bi-calculator text-primary me-1"></i> Claim assessment</h5>
+
+        <div *ngIf="errorMessage" class="alert alert-danger">{{ errorMessage }}</div>
+        <div *ngIf="successMessage" class="alert alert-success">{{ successMessage }}</div>
+        <div *ngIf="!canSave" class="alert alert-secondary">
+          <i class="bi bi-lock"></i> The assessment can be changed only while the claim is being processed.
+        </div>
+
+        <div class="row g-3">
+          <div class="col-md-6">
+            <label class="form-label">Claim amount (assessed)</label>
+            <input type="number" class="form-control" [(ngModel)]="assessedAmount" [disabled]="!canSave" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Policy deductible</label>
+            <input type="number" class="form-control" [(ngModel)]="deductible" [disabled]="!canSave" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Depreciation</label>
+            <input type="number" class="form-control" [(ngModel)]="depreciation" [disabled]="!canSave" />
+          </div>
+          <div class="col-md-6">
+            <label class="form-label">Non-payable expenses</label>
+            <input type="number" class="form-control" [(ngModel)]="nonPayable" [disabled]="!canSave" />
+          </div>
+        </div>
+
+        <button *ngIf="canSave" class="btn btn-primary mt-3" (click)="save()" [disabled]="busy">
+          <span *ngIf="busy" class="spinner-border spinner-border-sm me-2"></span>
+          <i *ngIf="!busy" class="bi bi-save me-1"></i> Save assessment
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div class="col-lg-5">
+    <div class="card border-0 shadow-sm h-100">
+      <div class="card-body">
+        <h6 class="text-muted">Net payable amount</h6>
+        <div class="display-6 fw-bold" [class.text-danger]="netPayable <= 0" [class.text-primary]="netPayable > 0">
+          {{ netPayable | currency:'INR':'symbol':'1.0-2' }}
+        </div>
+        <p class="small text-muted mt-2">Claim amount − deductible − depreciation − non-payable.</p>
+
+        <hr />
+        <div *ngIf="assessment">
+          <div class="small text-muted">Saved on {{ assessment.assessed_date | date:'dd/MM/yyyy HH:mm' }}</div>
+          <div class="fw-semibold">Saved net payable: {{ assessment.net_payable | currency:'INR':'symbol':'1.0-2' }}</div>
+        </div>
+        <div *ngIf="!assessment" class="alert alert-warning small mb-0">
+          Not assessed yet. A claim cannot be approved without an assessment.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,114 @@
+
+<div class="container-fluid py-4">
+
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <div>
+      <h2 class="fw-bold mb-1">Insurance Products</h2>
+      <p class="text-muted mb-0">View and manage insurance products</p>
+    </div>
+
+    <button class="btn btn-primary" (click)="AddProduct()">
+      <i class="bi bi-plus-lg me-2"></i>
+      Add Product
+    </button>
+  </div>
+
+  <div class="alert alert-success alert-dismissible"
+       *ngIf="successMessage">
+    {{ successMessage }}
+    <button type="button" class="btn-close"
+            (click)="successMessage = ''"></button>
+  </div>
+
+  <div class="alert alert-danger" *ngIf="errorMessage">
+    {{ errorMessage }}
+  </div>
+
+  <div class="card shadow-sm border-0">
+    <div class="card-body">
+
+      <div *ngIf="isLoading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-muted mt-2 mb-0">Loading products...</p>
+      </div>
+
+      <div class="table-responsive" *ngIf="!isLoading">
+        <table class="table table-hover align-middle mb-0">
+
+          <thead class="table-light">
+            <tr>
+              <th>Product Code</th>
+              <th>Product Name</th>
+              <th>Category ID</th>
+              <th>Product Type</th>
+              <th>Min Sum Insured</th>
+              <th>Max Sum Insured</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+
+          <tbody>
+            <tr *ngFor="let product of products">
+              <td>{{ product.product_code }}</td>
+              <td class="fw-semibold">{{ product.product_name }}</td>
+              <td>{{ product.category_id }}</td>
+              <td>{{ product.product_type }}</td>
+              <td>
+                {{ product.minimum_sum_insured ?? '-' }}
+              </td>
+              <td>
+                {{ product.maximum_sum_insured ?? '-' }}
+              </td>
+
+              <td>
+                <span class="badge"
+                      [ngClass]="product.status === 'Active'
+                        ? 'text-bg-success'
+                        : 'text-bg-secondary'">
+                  {{ product.status }}
+                </span>
+              </td>
+
+              
+<td>
+  <div class="d-flex gap-2 flex-wrap">
+    <button
+      class="btn btn-sm btn-outline-primary"
+      (click)="EditProduct(product.product_id)">
+      Edit
+    </button>
+
+    <button
+      class="btn btn-sm btn-outline-success"
+      (click)="ConfigureProduct(product.product_id)">
+      Configure
+    </button>
+
+    <button
+      class="btn btn-sm btn-outline-danger"
+      *ngIf="product.status === 'Active'"
+      (click)="DeleteProduct(product.product_id)">
+      Deactivate
+    </button>
+  </div>
+</td>
+
+            </tr>
+
+            <tr *ngIf="products.length === 0">
+              <td colspan="8" class="text-center text-muted py-5">
+                No products found.
+              </td>
+            </tr>
+          </tbody>
+
+        </table>
+      </div>
+
+    </div>
+  </div>
+
+</div>

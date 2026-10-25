@@ -1,0 +1,67 @@
+
+<div class="container-fluid min-vh-100 bg-light d-flex align-items-center justify-content-center py-5 px-3">
+  <div class="card border-0 shadow-lg rounded-4 w-100" style="max-width: 500px;">
+    <div class="card-body p-4 p-md-5">
+      <div class="text-center mb-4">
+        <div class="d-inline-flex align-items-center justify-content-center bg-primary text-white rounded-3 mb-3" style="width: 55px; height: 55px;">
+          <span class="fs-2 fw-bold">I</span>
+        </div>
+        <h2 class="fw-bold mb-2">Create Account</h2>
+        <p class="text-secondary mb-0">Register for Insurance PAS</p>
+      </div>
+
+      <form [formGroup]="registerForm" (ngSubmit)="onSubmit()" novalidate>
+        <div class="mb-3">
+          <label for="fullName" class="form-label fw-semibold">Full Name</label>
+          <input id="fullName" type="text" class="form-control form-control-lg rounded-3" formControlName="fullName" placeholder="Enter your full name" [class.is-invalid]="f.fullName.touched && f.fullName.invalid">
+          <div class="invalid-feedback" *ngIf="f.fullName.touched && f.fullName.invalid">Enter a name with at least 3 characters.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="email" class="form-label fw-semibold">Email Address</label>
+          <input id="email" type="email" class="form-control form-control-lg rounded-3" formControlName="email" placeholder="name@example.com" [class.is-invalid]="f.email.touched && f.email.invalid">
+          <div class="invalid-feedback" *ngIf="f.email.touched && f.email.invalid">Enter a valid email address.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="phone" class="form-label fw-semibold">Mobile Number</label>
+          <input id="phone" type="tel" class="form-control form-control-lg rounded-3" formControlName="phone" placeholder="10-digit mobile number" maxlength="10" [class.is-invalid]="f.phone.touched && f.phone.invalid">
+          <div class="invalid-feedback" *ngIf="f.phone.touched && f.phone.invalid">Enter a valid 10-digit Indian mobile number.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="password" class="form-label fw-semibold">Password</label>
+          <div class="input-group input-group-lg">
+            <input id="password" [type]="showPassword ? 'text' : 'password'" class="form-control rounded-start-3" formControlName="password" placeholder="Minimum 8 characters" [class.is-invalid]="f.password.touched && f.password.invalid">
+            <button type="button" class="btn btn-outline-secondary rounded-end-3" (click)="showPassword = !showPassword">{{ showPassword ? 'Hide' : 'Show' }}</button>
+          </div>
+          <div class="text-danger small mt-1" *ngIf="f.password.touched && f.password.invalid">Password must contain at least 8 characters.</div>
+        </div>
+
+        <div class="mb-3">
+          <label for="confirmPassword" class="form-label fw-semibold">Confirm Password</label>
+          <div class="input-group input-group-lg">
+            <input id="confirmPassword" [type]="showConfirmPassword ? 'text' : 'password'" class="form-control rounded-start-3" formControlName="confirmPassword" placeholder="Re-enter your password" [class.is-invalid]="f.confirmPassword.touched && (f.confirmPassword.invalid || f.password.value !== f.confirmPassword.value)">
+            <button type="button" class="btn btn-outline-secondary rounded-end-3" (click)="showConfirmPassword = !showConfirmPassword">{{ showConfirmPassword ? 'Hide' : 'Show' }}</button>
+          </div>
+          <div class="text-danger small mt-1" *ngIf="f.confirmPassword.touched && f.password.value !== f.confirmPassword.value">Passwords do not match.</div>
+        </div>
+
+        <div class="mb-4">
+          <label for="role" class="form-label fw-semibold">Account Type</label>
+          <select id="role" class="form-select form-select-lg rounded-3" formControlName="role">
+            <option value="Customer">Customer</option>
+            <option value="Agent">Agent</option>
+          </select>
+        </div>
+
+        <button type="submit" class="btn btn-primary btn-lg rounded-3 w-100 fw-semibold">Create Account</button>
+      </form>
+
+      <div class="text-center mt-4">
+        <span class="text-secondary">Already have an account?</span>
+        <a routerLink="/login" class="text-primary text-decoration-none fw-semibold ms-1">Sign In</a>
+      </div>
+    </div>
+  </div>
+</div>

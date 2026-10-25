@@ -1,0 +1,112 @@
+
+<div class="container-fluid p-4">
+  <div class="row g-4">
+
+    <!-- Active Customers -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+          <h5 class="text-secondary mb-3">Active Customers</h5>
+
+          <h2 *ngIf="!loadingCustomers && !customerError">
+            {{ activeCustomers }}
+          </h2>
+
+          <p *ngIf="loadingCustomers" class="text-secondary">
+            Loading customers...
+          </p>
+
+          <p *ngIf="customerError" class="text-danger">
+            {{ customerError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Agent Sales -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+          <h5 class="text-secondary mb-3">Agent Sales</h5>
+
+          <h2 *ngIf="!loadingSales && !salesError">
+            {{ agentSales }}
+          </h2>
+
+          <p *ngIf="loadingSales" class="text-secondary">
+            Loading sales...
+          </p>
+
+          <p *ngIf="salesError" class="text-danger">
+            {{ salesError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Premium Collection -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+          <h5 class="text-secondary mb-3">Premium Collection</h5>
+
+          <h2 *ngIf="!loadingPremium && !premiumError">
+            ₹{{ totalPremium }}
+          </h2>
+
+          <p *ngIf="loadingPremium" class="text-secondary">
+            Loading premium collection...
+          </p>
+
+          <p *ngIf="premiumError" class="text-danger">
+            {{ premiumError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Claim Ratio -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+          <h5 class="text-secondary mb-3">Claim Ratio</h5>
+          <h2>—</h2>
+          <p class="text-secondary mb-0">API integration pending</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Commission Report -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+          <h5 class="text-secondary mb-3">Commission Report</h5>
+
+          <h2 *ngIf="!loadingCommission && !commissionError">
+            ₹{{ totalCommission }}
+          </h2>
+
+          <p *ngIf="loadingCommission" class="text-secondary">
+            Loading commission...
+          </p>
+
+          <p *ngIf="commissionError" class="text-danger">
+            {{ commissionError }}
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Monthly Performance -->
+    <div class="col-12 col-md-6">
+      <div class="card shadow-sm border-0 h-100">
+        <div class="card-body p-4">
+          <h5 class="text-secondary mb-3">Monthly Performance</h5>
+          <h2>—</h2>
+          <p class="text-secondary mb-0">API integration pending</p>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
