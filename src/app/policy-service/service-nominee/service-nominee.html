@@ -1,0 +1,43 @@
+<p>service-nominee works!</p>
+
+
+
+<p>Nominee Form works!</p>
+
+<form [formGroup]="nomineeForm" (ngSubmit)="SaveNominee(nomineeForm.value)">
+  {{ nomineeForm.value | json }} <br /> <br />
+
+  <input type="hidden" formControlName="nominee_id">
+  <input type="hidden" formControlName="customer_id">
+
+
+  <label><strong>Select Policy</strong></label>
+
+  <select class="form-control" formControlName="policyId">
+    <option value="">-- Select a policy --</option>
+    <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+      {{ p.policy_number }} (Status : {{p.policy_status}})
+    </option>
+  </select>
+
+  Nominee Name
+  <input type="text" class="form-control" formControlName="nominee_name"> <br /><br />
+
+  Relationship
+  <input type="text" class="form-control" formControlName="relationship"> <br /><br />
+
+  Date of Birth
+  <input type="date" class="form-control" formControlName="date_of_birth"> <br /><br />
+
+  Mobile Number
+  <input type="text" class="form-control" formControlName="mobile_number"> <br /><br />
+
+  Share Percentage
+  <input type="number" class="form-control" formControlName="share_percentage"> <br /><br />
+
+  Guardian Name (If Minor)
+  <input type="text" class="form-control" formControlName="guardian_name"> <br /><br />
+
+  <input type="submit" class="btn btn-primary" value="Submit">
+
+</form>

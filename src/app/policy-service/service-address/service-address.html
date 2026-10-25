@@ -1,0 +1,45 @@
+<p>service-req works!</p>
+
+<form [formGroup]="addressForm" (ngSubmit)="SaveAddress(addressForm.value)">
+  {{addressForm.value | json }} <br /> <br />
+
+  <input type="hidden" formControlName="address_id">
+  <input type="hidden" formControlName="customer_id">
+
+  <label><strong>Select Policy</strong></label>
+
+  <select class="form-control" formControlName="policyId">
+    <option value="">-- Select a policy --</option>
+    <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+      {{ p.policy_number }} (Status : {{p.policy_status}})
+    </option>
+  </select>
+
+
+  Address Type
+  <input type="text" class="form-control" formControlName="address_type"> <br /> <br />
+
+  Address Line 1
+  <input type="text" class="form-control" formControlName="address_line1"> <br /><br />
+
+  Address Line 2
+  <input type="text" class="form-control" formControlName="address_line2"> <br /><br />
+
+  City
+  <input type="text" class="form-control" formControlName="city"> <br /><br />
+
+  District
+  <input type="text" class="form-control" formControlName="district"> <br /><br />
+
+  State
+  <input type="text" class="form-control" formControlName="state"> <br /><br />
+
+  Country
+  <input type="text" class="form-control" formControlName="country"> <br /><br />
+
+  Pincode
+  <input type="text" class="form-control" formControlName="pincode"> <br /><br />
+
+  <input type="submit" class="btn btn-primary" value="Submit">
+
+</form>

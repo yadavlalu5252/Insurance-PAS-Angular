@@ -1,0 +1,63 @@
+<p>policy-cancellation works!</p>
+
+
+
+<button class="btn btn-primary mb-3" (click)="openModal()">
+  Cancel a Policy
+</button>
+
+
+<table class="table" *ngIf="policydetails">
+  <thead>
+    <tr>
+      <th scope="col">Cancellation Id</th>
+      <th scope="col">Policy ID</th>
+      <th scope="col">Cancellation Date</th>
+      <th scope="col">Cancellation Reason</th>
+      <th scope="col">Refund Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">{{policydetails.cancellation_id}}</th>
+      <td>{{policydetails.policy_id}}</td>
+      <td>{{policydetails.cancellation_date}}</td>
+      <td>{{policydetails.cancellation_reason}}</td>
+      <td>{{policydetails.refund_amount}}</td>
+    </tr>
+    <tr>
+  </tbody>
+</table>
+
+
+
+<div class="modal show d-block" tabindex="-1" *ngIf="isModalOpen" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Policy Cancellation</h5>
+        <button type="button"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="cancelform" (ngSubmit)="cancel(cancelform.value)">
+          <select class="form-control" formControlName="policyId">
+            <option value="">-- Select a policy --</option>
+            <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+              {{ p.policy_number }} (Status : {{p.policy_status}})
+            </option>
+          </select>
+          <div class="row">
+            <div class="col-md-6">
+              Cancellation Reason
+              <input type="text" class="form-control" formControlName="CancellationReason"> <br /><br />
+            </div>
+          </div>
+          <input type="submit" class="btn btn-primary" value="Cancel Policy">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

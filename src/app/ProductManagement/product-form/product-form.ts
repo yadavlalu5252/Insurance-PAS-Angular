@@ -64,7 +64,6 @@ export class ProductForm implements OnInit {
     this.ps.getProductById(id).subscribe({
       next: (res: any) => {
         const product = res.data ?? res;
-
         this.productForm.patchValue({
           product_code: product.product_code,
           product_name: product.product_name,
@@ -84,6 +83,7 @@ export class ProductForm implements OnInit {
       }
     });
   }
+
 
   SaveProduct(): void {
     this.errorMessage = '';
