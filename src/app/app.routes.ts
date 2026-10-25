@@ -47,6 +47,9 @@ import { CustomerClaimNew } from './ClaimManagement/customer/customer-claim-new/
 import { CustomerClaimDetails } from './ClaimManagement/customer/customer-claim-details/customer-claim-details';
 import { AdminClaims } from './ClaimManagement/admin/admin-claims/admin-claims';
 import { AdminClaimDetails } from './ClaimManagement/admin/admin-claim-details/admin-claim-details';
+import { AdminInvestigations } from './ClaimManagement/admin/admin-investigations/admin-investigations';
+
+// New Agent Claim Management Components
 import { AgentClaims } from './ClaimManagement/agent/agent-claims/agent-claims';
 import { AgentClaimNew } from './ClaimManagement/agent/agent-claim-new/agent-claim-new';
 import { AgentClaimDetails } from './ClaimManagement/agent/agent-claim-details/agent-claim-details';
@@ -110,6 +113,7 @@ export const routes: Routes = [
         data: { role: 'admin' },
         children: [
           { path: '', component: AdminClaims },
+          { path: 'investigations', component: AdminInvestigations }, // must stay above ':id'
           { path: ':id', component: AdminClaimDetails }
         ]
       }

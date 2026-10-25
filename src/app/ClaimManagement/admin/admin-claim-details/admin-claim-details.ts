@@ -1,38 +1,52 @@
-import { Component, OnInit, inject, ChangeDetectorRef } from '@angular/core';
+import { ChangeDetectorRef, Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { Observable } from 'rxjs';
 import { finalize } from 'rxjs/operators';
+import { ClaimService, ClaimDocumentItem } from '../../../claim-service';
+import { ClaimProcessService } from '../../../claim-process-service';
 import {
-  ClaimService, ClaimItem, ClaimHistoryItem, ClaimDocumentItem, SurveyItem, InvestigationItem, SettlementItem
-} from '../../../claim-service';
-import {
-  PAYMENT_MODES, getErrorMessage, getStatusBadge, getTodayString, isAllowedFile, unwrapData, unwrapList
+  getErrorMessage, getStatusBadge, getTodayString, isAllowedFile, unwrapData, unwrapList
 } from '../../../claim-helpers';
+import { AdminAssessment } from '../admin-assessment/admin-assessment';
+import { AdminInvestigation } from '../admin-investigation/admin-investigation';
+import { AdminSettlement } from '../admin-settlement/admin-settlement';
 
 @Component({
   selector: 'app-admin-claim-details',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule, RouterLink, AdminAssessment, AdminInvestigation, AdminSettlement],
   templateUrl: './admin-claim-details.html',
   styleUrl: './admin-claim-details.scss',
 })
 export class AdminClaimDetails implements OnInit {
   private claimService = inject(ClaimService);
+  private processService = inject(ClaimProcessService);
   private route = inject(ActivatedRoute);
   private cd = inject(ChangeDetectorRef);
 
-  paymentModes = PAYMENT_MODES;
   today = getTodayString();
 
+  steps = ['Registered', 'In Review', 'Approved', 'Settled'];
+
+  tabs = [
+    { key: 'overview', label: 'Overview', icon: 'bi-info-circle' },
+    { key: 'documents', label: 'Documents', icon: 'bi-file-earmark-text' },
+    { key: 'survey', label: 'Survey', icon: 'bi-clipboard-check' },
+    { key: 'assessment', label: 'Assessment', icon: 'bi-calculator' },
+    { key: 'investigation', label: 'Investigation', icon: 'bi-search' },
+    { key: 'settlement', label: 'Settlement', icon: 'bi-cash-coin' },
+  ];
+  activeTab = 'overview';
+
   claimId = 0;
-  claim: ClaimItem | null = null;
-  history: ClaimHistoryItem[] = [];
-  documents: ClaimDocumentItem[] = [];
-  survey: SurveyItem | null = null;
-  investigation: InvestigationItem | null = null;
-  settlement: SettlementItem | null = null;
+
+  // loose types, so the template compiles whatever fields your claim interfaces have
+  claim: any = null;
+  history: any[] = [];
+  documents: any[] = [];
+  survey: any = null;
 
   loading = false;
   errorMessage = '';
@@ -44,19 +58,11 @@ export class AdminClaimDetails implements OnInit {
   inspectionDate = getTodayString();
   surveyFile: File | null = null;
 
-  // investigation
-  investigatorId: number | null = null;
-  investigationReason = '';
-  investigationFile: File | null = null;
-
   // decision
+  panel: '' | 'approve' | 'reject' = '';
   approveRemarks = '';
   rejectReason = '';
-
-  // settlement
-  settleAmount: number | null = null;
-  settleMode = '';
-  settleReference = '';
+  rejectFraud = false;
 
   ngOnInit(): void {
     this.claimId = Number(this.route.snapshot.paramMap.get('id'));
@@ -66,7 +72,8 @@ export class AdminClaimDetails implements OnInit {
   // ---------- loading ----------
 
   loadAll(): void {
-    this.loading = true;
+    // the spinner shows only the first time, so the tabs keep what the admin typed
+    this.loading = !this.claim;
     this.cd.detectChanges();
 
     this.claimService
@@ -80,12 +87,6 @@ export class AdminClaimDetails implements OnInit {
       .subscribe({
         next: (response: any) => {
           this.claim = unwrapData(response) ?? null;
-
-          if (this.settleAmount === null) {
-            this.settleAmount = this.claim?.estimated_loss ?? null;
-          }
-
-          this.loadSettlement();
           this.cd.detectChanges();
         },
         error: (error: any) => {
@@ -130,37 +131,6 @@ export class AdminClaimDetails implements OnInit {
         this.cd.detectChanges();
       },
     });
-
-    this.claimService.getInvestigation(this.claimId).subscribe({
-      next: (response: any) => {
-        this.investigation = unwrapData(response) ?? null;
-        this.cd.detectChanges();
-      },
-      error: () => {
-        this.investigation = null;
-        this.cd.detectChanges();
-      },
-    });
-  }
-
-  private loadSettlement(): void {
-    const status = this.claim?.claim_status;
-
-    if (status !== 'Approved' && status !== 'Settled') {
-      this.settlement = null;
-      return;
-    }
-
-    this.claimService.getSettlement(this.claimId).subscribe({
-      next: (response: any) => {
-        this.settlement = unwrapData(response) ?? null;
-        this.cd.detectChanges();
-      },
-      error: () => {
-        this.settlement = null;
-        this.cd.detectChanges();
-      },
-    });
   }
 
   // ---------- which actions are allowed (the same rules as the API) ----------
@@ -173,44 +143,60 @@ export class AdminClaimDetails implements OnInit {
     return ['Approved', 'Rejected', 'Settled', 'Cancelled'].includes(this.status());
   }
 
+  isClosed(): boolean {
+    return ['Rejected', 'Cancelled'].includes(this.status());
+  }
+
   canVerifyDocuments(): boolean {
     return !!this.claim && !this.isFinal();
   }
 
   canAssignSurvey(): boolean {
-    return this.status() === 'Pending Verification';
+    return this.status() === 'Pending Verification' && !this.survey;
   }
 
   canSubmitSurveyReport(): boolean {
     return this.status() === 'Under Survey' && this.survey?.survey_status === 'Assigned';
   }
 
-  // an open survey must be finished first, otherwise its report could not be submitted any more
+  // an open survey must be finished first
   canAssignInvestigation(): boolean {
     return this.status() === 'Pending Verification' ||
       (this.status() === 'Under Survey' && this.survey?.survey_status === 'Completed');
-  }
-
-  canSubmitInvestigationReport(): boolean {
-    return this.status() === 'Under Investigation' && this.investigation?.investigation_status === 'Pending';
   }
 
   canDecide(): boolean {
     return ['Pending Verification', 'Under Survey', 'Under Investigation'].includes(this.status());
   }
 
-  canSettle(): boolean {
-    return this.status() === 'Approved' && !this.settlement;
-  }
-
   canCancel(): boolean {
     return ['Registered', 'Pending Verification'].includes(this.status());
+  }
+
+  // ---------- the stepper ----------
+
+  stepIndex(): number {
+    switch (this.status()) {
+      case 'Registered': return 0;
+      case 'Pending Verification':
+      case 'Under Survey':
+      case 'Under Investigation': return 1;
+      case 'Approved': return 2;
+      case 'Settled': return 3;
+      default: return -1;
+    }
+  }
+
+  stepClass(i: number): string {
+    const current = this.stepIndex();
+    if (current === 3 || i < current) return 'done';
+    return i === current ? 'current' : '';
   }
 
   // ---------- actions ----------
 
   // runs one API call, shows the result and reloads the page data
-  private runAction(request: Observable<any>, busyName: string, successText: string): void {
+  private runAction(request: Observable<any>, busyName: string, successText: string, onSuccess?: () => void): void {
     this.errorMessage = '';
     this.successMessage = '';
     this.busy = busyName;
@@ -226,6 +212,7 @@ export class AdminClaimDetails implements OnInit {
       .subscribe({
         next: () => {
           this.successMessage = successText;
+          onSuccess?.();
           this.loadAll();
         },
         error: (error: any) => {
@@ -240,6 +227,12 @@ export class AdminClaimDetails implements OnInit {
     this.successMessage = '';
     this.errorMessage = message;
     this.cd.detectChanges();
+  }
+
+  docBadge(status: string): string {
+    if (status === 'Verified') return 'bg-success';
+    if (status === 'Rejected') return 'bg-danger';
+    return 'bg-warning text-dark';
   }
 
   verifyDocument(document: ClaimDocumentItem, status: string): void {
@@ -276,6 +269,7 @@ export class AdminClaimDetails implements OnInit {
       this.claimService.assignSurveyor(this.claimId, this.surveyorId),
       'survey',
       'Surveyor assigned. The claim is now Under Survey.',
+      () => (this.surveyorId = null),
     );
   }
 
@@ -307,50 +301,7 @@ export class AdminClaimDetails implements OnInit {
       this.claimService.submitSurveyReport(this.survey.survey_id, this.inspectionDate, this.surveyFile),
       'survey-report',
       'Survey report submitted.',
-    );
-  }
-
-  assignInvestigation(): void {
-    if (!this.investigatorId || this.investigatorId < 1) {
-      this.fail('Enter a valid investigator id.');
-      return;
-    }
-
-    if (!this.investigationReason.trim()) {
-      this.fail('Enter the reason for the investigation.');
-      return;
-    }
-
-    this.runAction(
-      this.claimService.assignInvestigator(this.claimId, this.investigatorId, this.investigationReason.trim()),
-      'investigation',
-      'Investigator assigned. The claim is now Under Investigation.',
-    );
-  }
-
-  onInvestigationFileSelected(event: Event): void {
-    this.investigationFile = (event.target as HTMLInputElement).files?.[0] ?? null;
-  }
-
-  submitInvestigationReport(): void {
-    if (!this.investigation) {
-      return;
-    }
-
-    if (!this.investigationFile) {
-      this.fail('Choose the investigation report file.');
-      return;
-    }
-
-    if (!isAllowedFile(this.investigationFile)) {
-      this.fail('Only pdf, jpg, jpeg and png files are allowed.');
-      return;
-    }
-
-    this.runAction(
-      this.claimService.submitInvestigationReport(this.investigation.investigation_id, this.investigationFile),
-      'investigation-report',
-      'Investigation report submitted.',
+      () => (this.surveyFile = null),
     );
   }
 
@@ -363,6 +314,10 @@ export class AdminClaimDetails implements OnInit {
       this.claimService.approveClaim(this.claimId, this.approveRemarks.trim()),
       'approve',
       'Claim approved.',
+      () => {
+        this.panel = '';
+        this.approveRemarks = '';
+      },
     );
   }
 
@@ -376,32 +331,16 @@ export class AdminClaimDetails implements OnInit {
       return;
     }
 
+    // is_fraud is what triggers the BRD rule: an investigation report is needed first
     this.runAction(
-      this.claimService.rejectClaim(this.claimId, this.rejectReason.trim()),
+      this.processService.rejectClaim(this.claimId, this.rejectReason.trim(), this.rejectFraud),
       'reject',
       'Claim rejected.',
-    );
-  }
-
-  processSettlement(): void {
-    if (!this.settleAmount || this.settleAmount <= 0) {
-      this.fail('Enter the settlement amount.');
-      return;
-    }
-
-    if (!this.settleMode) {
-      this.fail('Choose a payment mode.');
-      return;
-    }
-
-    this.runAction(
-      this.claimService.processSettlement(this.claimId, {
-        approved_amount: this.settleAmount,
-        payment_mode: this.settleMode,
-        transaction_reference: this.settleReference.trim(),
-      }),
-      'settlement',
-      'Settlement recorded.',
+      () => {
+        this.panel = '';
+        this.rejectReason = '';
+        this.rejectFraud = false;
+      },
     );
   }
 
@@ -416,7 +355,7 @@ export class AdminClaimDetails implements OnInit {
   // ---------- helpers for the template ----------
 
   getIcon(action: string): string {
-    const text = action.toLowerCase();
+    const text = (action ?? '').toLowerCase();
 
     if (text.includes('settled')) return 'bi-cash-coin';
     if (text.includes('approved')) return 'bi-check-circle';
@@ -425,19 +364,12 @@ export class AdminClaimDetails implements OnInit {
     if (text.includes('document')) return 'bi-file-earmark-text';
     if (text.includes('survey')) return 'bi-clipboard-check';
     if (text.includes('investigation')) return 'bi-search';
+    if (text.includes('assess')) return 'bi-calculator';
 
     return 'bi-dot';
   }
 
   getStatusBadge(status: string): string {
     return getStatusBadge(status);
-  }
-
-  trackByHistoryId(index: number, item: ClaimHistoryItem): number {
-    return item.history_id;
-  }
-
-  trackByDocumentId(index: number, item: ClaimDocumentItem): number {
-    return item.document_id;
   }
 }
