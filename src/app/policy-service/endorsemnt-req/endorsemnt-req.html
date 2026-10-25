@@ -1,0 +1,56 @@
+<p>endorsemnt-req works!</p>
+
+<table class="table">
+  <thead>
+    <tr>
+      <th scope="col">Endorsement ID</th>
+      <th scope="col">Request ID</th>
+      <th scope="col">Endorsement Number</th>
+      <th scope="col">Endorsement Type</th>
+      <th scope="col">Actions</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr *ngFor="let e of endorsements">
+      <th scope="row">{{e.endorsement_id}}</th>
+      <td>{{e.request_id}}</td>
+      <td>{{e.endorsement_number}}</td>
+      <td>{{e.endorsement_type}}</td>
+      <td>{{e.mname}}</td>
+      <td>
+        <button class="btn btn-sm btn-info" (click)="openModal(e)">View</button>
+        <button class="btn btn-sm btn-info" (click)="approve(e.endorsement_id)">Approve</button>
+        <button class="btn btn-sm btn-warning" (click)="reject(e.endorsement_id)">Reject</button>
+      </td>
+    </tr>
+    <tr>
+
+  </tbody>
+</table>
+
+
+<div class="modal" tabindex="-1" *ngIf="selectedendorsement">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Endorsement Details</h5>
+        <button type="button"></button>
+      </div>
+      <div class="modal-body">
+        <div class="row">
+          <div class="col-md-6">
+            <strong>Previous (Old Data):</strong>
+            <pre class="bg-light p-2">{{ selectedendorsement.previous_value | json }}</pre>
+          </div>
+          <div class="col-md-6">
+            <strong>Updated (New Data):</strong>
+            <pre class="bg-light p-2">{{ selectedendorsement.updated_value | json }}</pre>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>

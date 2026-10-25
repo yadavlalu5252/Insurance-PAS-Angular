@@ -1,0 +1,30 @@
+<form [formGroup]="contactForm" (ngSubmit)="SaveContact(contactForm.value)">
+
+
+  <label><strong>Select Policy</strong></label>
+
+  <select class="form-control" formControlName="policyId">
+    <option value="">-- Select a policy --</option>
+    <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+      {{ p.policy_number }} (Status : {{p.policy_status}})
+    </option>
+  </select>
+
+
+  Mobile Number
+  <input type="text" class="form-control" formControlName="mobile_number"> <br /><br />
+
+  Email Address
+  <input type="email" class="form-control" formControlName="email"> <br /><br />
+
+  <button type="button" class="btn btn-warning mb-3" (click)="SendOtp()">
+    Send OTP to Email
+  </button>
+
+  Enter OTP
+  <input type="text" class="form-control" formControlName="otpCode">
+
+
+
+  <input type="submit" class="btn btn-primary" value="Submit">
+</form>

@@ -1,0 +1,32 @@
+<p>Coverage Update Form works!</p>
+
+<form [formGroup]="coverageForm" (ngSubmit)="SaveCoverage(coverageForm.value)">
+  {{ coverageForm.value | json }} <br /> <br />
+
+  <select class="form-control" formControlName="policyId" (change)="getpolicyCoverage()">
+    <option value="">-- Select a policy --</option>
+    <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+      {{ p.policy_number }} (Status : {{p.policy_status}})
+    </option>
+  </select>
+
+  Coverage ID
+  <select class="form-control" formControlName="coverage_id">
+    <option value="">-- Select a coverage --</option>
+    <option *ngFor="let c of coverages" [value]="c.coverage_id">
+      {{ c.coverage_name }}
+    </option>
+  </select>
+  <br /><br />
+
+  <label><strong>Action</strong></label>
+  <select class="form-control" formControlName="action">
+    <option value="Coverage Increase">Increase Coverage</option>
+    <option value="Coverage Reduction">Reduce Coverage</option>
+  </select> <br />
+
+  New Sum Insured
+  <input type="number" class="form-control" formControlName="sum_insured"> <br /><br />
+
+  <input type="submit" class="btn btn-primary" value="Submit">
+</form>

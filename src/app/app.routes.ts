@@ -21,6 +21,14 @@ import { ProductConfiguration } from './ProductManagement/product-configuration/
 // Quote Generation
 import { Quote } from './QuoteGeneration/quote/quote';
 import { QuoteForm } from './QuoteGeneration/quote-form/quote-form';
+import { EndorsemntReq } from './policy-service/endorsemnt-req/endorsemnt-req';
+import { PolicyCancellation } from './policy-service/policy-cancellation/policy-cancellation';
+import { PolicyRenewal } from './policy-service/policy-renewal/policy-renewal';
+import { ServiceAddress } from './policy-service/service-address/service-address';
+import { ServiceContact } from './policy-service/service-contact/service-contact';
+import { ServiceCoverage } from './policy-service/service-coverage/service-coverage';
+import { ServiceNominee } from './policy-service/service-nominee/service-nominee';
+import { ServiceRider } from './policy-service/service-rider/service-rider';
 
 // Claim Management
 import { claimRoleGuard } from './core/guards/role-guard';
@@ -69,6 +77,19 @@ export const routes: Routes = [
       { path: ':id', component: AgentClaimDetails }
     ]
   },
+
+  // Default route
+  { path: '', redirectTo: 'products', pathMatch: 'full' },
+
+  { path: 'policy-service/cancel', component: PolicyCancellation },
+  { path: 'policy-service/renewal', component: PolicyRenewal },
+  { path: 'policy-service/address', component: ServiceAddress },
+  { path: 'policy-service/contact', component: ServiceContact },
+  { path: 'policy-service/coverage', component: ServiceCoverage },
+  { path: 'policy-service/nominee', component: ServiceNominee },
+  { path: 'policy-service/ride', component: ServiceRider }
+
+
 
   // Claim Management: Legacy Agent Route (uses the same screens, with agent links and wording)
   {

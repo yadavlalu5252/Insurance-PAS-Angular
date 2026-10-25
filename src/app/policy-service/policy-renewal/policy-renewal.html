@@ -1,0 +1,61 @@
+<p>policy-renewal works!</p>
+
+<button class="btn btn-primary mb-3" (click)="openModal()">
+  Renew a Policy
+</button>
+
+
+<table class="table" *ngIf="policydetails">
+  <thead>
+    <tr>
+      <th scope="col">Renewal ID</th>
+      <th scope="col">Policy ID</th>
+      <th scope="col">Renewal Date</th>
+      <th scope="col">New Expiry Date</th>
+      <th scope="col">Premium Amount</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">{{policydetails.renewal_id}}</th>
+      <td>{{policydetails.policy_id}}</td>
+      <td>{{policydetails.renewal_date}}</td>
+      <td>{{policydetails.new_expiry_date}}</td>
+      <td>{{policydetails.premium_amount}}</td>
+    </tr>
+    <tr>
+  </tbody>
+</table>
+
+
+
+<div class="modal show d-block" tabindex="-1" *ngIf="isModalOpen" style="background: rgba(0,0,0,0.5);">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Policy Renewal</h5>
+        <button type="button"></button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="renewalform" (ngSubmit)="renew(renewalform.value)">
+          <select class="form-control" formControlName="policyId">
+            <option value="">-- Select a policy --</option>
+            <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+              {{ p.policy_number }} (Status : {{p.policy_status}})
+            </option>
+          </select>
+          <div class="row">
+            <div class="col-md-6">
+              New Expiry Date
+              <input type="date" class="form-control" formControlName="NewExpiryDate"> <br /><br />
+            </div>
+          </div>
+          <input type="submit" class="btn btn-primary" value="Renew Policy">
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" (click)="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
