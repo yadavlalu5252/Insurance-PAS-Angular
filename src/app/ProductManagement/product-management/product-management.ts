@@ -23,6 +23,6 @@ export class ProductManagement {
   }
 
   openConfiguration(): void {
-    this.router.navigate(['/product-configuration']);
-  }
+  this.router.navigate(['/product-configuration', 1]);
+}
 }

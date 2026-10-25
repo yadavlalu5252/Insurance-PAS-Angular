@@ -22,6 +22,7 @@ import { ProductConfiguration } from './ProductManagement/product-configuration/
 import { Quote } from './QuoteGeneration/quote/quote';
 import { QuoteForm } from './QuoteGeneration/quote-form/quote-form';
 
+
 // Claim Management
 import { claimRoleGuard } from './core/guards/role-guard';
 
@@ -35,6 +36,9 @@ import { AdminClaimDetails } from './ClaimManagement/admin/admin-claim-details/a
 import { AgentClaims } from './ClaimManagement/agent/agent-claims/agent-claims';
 import { AgentClaimNew } from './ClaimManagement/agent/agent-claim-new/agent-claim-new';
 import { AgentClaimDetails } from './ClaimManagement/agent/agent-claim-details/agent-claim-details';
+import { CustomerQuotes } from './customer-quotes/customer-quotes';
+import { UnderwritingCases } from './Underwriting/underwriting/underwriting';
+import { CaseReview } from './Underwriting/case-review/case-review';
 
 export const routes: Routes = [
   // Default route - Login
@@ -107,6 +111,14 @@ export const routes: Routes = [
       // Quote routes
       { path: 'quotes', component: Quote },
       { path: 'quotes/new', component: QuoteForm },
+      // Customer Quotes
+      //{ path: 'customer/quotes', canActivate: [claimRoleGuard], data: { role: 'customer' },  component: CustomerQuotes},
+      {
+  path: 'customer/quotes',
+  component: CustomerQuotes
+},
+ { path: 'underwriting', component: UnderwritingCases  },
+ { path: 'underwriting/:id', component: CaseReview },
 
       // Claim Management: Admin
       {
@@ -120,6 +132,7 @@ export const routes: Routes = [
       }
     ]
   },
+
 
   // Redirect unknown routes
   { path: '**', redirectTo: 'login' }

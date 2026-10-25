@@ -1,96 +1,158 @@
 
-<div class="quote-page">
-  <div class="page-header">
+<div class="container-fluid py-4 quote-page">
+  <!-- Page Header -->
+  <div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
     <div>
-      <h1>Quote Management</h1>
-      <p>Manage insurance quotations and premium details.</p>
+      <h1 class="h2 fw-bold mb-2">Quote Management</h1>
+      <p class="text-secondary mb-0">
+        Manage insurance quotations and premium details.
+      </p>
     </div>
 
-    <button class="primary-btn" (click)="createQuote()">
-      + Generate Quote
+    <button class="btn btn-primary" (click)="createQuote()">
+      <i class="bi bi-plus-lg me-2"></i>
+      Generate Quote
     </button>
   </div>
 
-  <div class="summary-grid">
-    <div class="summary-card">
-      <span>Total Quotes</span>
-      <h2>{{ quotes.length }}</h2>
+  <!-- Summary Cards -->
+  <div class="row g-3 mb-4">
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-secondary small mb-2">Total Quotes</div>
+          <h2 class="h3 fw-bold mb-0">{{ quotes.length }}</h2>
+        </div>
+      </div>
     </div>
 
-    <div class="summary-card">
-      <span>Pending</span>
-      <h2>{{ pendingCount }}</h2>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-secondary small mb-2">Pending</div>
+          <h2 class="h3 fw-bold text-warning mb-0">{{ pendingCount }}</h2>
+        </div>
+      </div>
     </div>
 
-    <div class="summary-card">
-      <span>Approved</span>
-      <h2>{{ approvedCount }}</h2>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-secondary small mb-2">Approved</div>
+          <h2 class="h3 fw-bold text-success mb-0">{{ approvedCount }}</h2>
+        </div>
+      </div>
     </div>
 
-    <div class="summary-card">
-      <span>Rejected</span>
-      <h2>{{ rejectedCount }}</h2>
+    <div class="col-12 col-sm-6 col-xl-3">
+      <div class="card border-0 shadow-sm h-100">
+        <div class="card-body">
+          <div class="text-secondary small mb-2">Rejected</div>
+          <h2 class="h3 fw-bold text-danger mb-0">{{ rejectedCount }}</h2>
+        </div>
+      </div>
     </div>
   </div>
 
-  <div class="table-card">
-    <div class="toolbar">
-      <input
-        type="text"
-        placeholder="Search quote number or customer ID..."
-        [(ngModel)]="searchText"
-      />
+  <!-- Quotes Table -->
+  <div class="card border-0 shadow-sm">
+    <div class="card-body p-3 p-md-4">
+      <!-- Search and Filter -->
+      <div class="row g-3 mb-4">
+        <div class="col-12 col-md">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Search quote number or customer ID..."
+            [(ngModel)]="searchText"
+          />
+        </div>
 
-      <select [(ngModel)]="selectedStatus">
-        <option value="All">All Statuses</option>
-        <option value="Pending">Pending</option>
-        <option value="Approved">Approved</option>
-        <option value="Rejected">Rejected</option>
-      </select>
+        <div class="col-12 col-md-3">
+          <select class="form-select" [(ngModel)]="selectedStatus">
+            <option value="All">All Statuses</option>
+            <option value="Pending">Pending</option>
+            <option value="Approved">Approved</option>
+            <option value="Rejected">Rejected</option>
+          </select>
+        </div>
 
-      <button class="refresh-btn" (click)="getQuotes()">Refresh</button>
-    </div>
+        <div class="col-12 col-md-auto">
+          <button class="btn btn-outline-primary w-100" (click)="getQuotes()">
+            <i class="bi bi-arrow-clockwise me-2"></i>
+            Refresh
+          </button>
+        </div>
+      </div>
 
-    <p *ngIf="loading">Loading quotes...</p>
-    <p *ngIf="errorMessage" class="error-message">{{ errorMessage }}</p>
+      <!-- Loading -->
+      <div *ngIf="loading" class="text-center py-5">
+        <div class="spinner-border text-primary" role="status">
+          <span class="visually-hidden">Loading...</span>
+        </div>
+        <p class="text-secondary mt-2 mb-0">Loading quotes...</p>
+      </div>
 
-    <div class="table-wrapper" *ngIf="!loading && !errorMessage">
-      <table>
-        <thead>
-          <tr>
-            <th>Quote Number</th>
-            <th>Customer ID</th>
-            <th>Product ID</th>
-            <th>Policy Term</th>
-            <th>Sum Insured</th>
-            <th>Quote Date</th>
-            <th>Expiry Date</th>
-            <th>Status</th>
-          </tr>
-        </thead>
+      <!-- Error -->
+      <div *ngIf="errorMessage" class="alert alert-danger">
+        {{ errorMessage }}
+      </div>
 
-        <tbody>
-          <tr *ngFor="let q of filteredQuotes">
-            <td>{{ q.quote_number ?? q.quoteNumber ?? q.quote_id ?? q.quoteId }}</td>
-            <td>{{ q.customer_id ?? q.customerId }}</td>
-            <td>{{ q.product_id ?? q.productId }}</td>
-            <td>{{ q.policy_term ?? q.policyTerm }} years</td>
-            <td>{{ (q.sum_insured ?? q.sumInsured) | currency:'INR':'symbol':'1.0-2' }}</td>
-            <td>{{ (q.quote_date ?? q.quoteDate) | date:'dd MMM yyyy' }}</td>
-            <td>{{ (q.expiry_date ?? q.expiryDate) | date:'dd MMM yyyy' }}</td>
-            <td>
-              <span class="status"
-                [ngClass]="(q.quote_status ?? q.quoteStatus ?? 'Pending').toLowerCase()">
-                {{ q.quote_status ?? q.quoteStatus ?? 'Pending' }}
-              </span>
-            </td>
-          </tr>
+      <!-- Responsive Table -->
+      <div class="table-responsive" *ngIf="!loading && !errorMessage">
+        <table class="table table-hover align-middle mb-0">
+          <thead class="table-light">
+            <tr>
+              <th>Quote Number</th>
+              <th>Customer ID</th>
+              <th>Product ID</th>
+              <th>Policy Term</th>
+              <th>Sum Insured</th>
+              <th>Quote Date</th>
+              <th>Expiry Date</th>
+              <th>Status</th>
+            </tr>
+          </thead>
 
-          <tr *ngIf="filteredQuotes.length === 0">
-            <td colspan="8" class="empty-state">No quotes found.</td>
-          </tr>
-        </tbody>
-      </table>
+          <tbody>
+            <tr *ngFor="let q of filteredQuotes">
+              <td class="fw-semibold">
+                {{ q.quote_number ?? q.quoteNumber ?? q.quote_id ?? q.quoteId }}
+              </td>
+              <td>{{ q.customer_id ?? q.customerId }}</td>
+              <td>{{ q.product_id ?? q.productId }}</td>
+              <td>{{ q.policy_term ?? q.policyTerm }} years</td>
+              <td>
+                {{ (q.sum_insured ?? q.sumInsured) | currency:'INR':'symbol':'1.0-2' }}
+              </td>
+              <td>
+                {{ (q.quote_date ?? q.quoteDate) | date:'dd MMM yyyy' }}
+              </td>
+              <td>
+                {{ (q.expiry_date ?? q.expiryDate) | date:'dd MMM yyyy' }}
+              </td>
+              <td>
+                <span
+                  class="badge rounded-pill"
+                  [ngClass]="{
+                    'text-bg-warning': (q.quote_status ?? q.quoteStatus ?? 'Pending').toLowerCase() === 'pending',
+                    'text-bg-success': (q.quote_status ?? q.quoteStatus ?? 'Pending').toLowerCase() === 'approved',
+                    'text-bg-danger': (q.quote_status ?? q.quoteStatus ?? 'Pending').toLowerCase() === 'rejected'
+                  }">
+                  {{ q.quote_status ?? q.quoteStatus ?? 'Pending' }}
+                </span>
+              </td>
+            </tr>
+
+            <tr *ngIf="filteredQuotes.length === 0">
+              <td colspan="8" class="text-center text-secondary py-5">
+                <i class="bi bi-inbox fs-2 d-block mb-2"></i>
+                No quotes found.
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 </div>
