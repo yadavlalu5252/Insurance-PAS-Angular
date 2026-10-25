@@ -1,0 +1,58 @@
+<div class="container-fluid mt-4" style="margin-left: 250px; padding-right: 20px;">
+
+  <h3 class="mb-4">Rider Modification</h3>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+
+      <form [formGroup]="riderForm" (ngSubmit)="SaveRiders(riderForm.value)">
+
+
+        <div class="mb-4">
+          <label class="form-label fw-bold">Select Policy</label>
+          <select class="form-select" formControlName="policyId" (change)="getpolicyRiders()">
+            <option value="">-- Select a policy --</option>
+            <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+              {{ p.policy_number }} (Status : {{p.policy_status}})
+            </option>
+          </select>
+        </div>
+
+        <div class="row">
+          <!-- Rider Dropdown -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Select Rider</label>
+            <select class="form-select" formControlName="rider_id">
+              <option value="">-- Select a rider --</option>
+              <option *ngFor="let r of riders" [value]="r.rider_id">
+                {{ r.rider_name }}
+              </option>
+            </select>
+          </div>
+
+
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Action</label>
+            <select class="form-select" formControlName="action">
+              <option value="Rider Addition">Add Rider</option>
+              <option value="Rider Removal">Remove Rider</option>
+            </select>
+          </div>
+        </div>
+
+
+        <div class="d-grid gap-2 mt-4">
+          <input type="submit" class="btn btn-primary" value="Submit Rider Change">
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <div class="mt-4">
+    <strong>Form Data Preview:</strong>
+    <pre class="bg-light p-3 border rounded mt-2">{{ riderForm.value | json }}</pre>
+  </div>
+
+</div>

@@ -1,0 +1,66 @@
+<!-- 🚨 Added 250px left margin for the sidebar and right padding -->
+<div class="container-fluid mt-4" style="margin-left: 250px; padding-right: 20px;">
+
+  <h3 class="mb-4">Coverage Update</h3>
+
+  <div class="card shadow-sm">
+    <div class="card-body p-4">
+
+      <form [formGroup]="coverageForm" (ngSubmit)="SaveCoverage(coverageForm.value)">
+
+        <!-- Policy Dropdown -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Select Policy</label>
+          <select class="form-select" formControlName="policyId" (change)="getpolicyCoverage()">
+            <option value="">-- Select a policy --</option>
+            <option *ngFor="let p of allpolicies" [value]="p.policy_id">
+              {{ p.policy_number }} (Status : {{p.policy_status}})
+            </option>
+          </select>
+        </div>
+
+        <!-- Coverage Dropdown -->
+        <div class="mb-3">
+          <label class="form-label fw-bold">Select Coverage</label>
+          <select class="form-select" formControlName="coverage_id">
+            <option value="">-- Select a coverage --</option>
+            <option *ngFor="let c of coverages" [value]="c.coverage_id">
+              {{ c.coverage_name }}
+            </option>
+          </select>
+        </div>
+
+        <div class="row">
+          <!-- Action Dropdown -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">Action</label>
+            <select class="form-select" formControlName="action">
+              <option value="Coverage Increase">Increase Coverage</option>
+              <option value="Coverage Reduction">Reduce Coverage</option>
+            </select>
+          </div>
+
+          <!-- New Sum Insured -->
+          <div class="col-md-6 mb-3">
+            <label class="form-label fw-bold">New Sum Insured</label>
+            <input type="number" class="form-control" formControlName="sum_insured">
+          </div>
+        </div>
+
+        <!-- Submit Button -->
+        <div class="d-grid gap-2 mt-4">
+          <input type="submit" class="btn btn-primary" value="Submit Coverage Update">
+        </div>
+
+      </form>
+
+    </div>
+  </div>
+
+  <!-- Debug JSON View -->
+  <div class="mt-4">
+    <strong>Form Data Preview:</strong>
+    <pre class="bg-light p-3 border rounded mt-2">{{ coverageForm.value | json }}</pre>
+  </div>
+
+</div>

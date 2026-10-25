@@ -1,0 +1,101 @@
+
+:host {
+  display: block;
+  min-width: 0;
+}
+
+.container-fluid {
+  background-color: #f5f7fb;
+  min-height: 100%;
+}
+
+h2 {
+  color: #172b4d;
+  font-weight: 700;
+  margin-bottom: 0;
+}
+
+.row {
+  margin-bottom: 1rem;
+}
+
+.card {
+  border: none;
+  border-left: 4px solid #2563eb !important;
+  border-radius: 12px;
+  background-color: #ffffff;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 20px rgba(31, 45, 61, 0.10) !important;
+}
+
+.card-body {
+  min-height: 150px;
+}
+
+.card h5 {
+  color: #64748b !important;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.card h2 {
+  font-size: 2rem;
+  margin-top: 0.5rem;
+}
+
+.card p {
+  font-size: 0.9rem;
+}
+
+.text-secondary {
+  color: #64748b !important;
+}
+
+.text-danger {
+  font-weight: 500;
+}
+
+/* Individual card accent colors */
+.row > div:nth-child(1) .card {
+  border-left-color: #2563eb !important;
+}
+
+.row > div:nth-child(2) .card {
+  border-left-color: #16a34a !important;
+}
+
+.row > div:nth-child(3) .card {
+  border-left-color: #0891b2 !important;
+}
+
+.row > div:nth-child(4) .card {
+  border-left-color: #d97706 !important;
+}
+
+.row > div:nth-child(5) .card {
+  border-left-color: #7c3aed !important;
+}
+
+.row > div:nth-child(6) .card {
+  border-left-color: #64748b !important;
+}
+
+/* Mobile responsive styling */
+@media (max-width: 576px) {
+  .container-fluid {
+    padding: 1rem !important;
+  }
+
+  .card-body {
+    padding: 1.25rem !important;
+    min-height: 130px;
+  }
+
+  .card h2 {
+    font-size: 1.7rem;
+  }
+}

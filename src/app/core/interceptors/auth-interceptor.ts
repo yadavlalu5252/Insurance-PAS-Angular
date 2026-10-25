@@ -3,6 +3,10 @@ import { HttpInterceptorFn } from '@angular/common/http';
 // the Authentication API and the Claim API
 const apiUrls = ['https://localhost:7122/api/', 'https://localhost:7130/api/'];
 
+  // Check both token keys used by the existing authentication code
+  const token =
+    localStorage.getItem('access_token') ||
+    localStorage.getItem('accessToken');
 export const authInterceptor: HttpInterceptorFn = (req, next) => {
   const token = localStorage.getItem('access_token');
 
