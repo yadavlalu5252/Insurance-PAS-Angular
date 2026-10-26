@@ -1,0 +1,40 @@
+
+:host {
+  display: block;
+}
+
+.card {
+  border: none;
+  border-radius: 12px;
+}
+
+.card-header {
+  padding: 18px 24px;
+}
+
+.card-body {
+  padding: 24px;
+}
+
+.form-label {
+  font-weight: 500;
+}
+
+.badge {
+  min-width: 28px;
+  min-height: 28px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.alert {
+  word-break: break-word;
+}
+
+@media (max-width: 576px) {
+  .card-body {
+    padding: 16px;
+  }
+}

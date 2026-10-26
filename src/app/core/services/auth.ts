@@ -1,4 +1,3 @@
-
 import { Injectable, inject } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, tap } from 'rxjs';
@@ -9,7 +8,17 @@ interface LoginRequest {
 }
 
 export interface LoginResponse {
-  accessToken: string;
+  accessToken?: string;
+  access_token?: string;
+  refreshToken?: string;
+  refresh_token?: string;
+  role_name?: string;
+  roleName?: string;
+  role?: string;
+  requires_two_factor?: boolean;
+  requires_two_factor_setup?: boolean;
+  challenge_token?: string;
+  login?: LoginResponse;
   [key: string]: unknown;
 }
 
@@ -27,9 +36,37 @@ export class Auth {
       .post<LoginResponse>(`${this.baseUrl}/login`, credentials)
       .pipe(
         tap(response => {
-          if (response.accessToken) {
-            localStorage.setItem('accessToken', response.accessToken);
-            localStorage.setItem('access_token', response.accessToken);
+          const loginData = response.login ?? response;
+
+          // Do not save an access token before 2FA verification.
+          if (
+            loginData.requires_two_factor === true &&
+            loginData.challenge_token
+          ) {
+            return;
+          }
+
+          const accessToken =
+            loginData.access_token ?? loginData.accessToken;
+
+          const refreshToken =
+            loginData.refresh_token ?? loginData.refreshToken;
+
+          const role =
+            loginData.role_name ??
+            loginData.roleName ??
+            loginData.role;
+
+          if (accessToken) {
+            this.saveAccessToken(accessToken);
+          }
+
+          if (refreshToken) {
+            localStorage.setItem('refresh_token', refreshToken);
+          }
+
+          if (role) {
+            localStorage.setItem('role_name', String(role));
           }
         })
       );
@@ -39,24 +76,53 @@ export class Auth {
   verifyTwoFactorLogin(data: {
     challenge_token: string;
     code: string;
-  }): Observable<unknown> {
+  }): Observable<LoginResponse> {
     return this.http
-      .post<LoginResponse>(`${this.baseUrl}/2fa/verify-login`, data)
+      .post<LoginResponse>(
+        `${this.baseUrl}/2fa/verify-login`,
+        data
+      )
       .pipe(
         tap(response => {
-          if (response.accessToken) {
-            localStorage.setItem('accessToken', response.accessToken);
-            localStorage.setItem('access_token', response.accessToken);
+          const loginData = response.login ?? response;
+
+          const accessToken =
+            loginData.access_token ?? loginData.accessToken;
+
+          const refreshToken =
+            loginData.refresh_token ?? loginData.refreshToken;
+
+          const role =
+            loginData.role_name ??
+            loginData.roleName ??
+            loginData.role;
+
+          if (accessToken) {
+            this.saveAccessToken(accessToken);
+          }
+
+          if (refreshToken) {
+            localStorage.setItem('refresh_token', refreshToken);
+          }
+
+          if (role) {
+            localStorage.setItem('role_name', String(role));
           }
         })
       );
   }
 
+  // Save access token using consistent storage keys
+  private saveAccessToken(token: string): void {
+    localStorage.setItem('access_token', token);
+    localStorage.setItem('accessToken', token);
+  }
+
   // Authorization headers for authenticated requests
   private getAuthHeaders(): HttpHeaders {
     const token =
-      localStorage.getItem('accessToken') ||
       localStorage.getItem('access_token') ||
+      localStorage.getItem('accessToken') ||
       '';
 
     return new HttpHeaders({
@@ -82,9 +148,22 @@ export class Auth {
     );
   }
 
-register(data: { employee_id: number; username: string; password: string; email?: string; mobile?: string; role_id: number; branch_id: number }): Observable<string> {
-  return this.http.post(`${this.baseUrl}/register`, data, { responseType: 'text' });
-}
+  // Register
+  register(data: {
+    employee_id: number;
+    username: string;
+    password: string;
+    email?: string;
+    mobile?: string;
+    role_id: number;
+    branch_id: number;
+  }): Observable<string> {
+    return this.http.post(
+      `${this.baseUrl}/register`,
+      data,
+      { responseType: 'text' }
+    );
+  }
 
   // Forgot password
   forgotPassword(username: string): Observable<unknown> {
@@ -104,15 +183,24 @@ register(data: { employee_id: number; username: string; password: string; email?
 
   // Logout
   logout(): Observable<unknown> {
-    return this.http.post(
-      `${this.baseUrl}/logout`,
-      {},
-      { headers: this.getAuthHeaders() }
-    ).pipe(
-      tap(() => {
-        localStorage.removeItem('accessToken');
-        localStorage.removeItem('access_token');
-      })
-    );
+    return this.http
+      .post(
+        `${this.baseUrl}/logout`,
+        {},
+        { headers: this.getAuthHeaders() }
+      )
+      .pipe(
+        tap(() => {
+          this.clearAuthentication();
+        })
+      );
+  }
+
+  // Clear authentication details
+  clearAuthentication(): void {
+    localStorage.removeItem('accessToken');
+    localStorage.removeItem('access_token');
+    localStorage.removeItem('refresh_token');
+    localStorage.removeItem('role_name');
   }
 }

@@ -1,0 +1,254 @@
+
+<div class="container py-4">
+  <div class="card shadow">
+    <div class="card-header bg-primary text-white">
+      <h4 class="mb-0">Customer Registration</h4>
+    </div>
+
+    <div class="card-body">
+      <div class="d-flex justify-content-between mb-4">
+        <div class="text-center flex-fill">
+          <span class="badge rounded-pill" [ngClass]="currentStep >= 1 ? 'bg-primary' : 'bg-secondary'">1</span>
+          <div class="small mt-1">Customer</div>
+        </div>
+        <div class="text-center flex-fill">
+          <span class="badge rounded-pill" [ngClass]="currentStep >= 2 ? 'bg-primary' : 'bg-secondary'">2</span>
+          <div class="small mt-1">Address</div>
+        </div>
+        <div class="text-center flex-fill">
+          <span class="badge rounded-pill" [ngClass]="currentStep >= 3 ? 'bg-primary' : 'bg-secondary'">3</span>
+          <div class="small mt-1">Nominee</div>
+        </div>
+        <div class="text-center flex-fill">
+          <span class="badge rounded-pill" [ngClass]="currentStep >= 4 ? 'bg-primary' : 'bg-secondary'">4</span>
+          <div class="small mt-1">Documents</div>
+        </div>
+      </div>
+
+      <div *ngIf="successMessage" class="alert alert-success alert-dismissible">
+        {{ successMessage }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="successMessage = ''"></button>
+      </div>
+
+      <div *ngIf="errorMessage" class="alert alert-danger alert-dismissible">
+        {{ errorMessage }}
+        <button type="button" class="btn-close" aria-label="Close" (click)="errorMessage = ''"></button>
+      </div>
+
+      <!-- Step 1: Customer Details -->
+      <div *ngIf="currentStep === 1">
+        <h5 class="mb-3">Customer Details</h5>
+
+        <form #customerForm="ngForm" (ngSubmit)="createCustomer()">
+          <div class="row">
+            <div class="col-md-4 mb-3">
+              <label class="form-label">First Name *</label>
+              <input type="text" class="form-control" name="first_name" [(ngModel)]="customer.first_name" required maxlength="100">
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Middle Name</label>
+              <input type="text" class="form-control" name="middle_name" [(ngModel)]="customer.middle_name" maxlength="100">
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Last Name *</label>
+              <input type="text" class="form-control" name="last_name" [(ngModel)]="customer.last_name" required maxlength="100">
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Date of Birth *</label>
+              <input type="date" class="form-control" name="date_of_birth" [(ngModel)]="customer.date_of_birth" required>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Gender *</label>
+              <select class="form-select" name="gender" [(ngModel)]="customer.gender" required>
+                <option value="">Select Gender</option>
+                <option value="Male">Male</option>
+                <option value="Female">Female</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+
+            <div class="col-md-4 mb-3">
+              <label class="form-label">Marital Status *</label>
+              <select class="form-select" name="marital_status" [(ngModel)]="customer.marital_status" required>
+                <option value="">Select Marital Status</option>
+                <option value="Single">Single</option>
+                <option value="Married">Married</option>
+                <option value="Divorced">Divorced</option>
+                <option value="Widowed">Widowed</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Occupation *</label>
+              <input type="text" class="form-control" name="occupation" [(ngModel)]="customer.occupation" required maxlength="100">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Annual Income *</label>
+              <input type="number" class="form-control" name="annual_income" [(ngModel)]="customer.annual_income" required min="0" step="0.01">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Mobile Number *</label>
+              <input type="tel" class="form-control" name="mobile_number" [(ngModel)]="customer.mobile_number" required maxlength="15">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Email *</label>
+              <input type="email" class="form-control" name="email" [(ngModel)]="customer.email" required maxlength="150">
+            </div>
+          </div>
+
+          <div class="text-end">
+            <button type="submit" class="btn btn-primary" [disabled]="loading || customerForm.invalid">
+              <span *ngIf="loading" class="spinner-border spinner-border-sm me-2"></span>
+              {{ loading ? 'Saving...' : 'Save Customer & Continue' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 2: Address Details -->
+      <div *ngIf="currentStep === 2">
+        <h5 class="mb-3">Address Details</h5>
+
+        <form #addressForm="ngForm" (ngSubmit)="addAddress()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Address Type *</label>
+              <select class="form-select" name="address_type" [(ngModel)]="address.address_type" required>
+                <option value="Permanent">Permanent</option>
+                <option value="Communication">Communication</option>
+              </select>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Address Line 1 *</label>
+              <input type="text" class="form-control" name="address_line1" [(ngModel)]="address.address_line1" required maxlength="255">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Address Line 2</label>
+              <input type="text" class="form-control" name="address_line2" [(ngModel)]="address.address_line2">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">City *</label>
+              <input type="text" class="form-control" name="city" [(ngModel)]="address.city" required maxlength="100">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">District *</label>
+              <input type="text" class="form-control" name="district" [(ngModel)]="address.district" required maxlength="100">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">State *</label>
+              <input type="text" class="form-control" name="state" [(ngModel)]="address.state" required maxlength="100">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Country *</label>
+              <input type="text" class="form-control" name="country" [(ngModel)]="address.country" required maxlength="100">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Pincode *</label>
+              <input type="text" class="form-control" name="pincode" [(ngModel)]="address.pincode" required maxlength="10">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" (click)="previousStep()">Back</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || addressForm.invalid">
+              {{ loading ? 'Saving...' : 'Save Address & Continue' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 3: Nominee Details -->
+      <div *ngIf="currentStep === 3">
+        <h5 class="mb-3">Nominee Details</h5>
+
+        <form #nomineeForm="ngForm" (ngSubmit)="addNominee()">
+          <div class="row">
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nominee Name *</label>
+              <input type="text" class="form-control" name="nominee_name" [(ngModel)]="nominee.nominee_name" required maxlength="150">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Relationship *</label>
+              <input type="text" class="form-control" name="relationship" [(ngModel)]="nominee.relationship" required maxlength="50">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nominee Date of Birth *</label>
+              <input type="date" class="form-control" name="nominee_dob" [(ngModel)]="nominee.date_of_birth" required>
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Nominee Mobile Number</label>
+              <input type="tel" class="form-control" name="nominee_mobile" [(ngModel)]="nominee.mobile_number" maxlength="15">
+            </div>
+
+            <div class="col-md-6 mb-3">
+              <label class="form-label">Share Percentage *</label>
+              <input type="number" class="form-control" name="share_percentage" [(ngModel)]="nominee.share_percentage" required min="0.01" max="100" step="0.01">
+            </div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" (click)="previousStep()">Back</button>
+            <button type="submit" class="btn btn-primary" [disabled]="loading || nomineeForm.invalid">
+              {{ loading ? 'Saving...' : 'Save Nominee & Continue' }}
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <!-- Step 4: Document Upload -->
+      <div *ngIf="currentStep === 4">
+        <h5 class="mb-3">Upload Customer Document</h5>
+
+        <form #documentForm="ngForm" (ngSubmit)="uploadDocument()">
+          <div class="mb-3">
+            <label class="form-label">Document Type *</label>
+            <select class="form-select" name="document_type" [(ngModel)]="documentType" required>
+              <option value="">Select Document Type</option>
+              <option value="Aadhaar">Aadhaar Card</option>
+              <option value="PAN">PAN Card</option>
+              <option value="Passport">Passport</option>
+              <option value="AddressProof">Address Proof</option>
+              <option value="Photo">Photograph</option>
+            </select>
+          </div>
+
+          <div class="mb-3">
+            <label class="form-label">Choose File *</label>
+            <input type="file" class="form-control" (change)="onFileSelected($event)" accept=".pdf,.jpg,.jpeg,.png" required>
+            <div class="form-text">Accepted formats: PDF, JPG, JPEG and PNG.</div>
+          </div>
+
+          <div class="d-flex justify-content-between">
+            <button type="button" class="btn btn-secondary" (click)="previousStep()">Back</button>
+            <button type="submit" class="btn btn-success" [disabled]="loading || !selectedFile || !documentType">
+              {{ loading ? 'Uploading...' : 'Upload Document' }}
+            </button>
+          </div>
+        </form>
+
+        <div class="alert alert-info mt-4 mb-0">
+          Customer ID: <strong>{{ customerId }}</strong>
+          <br>
+          Customer registration workflow completed after all required details and documents are submitted successfully.
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

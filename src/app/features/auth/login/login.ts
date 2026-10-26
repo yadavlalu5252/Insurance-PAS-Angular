@@ -12,7 +12,6 @@ import { Auth } from '../../../core/services/auth';
   styleUrl: './login.scss'
 })
 export class Login {
-
   showPassword = false;
   submitted = false;
   loading = false;
@@ -53,75 +52,34 @@ export class Login {
 
     const { username, password } = this.loginForm.getRawValue();
 
-    this.authService.login(username, password).subscribe({
-      next: (response: any) => {
+    this.authService.login({ username, password }).subscribe({
+      next: (response) => {
         console.log('Login response:', response);
 
-        // Check whether two-factor verification is required.
-        if (response.requires_two_factor && response.challenge_token) {
+        const loginData = response.login ?? response;
+
+        // Navigate to two-factor verification if required.
+        if (loginData.requires_two_factor === true && loginData.challenge_token) {
           this.loading = false;
 
           this.router.navigate(['/two-factor'], {
             state: {
-              challengeToken: response.challenge_token
+              challengeToken: loginData.challenge_token
             }
           });
+
           return;
         }
 
-        // Get the access token.
-        const token = response.access_token || response.accessToken;
+        const accessToken = loginData.access_token ?? loginData.accessToken;
+        const refreshToken = loginData.refresh_token ?? loginData.refreshToken;
 
-        if (!token) {
-          this.errorMessage = 'Access token was not received.';
-          return;
-        }
-
-        // Save the access token.
-        localStorage.setItem('accessToken', token);
-
-        // Get the role from the response or JWT token.
-        let role = response.role_name || response.roleName;
-
-        if (!role) {
-          try {
-            const payload = JSON.parse(atob(token.split('.')[1]));
-
-            role =
-              payload['role'] ||
-              payload['role_name'] ||
-              payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
-          } catch {
-            this.errorMessage = 'Unable to read the login token.';
-            return;
+        // Navigate to two-factor setup if required.
+        if (loginData.requires_two_factor_setup === true) {
+          if (accessToken) {
+            localStorage.setItem('access_token', accessToken);
+            localStorage.setItem('accessToken', accessToken);
           }
-        }
-
-        if (!role) {
-          this.errorMessage = 'User role was not received.';
-          return;
-        }
-
-        // Save the role for the role guard.
-        localStorage.setItem('role_name', role);
-
-        // Navigate according to the user's role.
-        if (role === 'Admin') {
-          this.router.navigate(['/dashboard']);
-        } else if (role === 'Customer') {
-          this.router.navigate(['/customer-dashboard']);
-        } else if (role === 'Agent') {
-          this.router.navigate(['/agent-dashboard']);
-        } else {
-          this.errorMessage = 'User role not recognized.';
-        }
-        const loginData = response.login ?? response;
-
-        if (loginData.access_token || loginData.accessToken) {
-          const accessToken = loginData.access_token ?? loginData.accessToken;
-          const refreshToken = loginData.refresh_token ?? loginData.refreshToken;
-
-          localStorage.setItem('access_token', accessToken);
 
           if (refreshToken) {
             localStorage.setItem('refresh_token', refreshToken);
@@ -129,18 +87,71 @@ export class Login {
 
           this.loading = false;
 
-          // Navigate to the next required page.
-          if (response.requires_two_factor_setup === true || response.requires_two_factor_setup === undefined) {
-            this.router.navigate(['/two-factor-setup']);
-          } else {
-            this.router.navigate(['/reports']);
-          }
+          this.router.navigate(['/two-factor-setup'], {
+            replaceUrl: true
+          });
 
           return;
         }
 
+        if (!accessToken) {
+          this.loading = false;
+          this.errorMessage = 'Access token was not received.';
+          return;
+        }
+
+        // Extract role from the response or JWT payload.
+        let role =
+          loginData.role_name ??
+          loginData.roleName ??
+          loginData.role;
+
+        if (!role) {
+          try {
+            const payload = JSON.parse(atob(accessToken.split('.')[1]));
+
+            role =
+              payload['role'] ??
+              payload['role_name'] ??
+              payload['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+          } catch {
+            this.loading = false;
+            this.errorMessage = 'Unable to read the login token.';
+            return;
+          }
+        }
+
+        if (!role) {
+          this.loading = false;
+          this.errorMessage = 'User role was not received.';
+          return;
+        }
+
+        const normalizedRole = String(role).toLowerCase();
+
+        // Store authentication information.
+        localStorage.setItem('access_token', accessToken);
+        localStorage.setItem('accessToken', accessToken);
+        localStorage.setItem('role_name', String(role));
+        localStorage.setItem('user', JSON.stringify(loginData));
+
+        if (refreshToken) {
+          localStorage.setItem('refresh_token', refreshToken);
+        }
+
         this.loading = false;
-        this.errorMessage = 'Unexpected login response. Check the browser console.';
+
+        // Navigate to the role-specific dashboard after login.
+        if (normalizedRole === 'admin') {
+          this.router.navigate(['/admin/dashboard'], { replaceUrl: true });
+        } else if (normalizedRole === 'agent') {
+          this.router.navigate(['/agent/dashboard'], { replaceUrl: true });
+        } else if (normalizedRole === 'customer') {
+          this.router.navigate(['/customer/policies'], { replaceUrl: true });
+        } else {
+          this.authService.clearAuthentication();
+          this.errorMessage = 'User role not recognized.';
+        }
       },
 
       error: (error) => {
@@ -149,8 +160,8 @@ export class Login {
         this.errorMessage =
           typeof error.error === 'string'
             ? error.error
-            : 'Login failed. Please check your credentials and try again.';
-            : error.error?.message || 'Login failed. Please check your credentials and try again.';
+            : error.error?.message ||
+              'Login failed. Please check your credentials and try again.';
 
         this.loading = false;
       }

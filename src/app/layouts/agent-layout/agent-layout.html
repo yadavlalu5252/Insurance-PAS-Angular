@@ -1,15 +1,163 @@
+<div class="agent-wrapper d-flex min-vh-100">
 
-<div class="container-fluid p-4">
+  <aside class="agent-sidebar d-flex flex-column bg-dark text-white" [class.sidebar-collapsed]="!sidebarOpen">
 
-  <div class="d-flex justify-content-between align-items-center mb-4">
-    <div>
-      <h2 class="mb-1">Agent Dashboard</h2>
-      <p class="text-secondary mb-0">
-        Welcome to your Insurance PAS dashboard.
-      </p>
+    <div class="sidebar-brand d-flex align-items-center justify-content-center border-bottom border-secondary p-3">
+      <h4 class="fw-bold mb-0">Insurance PAS</h4>
     </div>
-  </div>
 
-  <router-outlet></router-outlet>
+    <div class="sidebar-menu flex-grow-1 py-3">
+
+      <div class="sidebar-heading px-3 mb-2">MAIN MENU</div>
+
+      <a routerLink="/agent/dashboard" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Dashboard</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">CUSTOMER MANAGEMENT</div>
+
+      <a routerLink="/agent/customer-registration" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Customer Registration</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">PRODUCT MANAGEMENT</div>
+
+      <a routerLink="/agent/products" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Products</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">QUOTE MANAGEMENT</div>
+
+      <a routerLink="/agent/quotes" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Quotes</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">POLICY MANAGEMENT</div>
+
+      <a routerLink="/agent/policies" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Policies</span>
+      </a>
+
+      <a routerLink="/agent/endorsements" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Endorsements</span>
+      </a>
+
+      <a routerLink="/agent/policy-closure" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Policy Closure</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">POLICY SERVICES</div>
+
+      <a routerLink="/agent/policy-service/endorsement-request" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Endorsement Requests</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/cancel" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Policy Cancellation</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/renewal" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Policy Renewal</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/address" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Address Update</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/contact" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Contact Update</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/coverage" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Coverage Update</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/nominee" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Nominee Update</span>
+      </a>
+
+      <a routerLink="/agent/policy-service/rider" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Rider Management</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">CLAIM MANAGEMENT</div>
+
+      <a routerLink="/agent/claims" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }" class="sidebar-link">
+        <span class="menu-text">Claims</span>
+      </a>
+
+      <a routerLink="/agent/claims/new" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Create Claim</span>
+      </a>
+
+      <div class="sidebar-heading px-3 mt-4 mb-2">PREMIUM AND PAYMENTS</div>
+
+      <a routerLink="/agent/customer-premium-schedule" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Customer Premium Schedule</span>
+      </a>
+
+      <a routerLink="/agent/admin-premium" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Premium Management</span>
+      </a>
+
+      <a routerLink="/agent/customer-refund" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Customer Refunds</span>
+      </a>
+
+      <a routerLink="/agent/admin-refund" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Refund Management</span>
+      </a>
+
+      <a routerLink="/agent/payment-history" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Payment History</span>
+      </a>
+
+      <a routerLink="/agent/payment-receipts" routerLinkActive="active" class="sidebar-link">
+        <span class="menu-text">Payment Receipts</span>
+      </a>
+
+    </div>
+
+    <div class="sidebar-footer border-top border-secondary p-3">
+      <span class="text-secondary small">Insurance PAS v1.0</span>
+    </div>
+
+  </aside>
+
+  <div class="agent-main flex-grow-1">
+
+    <nav class="agent-navbar navbar bg-white border-bottom px-4">
+
+      <button type="button" class="btn btn-outline-secondary me-3" (click)="toggleSidebar()" aria-label="Toggle sidebar">Menu</button>
+
+      <span class="navbar-title fw-semibold">Agent Portal</span>
+
+      <div class="ms-auto d-flex align-items-center gap-3">
+
+        <div class="dropdown">
+          <button class="btn btn-outline-secondary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">Agent</button>
+          <ul class="dropdown-menu dropdown-menu-end">
+            <li><a class="dropdown-item" routerLink="/agent/profile">My Profile</a></li>
+            <li><hr class="dropdown-divider"></li>
+            <li><button type="button" class="dropdown-item text-danger" (click)="logout()">Logout</button></li>
+          </ul>
+        </div>
+
+      </div>
+
+    </nav>
+
+    <main class="agent-content p-4">
+
+      <div class="mb-4">
+        <h2 class="mb-1">Agent Dashboard</h2>
+        <p class="text-secondary mb-0">Welcome to your Insurance PAS dashboard.</p>
+      </div>
+
+      <router-outlet></router-outlet>
+
+    </main>
+
+  </div>
 
 </div>

@@ -18,6 +18,9 @@ import { claimRoleGuard, roleGuard } from './core/guards/role-guard';
 // Dashboard and Reports
 import { Reports } from './reports/reports';
 
+// Customer Registration
+import { CustomerRegistration } from './features/customer-registration/customer-registration';
+
 // Product Management
 import { Product } from './ProductManagement/product/product';
 import { ProductForm } from './ProductManagement/product-form/product-form';
@@ -88,6 +91,9 @@ export const routes: Routes = [
       { path: 'dashboard', component: Reports },
       { path: 'reports', component: Reports },
 
+      // Customer Registration
+      { path: 'customer-registration', component: CustomerRegistration },
+
       // Product Management
       { path: 'products', component: Product },
       { path: 'products/add', component: ProductForm },
@@ -153,6 +159,9 @@ export const routes: Routes = [
     children: [
       { path: '', redirectTo: 'policies', pathMatch: 'full' },
       { path: 'dashboard', component: Reports },
+
+      // Customer Registration
+      { path: 'customer-registration', component: CustomerRegistration },
 
       { path: 'policies', component: Policies },
       { path: 'endorsements', component: Endorsements },

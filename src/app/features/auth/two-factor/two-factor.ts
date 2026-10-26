@@ -17,13 +17,9 @@ import { Router } from '@angular/router';
   styleUrl: './two-factor.scss'
 })
 export class TwoFactor {
-
   challengeToken = '';
   loading = false;
   errorMessage = '';
-  challengeToken: string = '';
-  loading: boolean = false;
-  errorMessage: string = '';
 
   constructor(
     private service: Auth,
@@ -39,14 +35,7 @@ export class TwoFactor {
     ])
   });
 
-  constructor(
-    private service: Auth,
-    private router: Router
-  ) {
-    this.challengeToken = history.state?.challengeToken || '';
-  }
-
-  VerifyTwoFactor(data: any): void {
+  VerifyTwoFactor(): void {
     this.errorMessage = '';
 
     if (!this.challengeToken) {
@@ -63,45 +52,13 @@ export class TwoFactor {
 
     const request = {
       challenge_token: this.challengeToken,
-      code: data.code
+      code: this.twoFactorForm.controls.code.value ?? ''
     };
 
     this.service.verifyTwoFactorLogin(request).subscribe({
       next: (res: any) => {
         this.loading = false;
 
-        // Support both token naming formats.
-        const accessToken = res.access_token || res.accessToken;
-        const refreshToken = res.refresh_token || res.refreshToken;
-        const role = res.role_name || res.roleName;
-
-        if (!accessToken || !role) {
-          this.errorMessage = 'Access token or role was not received.';
-          return;
-        }
-
-        // Save authentication details.
-        localStorage.setItem('accessToken', accessToken);
-        localStorage.setItem('role_name', role);
-
-        if (refreshToken) {
-          localStorage.setItem('refresh_token', refreshToken);
-        }
-
-        // Navigate according to the user's role.
-        if (role === 'Admin') {
-          this.router.navigate(['/dashboard']);
-        } else if (role === 'Customer') {
-          this.router.navigate(['/customer-dashboard']);
-        } else if (role === 'Agent') {
-          this.router.navigate(['/agent-dashboard']);
-        } else {
-          localStorage.removeItem('accessToken');
-          localStorage.removeItem('refresh_token');
-          localStorage.removeItem('role_name');
-
-          this.errorMessage = 'User role not recognized.';
-        }
         console.log('Two-factor verification response:', res);
 
         const loginData = res.login ?? res;
@@ -112,24 +69,44 @@ export class TwoFactor {
         const refreshToken =
           loginData.refresh_token ?? loginData.refreshToken;
 
+        const role =
+          loginData.role_name ??
+          loginData.roleName ??
+          loginData.role;
+
         if (!accessToken || !refreshToken) {
           this.errorMessage = 'Authentication tokens were not received.';
           console.error('Unexpected authentication response:', res);
           return;
         }
 
+        if (!role) {
+          this.errorMessage = 'User role was not received.';
+          console.error('Role missing from authentication response:', res);
+          return;
+        }
+
         localStorage.setItem('access_token', accessToken);
         localStorage.setItem('refresh_token', refreshToken);
+        localStorage.setItem('role_name', role);
 
         console.log('Two-factor verification successful.');
-        console.log(
-          'Access token saved:',
-          !!localStorage.getItem('access_token')
-        );
 
-        this.router.navigate(['/reports'], {
-          replaceUrl: true
-        });
+        const normalizedRole = String(role).toLowerCase();
+
+        if (normalizedRole === 'admin') {
+          this.router.navigate(['/admin'], { replaceUrl: true });
+        } else if (normalizedRole === 'customer') {
+          this.router.navigate(['/customer'], { replaceUrl: true });
+        } else if (normalizedRole === 'agent') {
+          this.router.navigate(['/agent'], { replaceUrl: true });
+        } else {
+          localStorage.removeItem('access_token');
+          localStorage.removeItem('refresh_token');
+          localStorage.removeItem('role_name');
+
+          this.errorMessage = 'User role not recognized.';
+        }
       },
 
       error: (err) => {

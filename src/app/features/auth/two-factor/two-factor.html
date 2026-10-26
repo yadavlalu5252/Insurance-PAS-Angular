@@ -9,24 +9,19 @@
         {{ errorMessage }}
       </div>
 
-      <form [formGroup]="twoFactorForm" (ngSubmit)="VerifyTwoFactor(twoFactorForm.getRawValue())">
-        <div class="mb-4">
-          <label for="code" class="form-label fw-semibold">Verification Code</label>
-          <input id="code" type="text" inputmode="numeric" maxlength="6" class="form-control form-control-lg" formControlName="code" placeholder="Enter 6-digit code" autocomplete="one-time-code">
+      <form [formGroup]="twoFactorForm" (ngSubmit)="VerifyTwoFactor()">
+  <div class="mb-3">
+    <label for="code" class="form-label">Verification Code</label>
+    <input id="code" type="text" class="form-control" formControlName="code" maxlength="6" inputmode="numeric" autocomplete="one-time-code" placeholder="Enter 6-digit code" />
+    <div class="text-danger" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.invalid">Please enter a valid 6-digit verification code.</div>
+  </div>
 
-          <div class="text-danger small mt-1" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.hasError('required')">
-            Verification code is required.
-          </div>
+  <div class="text-danger mb-3" *ngIf="errorMessage">{{ errorMessage }}</div>
 
-          <div class="text-danger small mt-1" *ngIf="twoFactorForm.controls.code.touched && twoFactorForm.controls.code.hasError('pattern')">
-            Enter exactly 6 digits.
-          </div>
-        </div>
-
-        <button type="submit" class="btn btn-primary btn-lg w-100" [disabled]="loading">
-          {{ loading ? 'Verifying...' : 'Verify Code' }}
-        </button>
-      </form>
+  <button type="submit" class="btn btn-primary" [disabled]="loading">
+    {{ loading ? 'Verifying...' : 'Verify Code' }}
+  </button>
+</form>
     </div>
   </div>
 </div>

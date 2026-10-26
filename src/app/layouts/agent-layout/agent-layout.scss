@@ -1,0 +1,90 @@
+
+:host {
+  display: block;
+}
+
+.agent-wrapper {
+  width: 100%;
+}
+
+.agent-sidebar {
+  width: 260px;
+  min-width: 260px;
+  transition: width 0.3s ease, min-width 0.3s ease;
+  overflow-x: hidden;
+}
+
+.agent-sidebar.sidebar-collapsed {
+  width: 0;
+  min-width: 0;
+}
+
+.sidebar-brand {
+  min-height: 70px;
+  white-space: nowrap;
+}
+
+.sidebar-menu {
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.sidebar-heading {
+  color: #adb5bd;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  white-space: nowrap;
+}
+
+.sidebar-link {
+  display: block;
+  padding: 11px 20px;
+  color: #dee2e6;
+  text-decoration: none;
+  font-size: 14px;
+  white-space: nowrap;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.sidebar-link:hover {
+  background-color: #343a40;
+  color: #ffffff;
+}
+
+.sidebar-link.active {
+  background-color: #0d6efd;
+  color: #ffffff;
+}
+
+.agent-main {
+  min-width: 0;
+  background-color: #f5f7fb;
+}
+
+.agent-navbar {
+  min-height: 70px;
+}
+
+.navbar-title {
+  font-size: 18px;
+}
+
+.agent-content {
+  min-height: calc(100vh - 70px);
+}
+
+@media (max-width: 768px) {
+  .agent-sidebar {
+    width: 220px;
+    min-width: 220px;
+  }
+
+  .agent-content {
+    padding: 16px !important;
+  }
+
+  .navbar-title {
+    font-size: 16px;
+  }
+}
